@@ -58,6 +58,7 @@ namespace impl {
 	struct vec2_base<VecElemT, true>::constants {
 		typedef VecElemT element_type;
 		static constexpr vec2_base<element_type> zero = {};
+		static constexpr vec2_base<element_type> one = { 1, 1 };
 		static constexpr vec2_base<element_type> unit_x = { 1, 0 };
 		static constexpr vec2_base<element_type> unit_y = { 0, 1 };
 	};
@@ -194,6 +195,8 @@ namespace impl {
 		return *this;
 	}
 
+	//common vector functions..
+
 	template<typename LeftElemT, typename RightElemT>
 	constexpr promotion_t<LeftElemT, RightElemT> 
 		dot(const vec2_base<LeftElemT, true>& l, const vec2_base<RightElemT, true>& r) noexcept {
@@ -219,6 +222,14 @@ namespace impl {
 		const promotion_t rec_len = reciprocal((promotion_t)length(v));
 		return {v.x * rec_len  , v.y * rec_len };
 	}
+
+	template<typename LeftElemT, typename RightElemT>
+	constexpr vec2_base<promotion_t<LeftElemT, RightElemT>>
+		reflect(const vec2_base<LeftElemT, true>& v, const vec2_base<RightElemT, true>& n) noexcept {
+		return v - 2 * dot(v, n) * n;
+	}
+
+	//todo:: lerp,
 
 	template<typename VecElemT>
 	constexpr bool 
@@ -408,18 +419,7 @@ namespace impl {
 		return l.x * r.y - l.y * r.x;
 	}
 
-	template<typename LeftElemT, typename RightElemT>
-	constexpr vec2_base<promotion_t<LeftElemT, RightElemT>>
-		reflect(const vec2_base<LeftElemT, true>& v, const vec2_base<RightElemT, true>& n) noexcept {
-		return v - 2 * dot(v, n) * n;
-	}
 
-	void test() {
-		constexpr vec2_base<float> nor = { 0, 1 };
-		constexpr vec2_base<float> v = { 10, -10 };
-		constexpr auto ref = reflect(v, nor);
-
-	}
 }//namespace zee::math::impl
 
 	struct vec2 {
