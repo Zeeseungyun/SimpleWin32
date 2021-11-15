@@ -70,13 +70,13 @@ namespace impl {
 	}
 
 	template<typename LeftT, typename RightT>
-	std::enable_if_t<is_arithmetic<LeftT, RightT>::value, bool>
+	constexpr std::enable_if_t<is_arithmetic_with_decay<LeftT, RightT>::value, bool>
 		is_equal(LeftT l, RightT r) noexcept {
 		return l == r;
 	}
 
 	template<typename LeftT, typename RightT>
-	std::enable_if_t<is_arithmetic<LeftT, RightT>::value, bool>
+	constexpr std::enable_if_t<is_arithmetic<LeftT, RightT>::value, bool>
 		is_not_equal(LeftT l, RightT r) noexcept {
 		return l != r;
 	}

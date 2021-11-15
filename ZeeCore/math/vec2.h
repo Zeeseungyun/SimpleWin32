@@ -21,7 +21,10 @@ namespace impl {
 	template<typename VecElemT>
 	struct vec2_base<VecElemT, true> {
 		typedef VecElemT element_type;
-		element_type x, y;
+		union {
+			element_type x, y;
+			element_type data[2];
+		};
 		
 		constexpr vec2_base() noexcept
 			: vec2_base(0, 0) {
