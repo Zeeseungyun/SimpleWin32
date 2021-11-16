@@ -1,5 +1,5 @@
-#include "random.h"
-#include "core.h"
+#include "../public/core/string.h"
+#include "../public/core/core.h"
 
 namespace zee {
 namespace impl {

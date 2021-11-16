@@ -1,6 +1,6 @@
 #pragma once
-#include "../core/core_base.h"
-#include "common.h"
+#include "../../core/core_base.h"
+#include "../common.h"
 
 namespace zee {
 namespace math {
@@ -221,7 +221,9 @@ namespace math {
 		typedef VecElemT element_type;
 		static constexpr size_t component_size = 2;
 		union {
-			element_type x, y;
+			struct {
+				element_type x, y;
+			};
 			element_type data[component_size];
 		};
 
@@ -351,7 +353,9 @@ namespace math {
 		typedef VecElemT element_type;
 		static constexpr size_t component_size = 3;
 		union {
-			element_type x, y, z;
+			struct {
+				element_type x, y, z;
+			};
 			element_type data[component_size];
 		};
 
@@ -480,7 +484,9 @@ namespace math {
 		typedef VecElemT element_type;
 		static constexpr size_t component_size = 4;
 		union {
-			element_type x, y, z, w;
+			struct {
+				element_type x, y, z, w;
+			};
 			element_type data[component_size];
 		};
 
@@ -632,45 +638,6 @@ namespace math {
 		static constexpr vec_base<4, VecElemT> unit_z = { 0, 0, 1, 0 };
 		static constexpr vec_base<4, VecElemT> unit_w = { 0, 0, 0, 1 };
 	};
-
-	////////////////////////////////
-	// 
-	// Explicit instantiation.
-	// 
-	////////////////////////////////
-
-	template struct vec_base<2, int32>;
-	template struct vec_base<2, float>;
-	//template struct vec_base<2, double>;
-
-	template struct vec_base<3, int32>;
-	template struct vec_base<3, float>;
-	//template struct vec_base<3, double>;
-
-	template struct vec_base<4, int32>;
-	template struct vec_base<4, float>;
-	//template struct vec_base<4, double>;
-	
-	////////////////////////////////
-	// 
-	// Type redefinition.
-	// 
-	////////////////////////////////
-
-	template<size_t CompSize, typename VecElemT>
-	using vec = std::conditional_t<is_vec_elem<VecElemT>::value && (CompSize > 0), vec_base<CompSize, VecElemT>, void>;
-
-	typedef vec<2, int32>  vec2;
-	typedef vec<2, float>  vec2f;
-	typedef vec<2, double> vec2df;
-
-	typedef vec<3, int32>  vec3;
-	typedef vec<3, float>  vec3f;
-	typedef vec<3, double> vec3df;
-
-	typedef vec<4, int32>  vec4;
-	typedef vec<4, float>  vec4f;
-	typedef vec<4, double> vec4df;
 
 }//namespace zee::math
 }//namespace zee 

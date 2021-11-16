@@ -603,6 +603,9 @@ namespace impl {
 	template<size_t CompSize, typename T>
 	struct is_vec_with_size : std::conditional_t<impl::is_vec_with_size_impl<CompSize, T>::value, std::true_type, std::false_type> { };
 
+	template<typename ... Args>
+	struct is_arithmetic_not_floating : advance::unary::is_A_not_B<std::is_arithmetic, std::is_floating_point, Args...> { };
+
 	template<typename T>
 	struct is_vec_elem_not_floating : advance::unary::is_A_not_B<is_vec_elem, std::is_floating_point, T> { };
 	

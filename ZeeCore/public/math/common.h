@@ -62,14 +62,14 @@ namespace math {
 
 	template<typename T>
 	constexpr 
-		std::enable_if_t<is_all_floating_point<T>::value, T> 
+		std::enable_if_t<std::is_floating_point<T>::value, T> 
 		epsilon() noexcept {
-		return  std::numeric_limits<T>::epsilon();
+		return std::numeric_limits<T>::epsilon();
 	}
 
 	template<typename T>
 	constexpr
-		std::enable_if_t<is_all_arithmetic_not_floating<T>::value, T>
+		std::enable_if_t<is_arithmetic_not_floating<T>::value, T>
 		epsilon() noexcept {
 		return 0;
 	}

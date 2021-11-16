@@ -1,5 +1,5 @@
-#include "string.h"
-#include "core.h"
+#include "../public/core/string.h"
+#include "../public/core/core_base.h"
 #include <cstdarg>
 #include <cstdio>
 
