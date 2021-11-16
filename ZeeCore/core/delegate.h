@@ -24,19 +24,19 @@ namespace impl {
 	struct delegate_invoker {
 		typedef std::function<RetT(Args...)> func_type;
 
-		void bind(RetT(*new_func)(Args...)) {
+		void bind(RetT(*new_func)(Args...)) noexcept {
 			func_ = new_func;
 			check_func_ = std::function<bool(void)>{};
 		}
 
 		template<typename LambdaT>
-		void bind(LambdaT&& new_lambda) {
+		void bind(LambdaT&& new_lambda) noexcept {
 			func_ = new_lambda;
 			check_func_ = std::function<bool(void)>{};
 		}
 
 		template<typename ClassT>
-		void bind(const std::shared_ptr<ClassT>& sp, RetT(ClassT::* new_func)(Args...)) {
+		void bind(const std::shared_ptr<ClassT>& sp, RetT(ClassT::* new_func)(Args...)) noexcept {
 			std::weak_ptr<ClassT> wp = sp;
 			check_func_ = [wp]() ->bool {
 				return !wp.expired();
@@ -51,16 +51,16 @@ namespace impl {
 			};
 		}
 
-		void reset() {
+		void reset() noexcept {
 			func_type temp;
 			func_.swap(temp);
 		}
 
-		RetT invoke(Args&&...args) {
+		RetT invoke(Args&&...args) noexcept {
 			return func_(std::forward<Args>(args)...);
 		}
 
-		bool is_valid() const {
+		bool is_valid() const noexcept {
 			if (func_) {
 				if (check_func_) {
 					return check_func_();
@@ -92,27 +92,31 @@ namespace impl {
 	template<typename RetT, typename ... Args> 	struct delegate<RetT(Args...)> {	
 		typedef impl::delegate_invoker<RetT, Args...> invoke_type;
 
-		void bind_raw(RetT(*new_func)(Args...)) {
+		void bind_raw(RetT(*new_func)(Args...)) noexcept {
 			invoker_.bind(new_func);
 		}
 
 		template<typename LambdaT>
-		void bind_lambda(LambdaT&& new_func) {
+		void bind_lambda(LambdaT&& new_func) noexcept {
 			invoker_.bind(std::forward<LambdaT>(new_func));
 		}
 
 		template<typename ClassT>
-		void bind_sp(const std::shared_ptr<ClassT>& sp, RetT(ClassT::* new_func)(Args...)) {
+		void bind_sp(const std::shared_ptr<ClassT>& sp, RetT(ClassT::* new_func)(Args...)) noexcept {
 			if (sp) {
 				invoker_.bind(sp, new_func);
 			}
 		}
 
-		void execute(Args&&...args) {
+		bool is_bind() const noexcept {
+			return invoker_.is_valid();
+		}
+
+		void execute(Args&&...args) noexcept {
 			invoker_.invoke(std::forward<Args>(args)...);
 		}
 
-		void clear() {
+		void clear() noexcept {
 			invoker_.reset();
 		}
 

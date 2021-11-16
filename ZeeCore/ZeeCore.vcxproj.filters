@@ -48,6 +48,12 @@
     <ClInclude Include="math\vec_base.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="math\vec_common_funcs.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vec.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\random.cpp">

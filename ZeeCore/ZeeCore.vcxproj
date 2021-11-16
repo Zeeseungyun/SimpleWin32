@@ -150,6 +150,8 @@
     <ClInclude Include="math\math.h" />
     <ClInclude Include="math\shape.h" />
     <ClInclude Include="math\vec_base.h" />
+    <ClInclude Include="math\vec_common_funcs.h" />
+    <ClInclude Include="math\vec.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\random.cpp" />

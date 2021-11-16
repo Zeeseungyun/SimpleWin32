@@ -2,6 +2,7 @@
 #include <random>
 #include <limits>
 #include "type_supports.h"
+#include "../math/common.h"
 
 namespace zee {
 namespace impl {
@@ -23,42 +24,39 @@ namespace impl {
 		typedef std::uniform_int_distribution<T> type;
 	};
 
-	template<typename T, typename... Args>
-	struct is_valid_random_arg :
+	template<typename T>
+	struct is_random_arg :
 		std::conditional_t <
-		is_valid_random_arg<T>::value && is_valid_random_arg<Args...>::value,
+		std::is_arithmetic<T>::value,
 		std::true_type,
 		std::false_type
 		> {
 	};
 
-	template<typename T>
-	struct is_valid_random_arg<T> : 
-		std::conditional_t <
-		std::is_arithmetic<T>::value, 
-		std::true_type,
-		std::false_type
-	> {
+	template<typename... Args>
+	struct is_all_random_arg : advance::unary::is_all_A<is_random_arg, Args...> {
+
 	};
-	
-}//namespace impl 
 
 	std::default_random_engine& get_engine();
+
+}//namespace impl 
 	
 	template<typename Arg1T, typename Arg2T>
-	std::enable_if_t<impl::is_valid_random_arg<Arg1T, Arg2T>::value, promotion_t<Arg1T, Arg2T>>
-		rand(Arg1T begin, Arg2T end) {
+	std::enable_if_t<impl::is_all_random_arg<Arg1T, Arg2T>::value, promotion_t<Arg1T, Arg2T>>
+		rand(Arg1T first , Arg2T last) noexcept {
 		typedef promotion_t<Arg1T, Arg2T> promotion_t;
-		const promotion_t begin_ = begin < end ? begin : end;
-		const promotion_t end_ = begin < end ? end : begin;
-		typename impl::uniform_distiribution_selector<promotion_t>::type dist(begin_, end_);
-		return dist(get_engine());
+		const promotion_t first_ = math::min(first, last);
+		const promotion_t last_ = math::max(first, last);
+		typename impl::uniform_distiribution_selector<promotion_t>::type dist(first_, last_);
+		return dist(impl::get_engine());
 	}
 	
 	template<typename T>
-	std::enable_if_t<impl::is_valid_random_arg<T>::value, T>
-		rand(T end = std::numeric_limits<T>::max()) {
+	std::enable_if_t<impl::is_random_arg<T>::value, T>
+		rand(T end = std::numeric_limits<T>::max()) noexcept {
 		typename impl::uniform_distiribution_selector<T>::type dist(end < 0 ? end : 0, end < 0 ? 0 : end);
-		return dist(get_engine());
+		return dist(impl::get_engine());
 	}
+
 }//namespace zee
