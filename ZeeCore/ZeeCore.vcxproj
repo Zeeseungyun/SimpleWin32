@@ -149,8 +149,6 @@
     <ClInclude Include="math\common.h" />
     <ClInclude Include="math\math.h" />
     <ClInclude Include="math\shape.h" />
-    <ClInclude Include="math\traits.h" />
-    <ClInclude Include="math\vec2.h" />
     <ClInclude Include="math\vec_base.h" />
   </ItemGroup>
   <ItemGroup>

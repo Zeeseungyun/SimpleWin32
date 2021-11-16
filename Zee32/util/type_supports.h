@@ -3,41 +3,11 @@
 #include "core/string.h"
 
 namespace zee {
+	using std::is_arithmetic;
 
-	template<typename ArithmeticT, typename... Args>
-	struct is_arithmetic : 
-		std::conditional_t<
-		std::is_arithmetic<ArithmeticT>::value && is_arithmetic<Args...>::value, 
-		std::true_type, 
-		std::false_type
-		> {
-	};
-	
-	template<typename ArithmeticT>
-	struct is_arithmetic<ArithmeticT> : 
-		std::conditional_t<
-		std::is_arithmetic<ArithmeticT>::value, 
-		std::true_type, 
-		std::false_type
-		> {
-	};
-	
-	template<typename ArithmeticT, typename... Args>
-	struct is_arithmetic_with_decay : 
-		std::conditional_t<
-		std::is_arithmetic<std::decay_t<ArithmeticT>>::value && is_arithmetic_with_decay<Args...>::value,
-		std::true_type, 
-		std::false_type
-		> {
-	};
-	
-	template<typename ArithmeticT>
-	struct is_arithmetic_with_decay<ArithmeticT> :
-		std::conditional_t<
-		std::is_arithmetic<std::decay_t<ArithmeticT>>::value, 
-		std::true_type, 
-		std::false_type
-		> {
+	template<typename T>
+	struct is_arithmetic_with_decay {
+
 	};
 
 namespace impl {
@@ -62,8 +32,7 @@ namespace impl {
 		typedef typename promotion_type<Args...>::type right_type;
 	
 	public:
-		typedef typename impl::promotion_impl<
-			is_arithmetic_with_decay<left_type, Args...>::value,
+		typedef typename impl::promotion_impl<is_arithmetic<left_type, Args...>::value,
 			left_type, right_type>::type type;
 	};
 	
@@ -73,7 +42,7 @@ namespace impl {
 		typedef std::decay_t<ArithmeticT> arithmetic_t;
 
 	public:
-		typedef typename impl::promotion_impl<is_arithmetic_with_decay<arithmetic_t>::value, arithmetic_t, arithmetic_t>::type type;
+		typedef typename impl::promotion_impl<is_arithmetic<arithmetic_t>::value, arithmetic_t, arithmetic_t>::type type;
 	};
 
 	template<typename... Args>

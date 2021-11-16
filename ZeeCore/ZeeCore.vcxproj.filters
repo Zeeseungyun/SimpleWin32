@@ -45,12 +45,6 @@
     <ClInclude Include="math\shape.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="math\vec2.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\traits.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="math\vec_base.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
