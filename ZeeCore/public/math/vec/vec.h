@@ -1,5 +1,5 @@
 #pragma once
-#include "vec_base.h"
+#include "vec_impl.h"
 #include "vec_common_funcs.h"
 namespace zee {
 namespace math {
@@ -10,17 +10,17 @@ namespace math {
 	// 
 	////////////////////////////////
 
-	template struct vec_base<2, int32>;
-	template struct vec_base<2, float>;
-	//template struct vec_base<2, double>;
+	template struct vec_impl<2, int32>;
+	template struct vec_impl<2, float>;
+	//template struct vec_impl<2, double>;
 
-	template struct vec_base<3, int32>;
-	template struct vec_base<3, float>;
-	//template struct vec_base<3, double>;
+	template struct vec_impl<3, int32>;
+	template struct vec_impl<3, float>;
+	//template struct vec_impl<3, double>;
 
-	template struct vec_base<4, int32>;
-	template struct vec_base<4, float>;
-	//template struct vec_base<4, double>;
+	template struct vec_impl<4, int32>;
+	template struct vec_impl<4, float>;
+	//template struct vec_impl<4, double>;
 	
 	////////////////////////////////
 	// 
@@ -29,7 +29,7 @@ namespace math {
 	////////////////////////////////
 
 	template<size_t CompSize, typename VecElemT>
-	using vec = std::conditional_t<is_vec_elem<VecElemT>::value && (CompSize > 0), vec_base<CompSize, VecElemT>, void>;
+	using vec = std::conditional_t<is_vec_elem<VecElemT>::value && (CompSize > 0), vec_impl<CompSize, VecElemT>, void>;
 
 	typedef vec<2, float>  vec2;
 	typedef vec<2, int32>  vec2i;
