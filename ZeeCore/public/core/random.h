@@ -1,7 +1,7 @@
 #pragma once
 #include <random>
 #include <limits>
-#include "type_supports.h"
+#include "../util/type_supports.h"
 #include "../math/common.h"
 
 namespace zee {
@@ -34,7 +34,7 @@ namespace impl {
 	};
 
 	template<typename... Args>
-	struct is_all_random_arg : advance::unary::is_all_A<is_random_arg, Args...> {
+	struct is_all_random_arg : advance::unary::are_all_A<is_random_arg, Args...> {
 
 	};
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <type_traits>
 #include <utility>
+#include "../math/vec/vec_decl.h"
 
 namespace zee {
 	template<bool A, bool B> struct logical_xor;
@@ -11,25 +12,25 @@ namespace zee {
 
 namespace impl {
 	template<typename BindType, BindType BindValue, template<BindType, typename> typename T>
-	struct bind_bin_to_uni_non_type_param0 {
+	struct bind_value_btu_param0 {
 		template<typename ParamT>
 		using type =  T<BindValue, ParamT>;
 	};
 
 	template<typename BindType, BindType BindValue, template<typename, BindType> typename T>
-	struct bind_bin_to_uni_non_type_param1 {
+	struct bind_value_btu_param1 {
 		template<typename ParamT>
 		using type = T<ParamT, BindValue>;
 	};
 
 	template<typename BindType, template<typename, typename> typename T>
-	struct bind_bin_to_uni_type_param0 {
+	struct bind_type_btu_param0 {
 		template<typename ParamT>
 		using type = T<BindType, ParamT>;
 	};
 
 	template<typename BindType, template<typename, typename> typename T>
-	struct bind_bin_to_uni_type_param1 {
+	struct bind_type_btu_param1 {
 		template<typename ParamT>
 		using type = T<ParamT, BindType>;
 	};
@@ -87,56 +88,56 @@ namespace unary {
 	template<
 		template <typename> typename A,
 		typename T, typename... Args>
-		struct is_all_A
-		: std::conditional_t< is_all_A<A, T>::value&& is_all_A<A, Args...>::value, std::true_type, std::false_type> {
+		struct are_all_A
+		: std::conditional_t< are_all_A<A, T>::value && are_all_A<A, Args...>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A,
 		typename T>
-		struct is_all_A<A, T>
+		struct are_all_A<A, T>
 		: std::conditional_t<A<T>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A,
 		typename T, typename... Args>
-		struct is_not_all_A
-		: std::conditional_t< is_not_all_A<A, T>::value && is_not_all_A<A, Args...>::value, std::true_type, std::false_type> {
+		struct are_not_all_A
+		: std::conditional_t< are_not_all_A<A, T>::value && are_not_all_A<A, Args...>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A,
 		typename T>
-		struct is_not_all_A<A, T>
+		struct are_not_all_A<A, T>
 		: std::conditional_t< is_not_A<A, T>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A,
 		typename T, typename... Args>
-		struct is_any_A
-		: std::conditional_t< is_any_A<A, T>::value || is_any_A<A, Args...>::value, std::true_type, std::false_type> {
+		struct are_any_A
+		: std::conditional_t< are_any_A<A, T>::value || are_any_A<A, Args...>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A, 
 		typename T>
-	struct is_any_A<A, T>
+	struct are_any_A<A, T>
 		: std::conditional_t<A<T>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A,
 		typename T, typename... Args>
-		struct is_not_any_A
-		: std::conditional_t< is_not_any_A<A, T>::value || is_not_any_A<A, Args...>::value, std::true_type, std::false_type> {
+		struct are_not_any_A
+		: std::conditional_t< are_not_any_A<A, T>::value || are_not_any_A<A, Args...>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename> typename A,
 		typename T>
-		struct is_not_any_A<A, T>
+		struct are_not_any_A<A, T>
 		: std::conditional_t< is_not_A<A, T>::value, std::true_type, std::false_type> {
 	};
 
@@ -144,8 +145,8 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T, typename... Args>
-		struct is_all_A_not_B
-		: std::conditional_t< is_all_A_not_B<A, B, T>::value && is_all_A_not_B<A, B, Args...>::value, std::true_type, std::false_type> {
+		struct are_all_A_not_B
+		: std::conditional_t< are_all_A_not_B<A, B, T>::value && are_all_A_not_B<A, B, Args...>::value, std::true_type, std::false_type> {
 
 	};
 
@@ -153,7 +154,7 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T>
-		struct is_all_A_not_B<A, B, T>
+		struct are_all_A_not_B<A, B, T>
 		: std::conditional_t< is_A_not_B<A, B, T>::value, std::true_type, std::false_type> {
 
 	};
@@ -162,8 +163,8 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T, typename... Args>
-		struct is_any_A_not_B
-		: std::conditional_t< is_A_not_B<A, B, T>::value || is_any_A_not_B<A, B, Args...>::value, std::true_type, std::false_type> {
+		struct are_any_A_not_B
+		: std::conditional_t< is_A_not_B<A, B, T>::value || are_any_A_not_B<A, B, Args...>::value, std::true_type, std::false_type> {
 
 	};
 
@@ -171,7 +172,7 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T>
-		struct is_any_A_not_B<A, B, T>
+		struct are_any_A_not_B<A, B, T>
 		: std::conditional_t< is_A_not_B<A, B, T>::value, std::true_type, std::false_type> {
 
 	};
@@ -180,8 +181,8 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T, typename... Args>
-		struct is_all_A_or_B
-		: std::conditional_t< is_A_or_B<A, B, T>::value && is_all_A_or_B<A, B, Args...>::value, std::true_type, std::false_type> {
+		struct are_all_A_or_B
+		: std::conditional_t< is_A_or_B<A, B, T>::value && are_all_A_or_B<A, B, Args...>::value, std::true_type, std::false_type> {
 
 	};
 
@@ -189,7 +190,7 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T>
-		struct is_all_A_or_B<A, B, T>
+		struct are_all_A_or_B<A, B, T>
 		: std::conditional_t< is_A_or_B<A, B, T>::value, std::true_type, std::false_type> {
 
 	};
@@ -198,8 +199,8 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T, typename... Args>
-		struct is_any_A_or_B
-		: std::conditional_t< is_A_or_B<A, B, T>::value || is_any_A_or_B<A, B, Args...>::value, std::true_type, std::false_type> {
+		struct are_any_A_or_B
+		: std::conditional_t< is_A_or_B<A, B, T>::value || are_any_A_or_B<A, B, Args...>::value, std::true_type, std::false_type> {
 
 	};
 
@@ -207,7 +208,7 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T>
-		struct is_any_A_or_B<A, B, T>
+		struct are_any_A_or_B<A, B, T>
 		: std::conditional_t< is_A_or_B<A, B, T>::value, std::true_type, std::false_type> {
 
 	};
@@ -216,8 +217,8 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T, typename... Args>
-		struct is_all_A_and_B
-		: std::conditional_t< is_A_and_B<A, B, T>::value && is_all_A_and_B<A, B, Args...>::value, std::true_type, std::false_type> {
+		struct are_all_A_and_B
+		: std::conditional_t< is_A_and_B<A, B, T>::value && are_all_A_and_B<A, B, Args...>::value, std::true_type, std::false_type> {
 
 	};
 
@@ -225,7 +226,7 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T>
-		struct is_all_A_and_B<A, B, T>
+		struct are_all_A_and_B<A, B, T>
 		: std::conditional_t< is_A_and_B<A, B, T>::value , std::true_type, std::false_type> {
 	};
 
@@ -233,8 +234,8 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T, typename... Args>
-		struct is_any_A_and_B
-		: std::conditional_t< is_A_and_B<A, B, T>::value || is_any_A_and_B<A, B, Args...>::value, std::true_type, std::false_type> {
+		struct are_any_A_and_B
+		: std::conditional_t< is_A_and_B<A, B, T>::value || are_any_A_and_B<A, B, Args...>::value, std::true_type, std::false_type> {
 
 	};
 
@@ -242,7 +243,7 @@ namespace unary {
 		template <typename> typename A,
 		template <typename> typename B,
 		typename T>
-		struct is_any_A_and_B<A, B, T>
+		struct are_any_A_and_B<A, B, T>
 		: std::conditional_t< is_A_and_B<A, B, T>::value, std::true_type, std::false_type> {
 	};
 
@@ -252,7 +253,7 @@ namespace binary {
 namespace impl {
 	template<size_t Size>
 	struct is_odd : std::conditional_t<Size % 2 == 0, std::true_type, std::false_type> { };
-	struct dummy_ { };
+	struct dummy_empty_struct { };
 }//namespace zee::advance::binary::impl
 	template<
 		template <typename, typename> typename  A,
@@ -303,68 +304,68 @@ namespace impl {
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U, typename... Args>
-		struct is_all_A
+		struct are_all_A
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A<A, T, U>::value && is_all_A<A, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A<A, T, U>::value && are_all_A<A, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 
 	template<
 		template <typename, typename> typename A, 
 		typename T, typename U>
-	struct is_all_A<A, T, U>
+	struct are_all_A<A, T, U>
 		: std::conditional_t< is_A<A, T ,U>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U, typename... Args>
-		struct is_not_all_A
+		struct are_not_all_A
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_not_A<A, T, U>::value && is_not_all_A<A, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_not_A<A, T, U>::value && are_not_all_A<A, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U>
-		struct is_not_all_A<A, T, U>
+		struct are_not_all_A<A, T, U>
 		: std::conditional_t< is_not_A<A, T, U>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U, typename... Args>
-		struct is_any_A
+		struct are_any_A
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A<A, T, U>::value || is_any_A<A, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A<A, T, U>::value || are_any_A<A, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 	
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U>
-	struct is_any_A<A, T, U>
+	struct are_any_A<A, T, U>
 		: std::conditional_t< is_A<A, T, U>::value, std::true_type, std::false_type> {
 	};
 
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U, typename... Args>
-		struct is_not_any_A
+		struct are_not_any_A
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_not_A<A, T, U>::value || is_not_any_A<A, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_not_A<A, T, U>::value || are_not_any_A<A, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 
 	template<
 		template <typename, typename> typename A,
 		typename T, typename U>
-		struct is_not_any_A<A, T, U>
+		struct are_not_any_A<A, T, U>
 		: std::conditional_t< is_not_A<A, T, U>::value, std::true_type, std::false_type> {
 	};
 
@@ -372,10 +373,10 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U, typename... Args>
-		struct is_all_A_not_B
+		struct are_all_A_not_B
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A_not_B<A, B, T, U>::value && is_all_A_not_B<A, B, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A_not_B<A, B, T, U>::value && are_all_A_not_B<A, B, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 	
@@ -383,7 +384,7 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U>
-		struct is_all_A_not_B<A, B, T, U>
+		struct are_all_A_not_B<A, B, T, U>
 		: std::conditional_t< is_A_not_B<A, B, T, U>::value, std::true_type, std::false_type> {
 
 	};
@@ -392,10 +393,10 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U, typename... Args>
-		struct is_any_A_not_B
+		struct are_any_A_not_B
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A_not_B<A, B, T, U>::value || is_any_A_not_B<A, B, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A_not_B<A, B, T, U>::value || are_any_A_not_B<A, B, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 	
@@ -404,7 +405,7 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U>
-		struct is_any_A_not_B<A, B, T, U>
+		struct are_any_A_not_B<A, B, T, U>
 		: std::conditional_t< is_A_not_B<A, B, T, U>::value, std::true_type, std::false_type> {
 
 	};
@@ -413,10 +414,10 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U, typename... Args>
-		struct is_all_A_or_B
+		struct are_all_A_or_B
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A_or_B<A, B, T, U>::value && is_all_A_or_B<A, B, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A_or_B<A, B, T, U>::value && are_all_A_or_B<A, B, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 	
@@ -424,7 +425,7 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U>
-		struct is_all_A_or_B<A, B, T, U>
+		struct are_all_A_or_B<A, B, T, U>
 		: std::conditional_t< is_A_or_B<A, B, T, U>::value, std::true_type, std::false_type> {
 	};
 
@@ -432,10 +433,10 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U, typename... Args>
-		struct is_any_A_or_B
+		struct are_any_A_or_B
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A_or_B<A, B, T, U>::value || is_any_A_or_B<A, B, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A_or_B<A, B, T, U>::value || are_any_A_or_B<A, B, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 
@@ -443,7 +444,7 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U>
-		struct is_any_A_or_B<A, B, T, U>
+		struct are_any_A_or_B<A, B, T, U>
 		: std::conditional_t< is_A_or_B<A, B, T, U>::value, std::true_type, std::false_type> {
 
 	};
@@ -452,10 +453,10 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U, typename... Args>
-		struct is_all_A_and_B
+		struct are_all_A_and_B
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A_and_B<A, B, T, U>::value&& is_all_A_and_B<A, B, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A_and_B<A, B, T, U>::value&& are_all_A_and_B<A, B, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 
@@ -463,7 +464,7 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U>
-		struct is_all_A_and_B<A, B, T, U>
+		struct are_all_A_and_B<A, B, T, U>
 		: std::conditional_t< is_A_and_B<A, B, T, U>::value, std::true_type, std::false_type> {
 	};
 
@@ -471,10 +472,10 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U, typename... Args>
-		struct is_any_A_and_B
+		struct are_any_A_and_B
 		: std::conditional_t< impl::is_odd<sizeof...(Args)>::value,
-		std::conditional_t< is_A_and_B<A, B, T, U>::value || is_any_A_and_B<A, B, Args...>::value, std::true_type, std::false_type>,
-		impl::dummy_
+		std::conditional_t< is_A_and_B<A, B, T, U>::value || are_any_A_and_B<A, B, Args...>::value, std::true_type, std::false_type>,
+		impl::dummy_empty_struct
 		> {
 	};
 
@@ -482,7 +483,7 @@ namespace impl {
 		template <typename, typename> typename A,
 		template <typename, typename> typename B,
 		typename T, typename U>
-		struct is_any_A_and_B<A, B, T, U>
+		struct are_any_A_and_B<A, B, T, U>
 		: std::conditional_t< is_A_and_B<A, B, T, U>::value, std::true_type, std::false_type> {
 	};
 
@@ -491,24 +492,36 @@ namespace impl {
 
 namespace impl {
 	template<typename T, typename...Args>
-	struct promotion_type {
+	struct promotion_type_impl {
 	private:
-		typedef typename promotion_type<Args...>::type args_type;
+		typedef typename promotion_type_impl<Args...>::type args_type;
 
 	public:
-		typedef decltype(T(0) + args_type(0)) type;
+		typedef typename promotion_type_impl<T, args_type>::type type;
 	};
 
 	template<typename FirstT, typename SecondT>
-	struct promotion_type<FirstT, SecondT> {
+	struct promotion_type_impl<FirstT, SecondT> {
 	public:
 		typedef decltype(FirstT(0) + SecondT(0)) type;
 	};
-	
+
+	template<typename SameT>
+	struct promotion_type_impl<SameT, SameT> {
+	public:
+		typedef SameT type;
+	};
+
+	template<typename AloneT>
+	struct promotion_type_impl<AloneT> {
+	public:
+		typedef AloneT type;
+	};
+
 }//namespace zee::impl
 
 	template<typename... Args>
-	using promotion_t = typename impl::promotion_type<Args...>::type;
+	using promotion_t = typename impl::promotion_type_impl<Args...>::type;
 
 	template<typename ClassT, typename T> struct is_member_function_specified { static constexpr bool value = false; };
 	template<typename ClassT, typename RetT, typename...Args> struct is_member_function_specified <ClassT, RetT(ClassT::*)(Args...)> { static constexpr bool value = true; };
@@ -519,124 +532,107 @@ namespace impl {
 	template<typename T> struct is_static_function_specified { static constexpr bool value = false; };
 	template<typename RetT, typename...Args> struct is_static_function_specified <RetT(*)(Args...)> { static constexpr bool value = true; };
 
-	//Forward declaration
-namespace math {
-	template<size_t/*CompSize*/, typename/*VecElemT*/> struct vec_base;
-}//namespace zee::math
 
-namespace impl {
-	template<typename T>
-	struct is_vec_elem_impl {
-	private:
-		typedef char yes[2];
-		typedef char no[1];
+	template<typename ... Args>
+	struct are_all_arithemtic : advance::unary::are_all_A<std::is_arithmetic, Args...> { };
 
-		template<typename U> static std::enable_if_t<std::is_signed<U>::value, yes&> check(U*);
-		template<typename U> static no& check(...);
+	template<typename ... Args>
+	struct are_any_arithemtic : advance::unary::are_any_A<std::is_arithmetic, Args...> { };
 
-	public:
-		static constexpr bool value = sizeof(check<T>(0)) == sizeof(yes);
-	};
+	template<typename ... Args>
+	struct are_all_floating_point : advance::unary::are_all_A<std::is_floating_point, Args...> { };
 
-	template<typename T>
-	struct is_vec_impl {
-		static constexpr bool value = false;
-	};
+	template<typename ... Args>
+	struct are_any_floating_point : advance::unary::are_any_A<std::is_floating_point, Args...> { };
 
-	template<size_t CompSize, typename VecElemT>
-	struct is_vec_impl<math::vec_base<CompSize, VecElemT>> {
-	private:
-		typedef char yes[2];
-		typedef char no[1];
+	template<typename ... Args>	
+	struct are_all_arithmetic_not_floating : advance::unary::are_all_A_not_B<std::is_arithmetic, std::is_floating_point, Args...> { };
 
-		template<size_t CompSize, typename T> static std::enable_if_t<is_vec_elem_impl<T>::value && (CompSize > 0), yes&> check(std::nullptr_t);
-		template<size_t CompSize, typename T> static no& check(...);
-
-	public:
-		static constexpr bool value = sizeof(check<CompSize, VecElemT>(nullptr)) == sizeof(yes);
-	};
-
-	template<size_t CompSize, typename VecT>
-	struct is_vec_with_size_impl {
-		static constexpr bool value = false;
-	};
-
-	template<size_t CompSize, size_t VecCompSize, typename VecElemT>
-	struct is_vec_with_size_impl<CompSize, math::vec_base<VecCompSize, VecElemT>> {
-		static constexpr bool value = false;
-	};
-
-	template<size_t VecCompSize, typename VecElemT>
-	struct is_vec_with_size_impl<VecCompSize, math::vec_base<VecCompSize, VecElemT>> {
-		static constexpr bool value = is_vec_impl<math::vec_base<VecCompSize, VecElemT>>::value;
-	};
-
-	template<typename... Args>
-	struct vec_promoition { 
-		typedef void type;
-		typedef void elem_type;
-	};
-
-	template<size_t CompSize, typename VecElem1T>
-	struct vec_promoition <math::vec_base<CompSize, VecElem1T>> {
-		typedef math::vec_base<CompSize, VecElem1T> type;
-		typedef VecElem1T elem_type;
-	};
-
-	template<size_t CompSize, typename VecElem1T, typename... Args>
-	struct vec_promoition <math::vec_base<CompSize, VecElem1T>, Args...>  {
-		typedef typename vec_promoition<Args...>::elem_type inner_elem_type;
-		typedef promotion_t<VecElem1T, inner_elem_type> elem_type;
-		typedef math::vec_base<CompSize, promotion_t<VecElem1T, inner_elem_type>> type;
-	};
-
-}//namespace zee::impl
-	template<typename ...VecArgs>
-	using vec_promotion_t = typename impl::vec_promoition< VecArgs...>::type;
-	
-	template<typename T>
-	struct is_vec_elem : std::conditional_t<impl::is_vec_elem_impl<T>::value, std::true_type, std::false_type> { };
-
-	template<typename T>
-	struct is_vec : std::conditional_t<impl::is_vec_impl<T>::value, std::true_type, std::false_type> { };
-
-	template<size_t CompSize, typename T>
-	struct is_vec_with_size : std::conditional_t<impl::is_vec_with_size_impl<CompSize, T>::value, std::true_type, std::false_type> { };
+	template<typename ... Args>
+	struct are_all_signed_not_floating : advance::unary::are_all_A_not_B<std::is_signed, std::is_floating_point, Args...> { };
 
 	template<typename ... Args>
 	struct is_arithmetic_not_floating : advance::unary::is_A_not_B<std::is_arithmetic, std::is_floating_point, Args...> { };
+	
+	template<typename T>
+	struct is_vec_element : std::conditional_t<std::is_signed<T>::value, std::true_type, std::false_type> {
+	};
 
 	template<typename T>
-	struct is_vec_elem_not_floating : advance::unary::is_A_not_B<is_vec_elem, std::is_floating_point, T> { };
+	struct is_vec_element_not_floating : advance::unary::is_A_not_B<is_vec_element, std::is_floating_point, T> {
+	};
+
+	template<typename...Args>
+	struct are_all_vec_element : advance::unary::are_all_A<is_vec_element, Args...> {
+	};
+
+	template<typename...Args>
+	struct are_all_vec_element_not_floating : advance::unary::are_all_A<is_vec_element_not_floating, Args...> {
+	};
+
+	template<size_t CompSize, typename VecElemT>
+	struct is_vec_argument : 
+		std::conditional_t<(CompSize > 0) && std::is_signed<VecElemT>::value, 
+		std::true_type, 
+		std::false_type> {
+	};
+
+	template<typename VecT>
+	struct is_vec : std::false_type { };
 	
-	template<typename ... Args>
-	struct is_all_arithemtic : advance::unary::is_all_A<std::is_arithmetic, Args...> { };
+	template<size_t CompSize, typename VecElemT>
+	struct is_vec<math::vec<CompSize, VecElemT>> : 
+		std::conditional_t<
+		std::is_base_of<math::impl::legal_vec, math::vec<CompSize, VecElemT>>::value && is_vec_argument<CompSize, VecElemT>::value,
+		std::true_type, 
+		std::false_type> {
+	};
 
-	template<typename ... Args>
-	struct is_any_arithemtic : advance::unary::is_any_A<std::is_arithmetic, Args...> { };
+	template<typename...Args>
+	struct are_all_vec : advance::unary::are_all_A<is_vec, Args...> {
+	};
 
-	template<typename ... Args>
-	struct is_all_floating_point : advance::unary::is_all_A<std::is_floating_point, Args...> { };
+	template<typename T, typename U>
+	struct is_same_comp_vec : std::false_type {	};
 
-	template<typename ... Args>
-	struct is_any_floating_point : advance::unary::is_any_A<std::is_floating_point, Args...> { };
+	template<size_t CompSize, typename T, typename U>
+	struct is_same_comp_vec<math::vec<CompSize, T>, math::vec<CompSize, U>> 
+		:  std::conditional_t<are_all_vec_element<T, U>::value && (CompSize > 0), std::true_type, std::false_type> {
+	};
 
-	template<typename ... Args>	
-	struct is_all_arithmetic_not_floating : advance::unary::is_all_A_not_B<std::is_arithmetic, std::is_floating_point, Args...> { };
+namespace impl {
+	template<typename T, typename... Args>
+	struct vec_promotion_type_impl {
+		typedef void type;
+	};
 
-	template<typename ... Args>
-	struct is_all_signed_not_floating : advance::unary::is_all_A_not_B<std::is_signed, std::is_floating_point, Args...> { };
+	template<size_t CompSize, typename T, typename... Args>
+	struct vec_promotion_type_impl<math::vec<CompSize, T>, Args...> {
+	private:
+		typedef typename vec_promotion_type_impl<math::vec<CompSize, T>>::type vec1_type;
+		typedef typename vec_promotion_type_impl<Args...>::type vec2_type;
+	public:
+		typedef typename vec_promotion_type_impl<vec1_type, vec2_type>::type type;
+	};
 
-	template<typename ...Args>
-	struct is_all_vec_elem : advance::unary::is_all_A<is_vec_elem, Args...> { };
+	template<size_t CompSize, typename T, typename U>
+	struct vec_promotion_type_impl<math::vec<CompSize, T>, math::vec<CompSize, U>> {
+	private:
+		typedef std::conditional_t<are_all_vec_element<T, U>::value && (CompSize > 0), promotion_t<T, U>, void> element_type;
+	public:
+		typedef std::conditional_t<is_vec_element<element_type>::value, math::vec<CompSize, element_type>, void> type;
+	};
+
+	template<size_t CompSize, typename T>
+	struct vec_promotion_type_impl<math::vec<CompSize, T>> {
+	private:
+		typedef std::conditional_t< is_vec_argument<CompSize, T>::value, T, void> element_type;
+	public:
+		typedef std::conditional_t<is_vec_element<element_type>::value, math::vec<CompSize, element_type>, void> type;
+	};
+}//namespace zee::impl 
 
 	template<typename... Args>
-	struct is_all_vec_elem_not_floating : advance::unary::is_all_A_not_B<is_vec_elem, std::is_floating_point, Args...> { };
-
-	template<typename ...Args>
-	struct is_all_vec : advance::unary::is_all_A<is_vec, Args...> { };
-
-	template<size_t CompSize, typename ...Args>
-	struct is_all_vec_with_size : advance::unary::is_all_A<typename impl::bind_bin_to_uni_non_type_param0<size_t, CompSize, is_vec_with_size>::type, Args...> { };
+	using vec_promotion_t = typename impl::vec_promotion_type_impl<Args...>::type;
 
 }//namespace zee

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <limits>
 #include "../core/core_base.h"
-#include "../core/type_supports.h"
+#include "../util/type_supports.h"
 
 namespace zee {
 namespace math {
@@ -35,26 +35,26 @@ namespace math {
 	//using std::max; using std::min;
 
 	template<typename T, typename U>
-	constexpr std::enable_if_t<is_all_arithemtic<T, U>::value, promotion_t<T, U>>
+	constexpr std::enable_if_t<are_all_arithemtic<T, U>::value, promotion_t<T, U>>
 		max(const T& l, const U& r) noexcept {
 		return promotion_t<T, U>(l < r ? r : l);
 	}
 
 	template<typename T, typename U, typename ...Args>
-	constexpr std::enable_if_t<is_all_arithemtic<T, Args...>::value, promotion_t<T, Args...>>
+	constexpr std::enable_if_t<are_all_arithemtic<T, Args...>::value, promotion_t<T, Args...>>
 		max(const T& l, const U& r, const Args&... args) noexcept {
 		return max(max(l, r), args...);
 	}
 
 	template<typename T, typename U>
-	constexpr std::enable_if_t<is_all_arithemtic<T, U>::value, promotion_t<T, U>>
+	constexpr std::enable_if_t<are_all_arithemtic<T, U>::value, promotion_t<T, U>>
 		min(const T& l, const U& r) noexcept {
 		typedef promotion_t<T, U> promotion_t;
 		return promotion_t(l > r ? r : l);
 	}
 
 	template<typename T, typename U, typename ...Args>
-	constexpr std::enable_if_t<is_all_arithemtic<T, Args...>::value, promotion_t<T, Args...>>
+	constexpr std::enable_if_t<are_all_arithemtic<T, Args...>::value, promotion_t<T, Args...>>
 		min(const T& l, const U& r, const Args&... args) noexcept {
 		typedef promotion_t<T, Args...> promotion_t;
 		return min((promotion_t)min((promotion_t)l, (promotion_t)r), (promotion_t)args...);
@@ -78,7 +78,7 @@ namespace math {
 
 	template<typename T, typename RetT = promotion_t<default_floating_point_t, T>>
 	constexpr std::enable_if_t<std::is_arithmetic<T>::value, RetT>
-		reciprocal(T v) noexcept {
+		reciprocal(const T& v) noexcept {
 		return (RetT)1 / v;
 	}
 
@@ -91,62 +91,63 @@ namespace impl {
 }//namespace zee::math::impl
 
 	template<typename SrcT, typename MinT, typename MaxT>
-	constexpr std::enable_if_t<is_all_arithemtic<SrcT, MinT, MaxT>::value, promotion_t<SrcT, MinT, MaxT>>
+	constexpr std::enable_if_t<are_all_arithemtic<SrcT, MinT, MaxT>::value, promotion_t<SrcT, MinT, MaxT>>
 		clamp(const SrcT& src_v, const MinT& min_v, const MaxT& max_v) noexcept {
 		typedef promotion_t<SrcT, MinT, MaxT> promotion_t;
 		return impl::clamp_impl<promotion_t>((promotion_t)src_v, (promotion_t)min_v, (promotion_t)max_v);
 	}
 
 	template<typename T>
-	constexpr std::enable_if_t<is_all_arithemtic<T>::value, bool>
+	constexpr std::enable_if_t<are_all_arithemtic<T>::value, bool>
 		is_zero(T v) noexcept {
 		return v == 0;
 	}
 
 	template<typename T>
-	constexpr std::enable_if_t<is_all_arithemtic<T>::value, bool>
+	constexpr std::enable_if_t<are_all_arithemtic<T>::value, bool>
 		is_not_zero(T v) noexcept {
 		return v != 0;
 	}
 
 	template<typename LeftT, typename RightT>
-	constexpr std::enable_if_t<is_all_arithemtic<LeftT, RightT>::value, bool>
+	constexpr std::enable_if_t<are_all_arithemtic<LeftT, RightT>::value, bool>
 		is_equal(LeftT l, RightT r) noexcept {
 		return l == r;
 	}
 
 	template<typename LeftT, typename RightT>
-	constexpr std::enable_if_t<is_all_arithemtic<LeftT, RightT>::value, bool>
+	constexpr std::enable_if_t<are_all_arithemtic<LeftT, RightT>::value, bool>
 		is_not_equal(LeftT l, RightT r) noexcept {
 		return l != r;
 	}
 
 	template<typename T, typename EpsT = T>
-	std::enable_if_t<is_all_arithemtic<T, EpsT>::value, bool>
+	std::enable_if_t<are_all_arithemtic<T, EpsT>::value, bool>
 		is_near_zero(T v, EpsT eps = epsilon<EpsT>()) noexcept {
 		return abs(v) <= eps;
 	}
 
 	template<typename T, typename EpsT = T>
-	std::enable_if_t<is_all_arithemtic<T, EpsT>::value, bool>
+	std::enable_if_t<are_all_arithemtic<T, EpsT>::value, bool>
 		is_near_not_zero(T v, EpsT eps = epsilon<EpsT>()) noexcept {
 		return !is_near_zero(v);
 	}
 
 	template<typename LeftT, typename RightT, typename EpsT = promotion_t<LeftT, RightT>>
-	std::enable_if_t<is_all_arithemtic<LeftT, RightT, EpsT>::value, bool>
+	std::enable_if_t<are_all_arithemtic<LeftT, RightT, EpsT>::value, bool>
 		is_near_equal(LeftT l, RightT r, EpsT eps = epsilon<EpsT>()) noexcept {
 		return abs(l - r) <= eps;
 	}
 
 	template<typename LeftT, typename RightT, typename EpsT = promotion_t<LeftT, RightT>>
-	std::enable_if_t<is_all_arithemtic<LeftT, RightT, EpsT>::value, bool>
+	std::enable_if_t<are_all_arithemtic<LeftT, RightT, EpsT>::value, bool>
 		is_near_not_equal(LeftT l, RightT r, EpsT eps = epsilon<EpsT>()) noexcept {
 		return !is_near_equal(l, r, eps);
 	}
 
 	template<typename FirstT, typename LastT, typename DeltaT>
-	constexpr std::enable_if_t<is_all_arithemtic<FirstT, LastT, DeltaT>::value && std::is_floating_point<DeltaT>::value, promotion_t<FirstT, LastT, DeltaT>>
+	constexpr std::enable_if_t<are_all_arithemtic<FirstT, LastT, DeltaT>::value && std::is_floating_point<DeltaT>::value, 
+		promotion_t<FirstT, LastT, DeltaT>>
 		lerp(FirstT f, LastT l, DeltaT d) noexcept {
 		return f + (l - f) * clamp(d, 0, 1);
 	}
