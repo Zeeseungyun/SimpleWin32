@@ -1,7 +1,7 @@
-#include "string.h"
-#include "core/core.h"
 #include <cstdarg>
 #include <cstdio>
+#include "../../public/core/string.h"
+#include "../../public/core/core_base.h"
 
 namespace zee {
 

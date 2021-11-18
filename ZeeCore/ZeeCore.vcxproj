@@ -157,6 +157,8 @@
     <ClInclude Include="public\core\delegate.h" />
     <ClInclude Include="public\core\random.h" />
     <ClInclude Include="public\core\string.h" />
+    <ClInclude Include="public\math\vec\vec.h" />
+    <ClInclude Include="public\shape\rect\rect_base.h" />
     <ClInclude Include="public\util\type_supports.h" />
     <ClInclude Include="public\interfaces\clonable.h" />
     <ClInclude Include="public\interfaces\shareable.h" />
@@ -164,14 +166,14 @@
     <ClInclude Include="public\math\common.h" />
     <ClInclude Include="public\math\math.h" />
     <ClInclude Include="public\geometry\rect\rect_base.h" />
-    <ClInclude Include="public\math\vec\vec_impl_new.h" />
-    <ClInclude Include="public\math\vec\vec_decl_new.h" />
+    <ClInclude Include="public\math\vec\vec_impl.h" />
+    <ClInclude Include="public\math\vec\vec_decl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\random.cpp" />
     <ClCompile Include="core\string.cpp" />
-    <ClCompile Include="private\random.cpp" />
-    <ClCompile Include="private\string.cpp" />
+    <ClCompile Include="private\core\random.cpp" />
+    <ClCompile Include="private\core\string.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

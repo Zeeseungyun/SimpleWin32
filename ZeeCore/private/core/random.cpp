@@ -1,5 +1,5 @@
-#include "random.h"
-#include "core/core.h"
+#include "../../public/core/string.h"
+#include "../../public/core/core.h"
 
 namespace zee {
 namespace impl {
@@ -13,9 +13,9 @@ namespace impl {
 		std::default_random_engine engine_;
 	};
 
-}//namespace impl
-	thread_local static impl::default_random_engine_constructor random_engine_ctor;
+	thread_local static default_random_engine_constructor random_engine_ctor;
 	std::default_random_engine& get_engine() {
 		return random_engine_ctor.get();
 	}
+}//namespace impl
 }

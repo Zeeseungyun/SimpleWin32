@@ -34,7 +34,7 @@ namespace impl {
 	};
 
 	template<typename... Args>
-	struct is_all_random_arg : advance::unary::is_all_A<is_random_arg, Args...> {
+	struct is_all_random_arg : advance::unary::are_all_A<is_random_arg, Args...> {
 
 	};
 
