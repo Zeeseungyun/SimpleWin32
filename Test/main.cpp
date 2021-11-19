@@ -6,6 +6,16 @@
 #include <iostream>
 using namespace zee;
 
+const bool contain(const shape::rectf& rect1, const shape::rectf& rect2) {
+	const auto tmp_rect = rect1.intersect_rect_area(rect2);
+	return tmp_rect == rect1 || tmp_rect == rect2;
+}
+
+const bool contain(const shape::circlef& circle1, const shape::circlef& circle2) {
+	const auto tmp_radius_diff = math::abs(circle1.radius - circle2.radius);
+	return circle1.intersect(circle2) && tmp_radius_diff >= circle1.origin.distance(circle2.origin);
+}
+
 int main() {
 	constexpr zee::math::vec2f v = { 10, 10 };
 	constexpr zee::math::impl::vec_impl<2, float> v_parent = { 10, 10 }; 
@@ -24,8 +34,6 @@ int main() {
 	std::cout << zee::rand(100) << std::endl;
 	std::cout << to_string(temp) << std::endl;
 	//std::cout << to_string(rt) << std::endl;
-	// 
-	// 
 	//std::wcout << to_tstring(cc) << std::endl;
 	//std::cout << to_string(rt) << std::endl;
 	std::cout << to_string(v) << std::endl;
