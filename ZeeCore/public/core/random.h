@@ -52,7 +52,7 @@ namespace impl {
 		return dist(impl::get_engine());
 	}
 	
-	template<typename T>
+	template<typename T = int32>
 	std::enable_if_t<impl::is_random_arg<T>::value, T>
 		rand(T end = std::numeric_limits<T>::max()) noexcept {
 		typename impl::uniform_distiribution_selector<T>::type dist(end < 0 ? end : 0, end < 0 ? 0 : end);

@@ -9,51 +9,8 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="core\interfaces\clonable.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="core\core.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="core\delegate.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="core\random.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="core\string.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="core\type_supports.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="core\core_base.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\common.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\math.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\shape.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\vec_base.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\vec_common_funcs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="math\vec.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="public\core\core.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -87,9 +44,6 @@
     <ClInclude Include="public\util\type_supports.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="public\geometry\rect\rect_base.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="public\math\vec\vec_impl.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -99,17 +53,23 @@
     <ClInclude Include="public\math\vec\vec.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="public\shape\rect\rect_base.h">
+    <ClInclude Include="public\shape\rect.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="public\math\to_string.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="public\shape\to_string.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="public\shape\circle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="public\shape\shape.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="core\random.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="core\string.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="private\core\random.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>

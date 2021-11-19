@@ -1,4 +1,4 @@
-#include "../../public/core/string.h"
+#include "../../public/core/random.h"
 #include "../../public/core/core.h"
 
 namespace zee {

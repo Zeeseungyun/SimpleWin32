@@ -7,11 +7,11 @@ namespace interfaces {
 	};
 }//namespace zee::interfaces
 
-template<typename T>
-struct is_tickable : std::conditional_t<
-	std::is_base_of<interfaces::tickable, T>::value,
-	std::true_type,
-	std::false_type
-> {
-};
+	template<typename T>
+	struct is_tickable : std::conditional_t<
+		std::is_base_of<interfaces::tickable, T>::value,
+		std::true_type,
+		std::false_type
+	> {
+	};
 }//namespace zee
