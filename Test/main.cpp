@@ -24,6 +24,8 @@ int main() {
 	std::cout << zee::rand(100) << std::endl;
 	std::cout << to_string(temp) << std::endl;
 	//std::cout << to_string(rt) << std::endl;
+	// 
+	// 
 	//std::wcout << to_tstring(cc) << std::endl;
 	//std::cout << to_string(rt) << std::endl;
 	std::cout << to_string(v) << std::endl;
