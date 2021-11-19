@@ -282,6 +282,78 @@ namespace impl {
 		return l *= reciprocal(r);
 	}
 
+	template<size_t CompSize, typename T, typename U>
+	vec_impl<CompSize, T>&
+		operator+=(vec_impl<CompSize, T, true>& l, const vec_impl<CompSize, U, true>& r) noexcept {
+		for (size_t i = 0; i != CompSize; ++i) {
+			l.data[i] += r.data[i];
+		}
+		return l;
+	}
+
+	template<typename T, typename U>
+	vec_impl<4, T>&
+		operator+=(vec_impl<4, T, true>& l, const vec_impl<4, U, true>& r) noexcept {
+		l.data[0] += r.data[0];
+		l.data[1] += r.data[1];
+		l.data[2] += r.data[2];
+		l.data[3] += r.data[3];
+		return l;
+	}
+
+	template<typename T, typename U>
+	vec_impl<3, T>&
+		operator+=(vec_impl<3, T, true>& l, const vec_impl<3, U, true>& r) noexcept {
+		l.data[0] += r.data[0];
+		l.data[1] += r.data[1];
+		l.data[2] += r.data[2];
+		return l;
+	}
+
+	template<typename T, typename U>
+	vec_impl<2, T>&
+		operator+=(vec_impl<2, T, true>& l, const vec_impl<2, U, true>& r) noexcept {
+		l.data[0] += r.data[0];
+		l.data[1] += r.data[1];
+		return l;
+	}
+
+	template<size_t CompSize, typename T, typename U>
+	vec_impl<CompSize, T>&
+		operator-=(vec_impl<CompSize, T, true>& l, const vec_impl<CompSize, U, true>& r) noexcept {
+		for (size_t i = 0; i != CompSize; ++i) {
+			l.data[i] -= r.data[i];
+		}
+		return l;
+	}
+
+	template<typename T, typename U>
+	vec_impl<4, T>&
+		operator-=(vec_impl<4, T, true>& l, const vec_impl<4, U, true>& r) noexcept {
+		l.data[0] -= r.data[0];
+		l.data[1] -= r.data[1];
+		l.data[2] -= r.data[2];
+		l.data[3] -= r.data[3];
+		return l;
+	}
+
+	template<typename T, typename U>
+	vec_impl<3, T>&
+		operator-=(vec_impl<3, T, true>& l, const vec_impl<3, U, true>& r) noexcept {
+		l.data[0] -= r.data[0];
+		l.data[1] -= r.data[1];
+		l.data[2] -= r.data[2];
+		return l;
+	}
+
+	template<typename T, typename U>
+	vec_impl<2, T>&
+		operator-=(vec_impl<2, T, true>& l, const vec_impl<2, U, true>& r) noexcept {
+		l.data[0] -= r.data[0];
+		l.data[1] -= r.data[1];
+		return l;
+	}
+
 	template<size_t CompSize, typename T>
 	struct vec_impl<CompSize, T, false> : illegal_vec { };
 
@@ -848,9 +920,21 @@ namespace impl {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec_impl<component_size, promotion_t<element_type, OtherElemT>>
+		constexpr auto
 			reflect(const vec_impl<component_size, OtherElemT, true>& nor) const noexcept {
 			return (*this) - nor * dot(nor) * 2;
+		}
+
+		//Vec3 special member
+
+		template<typename OtherElemT>
+		constexpr auto
+			cross(const vec_impl<component_size, OtherElemT, true>& other) const noexcept {
+			return vec_impl<component_size, promotion_t<OtherElemT, element_type>>{
+				data[1] * other.data[2] - other.data[1] * data[2],
+				data[2] * other.data[0] - other.data[2] * data[0],
+				data[0] * other.data[1] - other.data[0] * data[1],
+			};
 		}
 	};
 

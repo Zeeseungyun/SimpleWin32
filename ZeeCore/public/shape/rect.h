@@ -9,17 +9,28 @@ namespace shape {
 
 namespace impl {
 
+	struct legal_rect { };
+
+	struct illegal_rect {
+	private:
+		struct dummy {};
+
+	public:
+		typedef void element_type;
+
+	private:
+		illegal_rect(dummy) = delete;
+	};
+
 	template<typename ElemT, bool IsValidRect = is_vec_element<ElemT>::value>
 	struct rect_base_impl;
 
 	template<typename ElemT>
-	struct rect_base_impl<ElemT, false> {
-	private:
-		rect_base_impl() = delete;
+	struct rect_base_impl<ElemT, false> : illegal_rect {
 	};
 
 	template<typename ElemT>
-	struct rect_base_impl<ElemT, true> {
+	struct rect_base_impl<ElemT, true> : legal_rect {
 		typedef ElemT element_type;
 		union {
 			struct {
@@ -231,6 +242,9 @@ namespace impl {
 
 	public:
 		typedef T element_type;
+
+		constexpr rect_base() noexcept : base_type(0, 0, 0, 0) { }
+
 		template<typename Elem1T, typename Elem2T, typename Elem3T, typename Elem4T,
 			std::enable_if_t<are_all_vec_element<Elem1T, Elem2T, Elem3T, Elem4T>::value, int> = 0>
 			constexpr rect_base(Elem1T new_left, Elem2T new_top, Elem3T new_right, Elem4T new_bottom) noexcept
@@ -272,8 +286,9 @@ namespace impl {
 
 	template struct rect_base<float>;
 	template struct rect_base<int32>;
+
 	typedef rect_base<float> rectf;
 	typedef rect_base<int32> recti;
-}//namespace zee::shape
 
+}//namespace zee::shape
 }//namespace zee

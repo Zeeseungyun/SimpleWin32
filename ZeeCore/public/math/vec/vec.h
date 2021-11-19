@@ -44,12 +44,3 @@ namespace math {
 
 }//namespace zee::math
 }//namespace zee
-
-void test() {
-	constexpr zee::math::vec2 v1 = { -1, 0 };
-	constexpr zee::math::vec2 v2 = { 0, 1 };
-	constexpr zee::math::vec3 v3 = { -1, 0, 0 };
-	constexpr zee::math::vec3 v4 = { 0, 1, 0 };
-	constexpr zee::math::vec2f v5 = { 10.0, -2.5 };
-	constexpr zee::math::vec3f v6 = { 10.0, -2.5 , 0};
-}
