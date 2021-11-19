@@ -16,6 +16,8 @@ const bool contain(const shape::circlef& circle1, const shape::circlef& circle2)
 	return circle1.intersect(circle2) && tmp_radius_diff >= circle1.origin.distance(circle2.origin);
 }
 
+int a;
+
 int main() {
 	constexpr zee::math::vec2f v = { 10, 10 };
 	constexpr zee::math::impl::vec_impl<2, float> v_parent = { 10, 10 }; 
