@@ -17,6 +17,7 @@ const bool contain(const shape::circlef& circle1, const shape::circlef& circle2)
 }
 
 int a;
+//당신은 권한이 없나봄
 
 int main() {
 	constexpr zee::math::vec2f v = { 10, 10 };
