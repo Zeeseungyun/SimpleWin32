@@ -1,5 +1,6 @@
 #pragma once
 #include "../math/vec/vec.h"
+#include "boundings.h"
 
 namespace zee {
 namespace shape {

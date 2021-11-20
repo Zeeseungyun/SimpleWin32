@@ -2,6 +2,7 @@
 #include "../core/string.h"
 #include "rect.h"
 #include "circle.h"
+#include "boundings.h"
 
 namespace zee {
 namespace shape {
@@ -120,6 +121,41 @@ namespace impl {
 
 	template<typename T>
 	tstring to_tstring(const rect_base<T>& v) noexcept {
+#ifdef UNICODE
+		return to_wstring(v);
+#else 
+		return to_string(v);
+#endif
+	}
+
+	constexpr const char* to_string(collide_type v) noexcept {
+		switch (v)
+		{
+		case zee::shape::collide_type::intersect: return "intersect"; break;
+		case zee::shape::collide_type::contain: return "contain"; break;
+		case zee::shape::collide_type::none: 
+		default:
+			break;
+		}
+
+		return "none"; 
+	}
+
+	constexpr const wchar_t* to_wstring(collide_type v) noexcept {
+		switch (v)
+		{
+		case zee::shape::collide_type::intersect: return L"intersect"; break;
+		case zee::shape::collide_type::contain: return L"contain"; break;
+		case zee::shape::collide_type::none:
+		default:
+			break;
+		}
+
+		return L"none";
+	}
+
+
+	constexpr const TCHAR* to_tstring(collide_type v) noexcept {
 #ifdef UNICODE
 		return to_wstring(v);
 #else 
