@@ -1,6 +1,15 @@
 #pragma once
 #include <string>
-#include <tchar.h> //msvc extention header. windows only.
+
+#ifndef TEXT
+	#ifdef UNICODE
+		typedef wchar_t TCHAR;
+		#define TEXT(x) L ## x
+	#else
+		typedef char TCHAR;
+		#define TEXT(x) x
+	#endif //UNICODE
+#endif //TEXT
 
 namespace zee {
 	typedef std::basic_string<TCHAR> tstring;
@@ -29,5 +38,3 @@ namespace zee {
 	}
 }
 
-#define ZEE_STR_CAT_L_IMPL(v) L ## v
-#define ZEE_STR_CAT_L(v) ZEE_STR_CAT_L_IMPL(v)

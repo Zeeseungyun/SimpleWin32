@@ -52,15 +52,14 @@ namespace impl {
 }//namespace zee::math::impl
 
 	template<size_t CompSize, typename T>
-	std::string to_string(const vec<CompSize, T>& v) noexcept {
+	auto to_string(const vec<CompSize, T>& v) noexcept {
 		return impl::to_string(v);
 	}
 
 	template<size_t CompSize, typename T>
-	std::wstring to_wstring(const vec<CompSize, T>& v) noexcept {
+	auto to_wstring(const vec<CompSize, T>& v) noexcept {
 		return impl::to_wstring(v);
 	}
-
 
 	template<size_t CompSize, typename T>
 	tstring to_tstring(const vec<CompSize, T>& v) noexcept {

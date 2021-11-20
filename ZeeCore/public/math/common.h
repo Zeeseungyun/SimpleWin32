@@ -6,8 +6,75 @@
 
 namespace zee {
 namespace math {
-	constexpr default_floating_point_t pi_v = (default_floating_point_t)3.14159265359f;
-	constexpr default_floating_point_t inv_pi_v = (default_floating_point_t)1 / pi_v;
+namespace constants {
+	template<typename FloatT>
+	static constexpr std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT> 
+		pi_v = (FloatT)3.14159265358979323846264338327950288;
+
+	template<typename FloatT>
+	static constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		inv_pi_v = 1 / pi_v<FloatT>;
+
+	template<typename FloatT>
+	static constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		half_pi_v = pi_v<FloatT> / 2;
+
+}//namespace zee::math::constants
+
+	template<typename FloatT = default_floating_point_t>
+	constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		pi() noexcept {
+		return constants::pi_v<FloatT>;
+	}
+
+	template<typename FloatT = default_floating_point_t>
+	constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		half_pi() noexcept {
+		return constants::half_pi_v<FloatT>;
+	}
+
+	template<typename FloatT = default_floating_point_t>
+	constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		inv_pi() noexcept {
+		return constants::inv_pi_v<FloatT>;
+	}
+
+	template<typename FloatT>
+	constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		rad_to_deg(FloatT rad) noexcept {
+		return rad * inv_pi<FloatT>() * 180;
+	}
+
+	template<typename FloatT>
+	constexpr
+		std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		deg_to_rad(FloatT deg) noexcept {
+		return deg / 180 * pi<FloatT>();
+	}
+
+	template<typename FloatT>
+	std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		deg_to_normalize(FloatT deg) noexcept {
+		return std::fmod(deg, (FloatT)360);
+	}
+
+	template<typename T>
+	constexpr std::enable_if_t<std::is_integral<T>::value, T>
+		deg_to_normalize(T deg) noexcept {
+		return deg % 360;
+	}
+
+	template<typename FloatT>
+	std::enable_if_t<std::is_floating_point<FloatT>::value, FloatT>
+		rad_to_normalize(FloatT deg) noexcept {
+		return std::fmod(deg, 2 * pi<FloatT>());
+	}
 
 	// Basic operations 
 	using std::abs;	using std::fmod; using std::remainder;
@@ -152,5 +219,23 @@ namespace impl {
 		return f + (l - f) * clamp(d, 0, 1);
 	}
 
+	template<size_t CompSize, typename VecElem1T, typename VecElem2T, typename VecElem3T, typename VecElem4T, typename DeltaT>
+	constexpr std::enable_if_t<are_all_arithemtic<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT>::value 
+		&& std::is_floating_point<DeltaT>::value,
+		promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT>>
+		catmullrom(
+			const vec<CompSize, VecElem1T>& p1,
+			const vec<CompSize, VecElem2T>& p2,
+			const vec<CompSize, VecElem3T>& p3,
+			const vec<CompSize, VecElem4T>& p4,
+			DeltaT d) noexcept {
+		typedef promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT> promotion_t;
+		vec<CompSize, promotion_t> v1 = p2;
+		vec<CompSize, promotion_t> v2 = p3;
+		vec<CompSize, promotion_t> t1 = (p3 - p1) * (promotion_t)0.5;
+		vec<CompSize, promotion_t> t2 = (p4 - p2) * (promotion_t)0.5;
+		const promotion_t delta_cubic_mul_2 = 0;
+		return p2;
+	}
 }//namespace zee::math
 }//namespace zee

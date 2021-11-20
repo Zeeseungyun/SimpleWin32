@@ -75,7 +75,7 @@ namespace zee {
 		time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		tm tmm;
 		if (localtime_s(&tmm, &t) != 0) {
-			return _T("wrong time.");
+			return TEXT("wrong time.");
 		}
 
 		tstring buffer;
@@ -86,7 +86,7 @@ namespace zee {
 #else
 			std::strftime
 #endif
-			(&buffer[0], buffer.size() - 1, _T("%y-%m-%d %H:%M:%S"), &tmm) == 0) {
+			(&buffer[0], buffer.size() - 1, TEXT("%y-%m-%d %H:%M:%S"), &tmm) == 0) {
 			buffer.resize(buffer.size() * 2);
 		}
 

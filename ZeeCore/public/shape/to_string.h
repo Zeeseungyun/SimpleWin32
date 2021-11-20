@@ -7,13 +7,11 @@ namespace zee {
 namespace shape {
 namespace impl {
 
-#define ZEE_CIRCLE_STR_FORMAT(fmt) "circle(origin("#fmt", "#fmt"), radius("#fmt"))"
-
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
 		to_string(const circle_base_impl<T>& v) noexcept {
 		return string_format(
-			ZEE_CIRCLE_STR_FORMAT(%f),
+			"circle(origin(%f, %f), radius(%f))",
 			v.origin.x,
 			v.origin.y,
 			v.radius
@@ -24,7 +22,7 @@ namespace impl {
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const circle_base_impl<T>& v) noexcept {
 		return wstring_format(
-			ZEE_STR_CAT_L(ZEE_CIRCLE_STR_FORMAT(%f)),
+			"circle(origin(%f, %f), radius(%f))",
 			v.origin.x,
 			v.origin.y,
 			v.radius
@@ -35,7 +33,7 @@ namespace impl {
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
 		to_string(const circle_base_impl<T>& v) noexcept {
 		return string_format(
-			ZEE_CIRCLE_STR_FORMAT(%d),
+			"circle(origin(%d, %d), radius(%d))",
 			v.origin.x,
 			v.origin.y,
 			v.radius
@@ -46,20 +44,18 @@ namespace impl {
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const circle_base_impl<T>& v) noexcept {
 		return wstring_format(
-			ZEE_STR_CAT_L(ZEE_CIRCLE_STR_FORMAT(%d)),
+			L"circle(origin(%d, %d), radius(%d))",
 			v.origin.x,
 			v.origin.y,
 			v.radius
 		);
 	}
-#undef ZEE_CIRCLE_STR_FORMAT
-#define ZEE_RECT_STR_FORMAT(fmt) "rect(l("#fmt"), t("#fmt"), r("#fmt"), b("#fmt"))"
 
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
 		to_string(const rect_base_impl<T, true>& v) noexcept {
 		return string_format(
-			ZEE_RECT_STR_FORMAT(%f),
+			"rect(l(%f), t(%f), r(%f), b(%f))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
 	}
@@ -68,7 +64,7 @@ namespace impl {
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const rect_base_impl<T, true>& v) noexcept {
 		return string_format(
-			ZEE_STR_CAT_L(ZEE_RECT_STR_FORMAT(%f)),
+			L"rect(l(%f), t(%f), r(%f), b(%f))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
 	}
@@ -77,7 +73,7 @@ namespace impl {
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
 		to_string(const rect_base_impl<T, true>& v) noexcept {
 		return string_format(
-			ZEE_RECT_STR_FORMAT(%d),
+			"rect(l(%d), t(%d), r(%d), b(%d))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
 	}
@@ -86,7 +82,7 @@ namespace impl {
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const rect_base_impl<T, true>& v) noexcept {
 		return string_format(
-			ZEE_STR_CAT_L(ZEE_RECT_STR_FORMAT(%d)),
+			L"rect(l(%d), t(%d), r(%d), b(%d))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
 	}
@@ -94,50 +90,22 @@ namespace impl {
 }//namespace zee::shape::impl
 
 	template<typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, std::string>
-		to_string(const rect_base<T>& v) noexcept {
+	auto to_string(const rect_base<T>& v) noexcept {
 		return impl::to_string(v);
 	}
 
-	template<typename T>
-	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
-		to_string(const rect_base<T>& v) noexcept {
-		return impl::to_string(v);
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
+	template<typename T> auto
 		to_wstring(const rect_base<T>& v) noexcept {
 		return impl::to_wstring(v);
 	}
 
 	template<typename T>
-	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const rect_base<T>& v) noexcept {
-		return impl::to_wstring(v);
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, std::string>
-		to_string(const circle_base<T>& v) noexcept {
+	auto to_string(const circle_base<T>& v) noexcept {
 		return impl::to_string(v);
 	}
 
 	template<typename T>
-	std::enable_if_t<is_vec_element<T>::value && !std::is_floating_point<T>::value, std::string>
-		to_string(const circle_base<T>& v) noexcept {
-		return impl::to_string(v);
-	}
-
-	template<typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const circle_base<T>& v) noexcept {
-		return impl::to_wstring(v);
-	}
-
-	template<typename T>
-	std::enable_if_t<is_vec_element<T>::value && !std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const circle_base<T>& v) noexcept {
+	auto to_wstring(const circle_base<T>& v) noexcept {
 		return impl::to_wstring(v);
 	}
 

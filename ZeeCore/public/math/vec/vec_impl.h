@@ -420,7 +420,8 @@ namespace impl {
 		}
 
 		template<typename EpsT = element_type>
-		bool is_near_zero(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_zero(EpsT eps = epsilon<EpsT>()) const noexcept {
 			for (const auto& elem : data) {
 				if (!math::is_near_zero(elem, eps)) {
 					return false;
@@ -430,7 +431,8 @@ namespace impl {
 		}
 
 		template<typename OtherElemT, typename EpsT = promotion_t<element_type, OtherElemT>>
-		bool is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
 			for (size_t i = 0; i != component_size; ++i) {
 				if (!math::is_near_equal(data[i], other.data[i], eps)) {
 					return false;
@@ -474,7 +476,8 @@ namespace impl {
 		}
 		
 		template<typename EpsT = element_type>
-		bool is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
 			return math::is_near_equal(length_sq(), (EpsT)1, eps);
 		}
 
@@ -612,13 +615,15 @@ namespace impl {
 		}
 
 		template<typename EpsT = element_type>
-		bool is_near_zero(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_zero(EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_zero(data[0], eps)
 				&& is_near_zero(data[1], eps);
 		}
 
 		template<typename OtherElemT, typename EpsT = promotion_t<element_type, OtherElemT>>
-		bool is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_equal(data[0], other.data[0], eps)
 				&& is_near_equal(data[1], other.data[1], eps);
 		}
@@ -654,7 +659,8 @@ namespace impl {
 		}
 
 		template<typename EpsT = element_type>
-		bool is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_equal(length_sq(), (EpsT)1, eps);
 		}
 
@@ -804,7 +810,8 @@ namespace impl {
 		}
 
 		template<typename OtherElemT, typename EpsT = promotion_t<element_type, OtherElemT>>
-		bool is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_equal(data[0], other.data[0], eps)
 				&& is_near_equal(data[1], other.data[1], eps)
 				&& is_near_equal(data[2], other.data[2], eps);
@@ -830,7 +837,7 @@ namespace impl {
 		constexpr auto
 			reciprocal() const noexcept {
 			typedef promotion_t<default_floating_point_t, element_type> promotion_t;
-			return  vec_impl<component_size, promotion_t>{
+			return  vec_impl<component_size, promotion_t> {
 				(promotion_t)1 / data[0],
 				(promotion_t)1 / data[1],
 				(promotion_t)1 / data[2],
@@ -846,7 +853,8 @@ namespace impl {
 		}
 
 		template<typename EpsT = element_type>
-		bool is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_equal(length_sq(), (EpsT)1, eps);
 		}
 
@@ -904,7 +912,7 @@ namespace impl {
 		constexpr std::enable_if_t<is_vec_element<OtherT>::value, vec_impl<component_size, promotion_t<element_type, OtherT>>>
 			div(const OtherT& other) const noexcept {
 			typedef promotion_t<element_type, OtherT> promotion_t;
-			return mul(reciprocal((promotion_t)other));
+			return mul(math::reciprocal((promotion_t)other));
 		}
 
 		template<typename OtherElemT>
@@ -1005,7 +1013,8 @@ namespace impl {
 		}
 
 		template<typename EpsT = element_type>
-		bool is_near_zero(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_zero(EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_zero(data[0], eps)
 				&& is_near_zero(data[1], eps)
 				&& is_near_zero(data[2], eps)
@@ -1013,7 +1022,8 @@ namespace impl {
 		}
 
 		template<typename OtherElemT, typename EpsT = promotion_t<element_type, OtherElemT>>
-		bool is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool>
+			is_near_equal(const vec_impl<component_size, OtherElemT, true>& other, EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_equal(data[0], other.data[0], eps)
 				&& is_near_equal(data[1], other.data[1], eps)
 				&& is_near_equal(data[2], other.data[2], eps)
@@ -1057,7 +1067,8 @@ namespace impl {
 		}
 
 		template<typename EpsT = element_type>
-		bool is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
+		std::enable_if_t<is_vec_element<EpsT>::value, bool> 
+			is_near_normalize(EpsT eps = epsilon<EpsT>()) const noexcept {
 			return is_near_equal(length_sq(), (EpsT)1, eps);
 		}
 
@@ -1500,13 +1511,6 @@ namespace impl {
 		return min(max(src_v, min_v), max_v);
 	}
 
-	template<size_t CompSize, typename FirstT, typename LastT, typename DeltaT>
-	constexpr std::enable_if_t<std::is_floating_point<DeltaT>::value, 
-		vec<CompSize, promotion_t<FirstT, LastT, DeltaT>>>
-		lerp(const vec<CompSize, FirstT>& f, const vec<CompSize, LastT>& l, DeltaT d) noexcept {
-		return f + d * (l - f);
-	}
-
 	template<typename LeftElemT, typename RightElemT>
 	constexpr auto
 		cross(const vec<3, LeftElemT>& l, const vec<3, RightElemT>& r) noexcept {
@@ -1517,6 +1521,61 @@ namespace impl {
 	constexpr auto
 		ccw(const vec<2, LeftElemT>& l, const vec<2, RightElemT>& r) noexcept {
 		return l.ccw(r);
+	}
+
+	template<size_t CompSize, typename LeftElemT, typename RightElemT, typename EpsT = promotion_t<LeftElemT, RightElemT>>
+	std::enable_if_t<is_vec_element<EpsT>::value, bool>
+		is_near_equal(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r, EpsT eps = epsilon<EpsT>()) noexcept {
+		return l.is_near_equal(r, eps);
+	}
+
+	template<size_t CompSize, typename LeftElemT, typename RightElemT, typename EpsT = promotion_t<LeftElemT, RightElemT>>
+	std::enable_if_t<is_vec_element<EpsT>::value, bool>
+		is_near_not_equal(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r, EpsT eps = epsilon<EpsT>()) noexcept {
+		return !is_near_equal(l, r, eps);
+	}
+
+	template<size_t CompSize, typename VecElemT, typename EpsT = VecElemT>
+	std::enable_if_t<is_vec_element<EpsT>::value, bool>
+		is_near_zero(const vec<CompSize, VecElemT>& v, EpsT eps = epsilon<EpsT>()) noexcept {
+		return v.is_near_zero(eps);
+	}
+
+	template<size_t CompSize, typename VecElemT, typename EpsT = VecElemT>
+	std::enable_if_t<is_vec_element<EpsT>::value, bool>
+		is_near_not_zero(const vec<CompSize, VecElemT>& v, EpsT eps = epsilon<EpsT>()) noexcept {
+		return !v.is_near_zero(eps);
+	}
+
+	template<size_t CompSize, typename VecElemT>
+	constexpr auto
+		reciprocal(const vec<CompSize, VecElemT>& v) noexcept {
+		return v.reciprocal();
+	}
+
+	template<size_t CompSize, typename VecElem1T, typename VecElem2T, typename DeltaT>
+	constexpr std::enable_if_t<std::is_floating_point<DeltaT>::value,
+		vec<CompSize, promotion_t<VecElem1T, VecElem2T, DeltaT>>>
+		lerp(const vec<CompSize, VecElem1T>& p1, const vec<CompSize, VecElem2T>& p2, DeltaT d) noexcept {
+		return p1 + d * (p2 - p1);
+	}
+
+	template<size_t CompSize, typename VecElem1T, typename VecElem2T, typename VecElem3T, typename VecElem4T, typename DeltaT>
+	std::enable_if_t<std::is_floating_point<DeltaT>::value,
+		vec<CompSize, promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT>>>
+		catmullrom(
+			const vec<CompSize, VecElem1T>& p1,
+			const vec<CompSize, VecElem2T>& p2,
+			const vec<CompSize, VecElem3T>& p3,
+			const vec<CompSize, VecElem4T>& p4,
+			DeltaT d) noexcept {
+		typedef promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT> promotion_t;
+		vec<CompSize, promotion_t> v1 = p2; 
+		vec<CompSize, promotion_t> v2 = p3;
+		vec<CompSize, promotion_t> t1 = (p3 - p1) * (promotion_t)0.5;
+		vec<CompSize, promotion_t> t2 = (p4 - p2) * (promotion_t)0.5;
+		const promotion_t delta_cubic_mul_2 = 0;
+		return p2;
 	}
 
 }//namespace zee::math

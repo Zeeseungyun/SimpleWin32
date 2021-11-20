@@ -128,21 +128,21 @@ namespace impl {
 	template<typename ... Args> struct multicast_delegate<void(Args...)> {
 		typedef impl::delegate_invoker<void, Args...>  invoke_type;
 
-		delegate_handle_t add_raw(void(*new_func)(Args...)) {
+		delegate_handle_t add_raw(void(*new_func)(Args...)) noexcept {
 			delegate_handle_t new_handle = make_new_handle();
 			invoker_list_[new_handle].bind(new_func);
 			return new_handle;
 		}
 
 		template<typename LambdaT>
-		delegate_handle_t add_lambda(LambdaT&& new_func) {
+		delegate_handle_t add_lambda(LambdaT&& new_func) noexcept {
 			delegate_handle_t new_handle = make_new_handle();
 			invoker_list_[new_handle].bind(std::forward<LambdaT>(new_func));
 			return new_handle;
 		}
 
 		template<typename ClassT>
-		delegate_handle_t add_sp(const std::shared_ptr<ClassT>& sp, void(ClassT::* new_func)(Args...)) {
+		delegate_handle_t add_sp(const std::shared_ptr<ClassT>& sp, void(ClassT::* new_func)(Args...)) noexcept {
 			delegate_handle_t new_handle = make_new_handle();
 			invoker_list_[new_handle].bind(sp, new_func);
 			return new_handle;
