@@ -1356,7 +1356,7 @@ namespace impl {
 	template<typename LeftElemT, typename RightElemT>
 	constexpr  promotion_t<LeftElemT, RightElemT>
 		dot(const vec<2, LeftElemT>& l, const vec<2, RightElemT>& r) noexcept {
-		return l.dot(r);
+		return l.dot(r); l.dot(r);
 	}
 
 	template<typename LeftElemT, typename RightElemT>

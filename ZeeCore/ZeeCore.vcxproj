@@ -146,6 +146,7 @@
     <ClInclude Include="public\core\string.h" />
     <ClInclude Include="public\math\vec\vec.h" />
     <ClInclude Include="public\math\to_string.h" />
+    <ClInclude Include="public\shape\boundings.h" />
     <ClInclude Include="public\shape\circle.h" />
     <ClInclude Include="public\shape\rect.h" />
     <ClInclude Include="public\shape\shape.h" />
