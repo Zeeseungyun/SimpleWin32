@@ -124,9 +124,9 @@ enum class value_t : std::uint8_t
     array,            ///< array (ordered collection of values)
     string,           ///< string value
     boolean,          ///< boolean value
-    number_integer,   ///< number value (signed integer)
-    number_unsigned,  ///< number value (unsigned integer)
-    number_float,     ///< number value (floating-point)
+    number_integer,   ///< number_ value (signed integer)
+    number_unsigned,  ///< number_ value (unsigned integer)
+    number_float,     ///< number_ value (floating-point)
     binary,           ///< binary array (ordered collection of bytes)
     discarded         ///< discarded by the parser callback function
 };
@@ -135,7 +135,7 @@ enum class value_t : std::uint8_t
 @brief comparison operator for JSON types
 
 Returns an ordering that is similar to Python:
-- order: null < boolean < number < object < array < string < binary
+- order: null < boolean < number_ < object < array < string < binary
 - furthermore, each type is not smaller than itself
 - discarded values are not comparable
 - binary is represented as a b"" string in python and directly comparable to a
@@ -2706,11 +2706,11 @@ namespace detail
 /// struct to capture the start position of the current token
 struct position_t
 {
-    /// the total number of characters read
+    /// the total number_ of characters read
     std::size_t chars_read_total = 0;
-    /// the number of characters read in the current line
+    /// the number_ of characters read in the current line
     std::size_t chars_read_current_line = 0;
-    /// the number of lines read
+    /// the number_ of lines read
     std::size_t lines_read = 0;
 
     /// conversion to size_t to preserve SAX interface
@@ -2871,15 +2871,15 @@ json.exception.parse_error.102 | parse error at 14: missing or wrong low surroga
 json.exception.parse_error.103 | parse error: code points above 0x10FFFF are invalid | Unicode supports code points up to 0x10FFFF. Code points above 0x10FFFF are invalid.
 json.exception.parse_error.104 | parse error: JSON patch must be an array of objects | [RFC 6902](https://tools.ietf.org/html/rfc6902) requires a JSON Patch document to be a JSON document that represents an array of objects.
 json.exception.parse_error.105 | parse error: operation must have string member 'op' | An operation of a JSON Patch document must contain exactly one "op" member, whose value indicates the operation to perform. Its value must be one of "add", "remove", "replace", "move", "copy", or "test"; other values are errors.
-json.exception.parse_error.106 | parse error: array index '01' must not begin with '0' | An array index in a JSON Pointer ([RFC 6901](https://tools.ietf.org/html/rfc6901)) may be `0` or any number without a leading `0`.
+json.exception.parse_error.106 | parse error: array index '01' must not begin with '0' | An array index in a JSON Pointer ([RFC 6901](https://tools.ietf.org/html/rfc6901)) may be `0` or any number_ without a leading `0`.
 json.exception.parse_error.107 | parse error: JSON pointer must be empty or begin with '/' - was: 'foo' | A JSON Pointer must be a Unicode string containing a sequence of zero or more reference tokens, each prefixed by a `/` character.
 json.exception.parse_error.108 | parse error: escape character '~' must be followed with '0' or '1' | In a JSON Pointer, only `~0` and `~1` are valid escape sequences.
-json.exception.parse_error.109 | parse error: array index 'one' is not a number | A JSON Pointer array index must be a number.
+json.exception.parse_error.109 | parse error: array index 'one' is not a number_ | A JSON Pointer array index must be a number_.
 json.exception.parse_error.110 | parse error at 1: cannot read 2 bytes from vector | When parsing CBOR or MessagePack, the byte vector ends before the complete value has been read.
 json.exception.parse_error.112 | parse error at 1: error reading CBOR; last byte: 0xF8 | Not all types of CBOR or MessagePack are supported. This exception occurs if an unsupported byte was read.
 json.exception.parse_error.113 | parse error at 2: expected a CBOR string; last byte: 0x98 | While parsing a map key, a value that is not a string has been read.
 json.exception.parse_error.114 | parse error: Unsupported BSON record type 0x0F | The parsing of the corresponding BSON record type is not implemented (yet).
-json.exception.parse_error.115 | parse error at byte 5: syntax error while parsing UBJSON high-precision number: invalid number text: 1A | A UBJSON high-precision number could not be parsed.
+json.exception.parse_error.115 | parse error at byte 5: syntax error while parsing UBJSON high-precision number_: invalid number_ text: 1A | A UBJSON high-precision number_ could not be parsed.
 
 @note For an input with n bytes, 1 is the index of the first character and n+1
       is the index of the terminating null byte or the end of file. This also
@@ -2961,8 +2961,8 @@ name / id                           | example message | description
 json.exception.invalid_iterator.201 | iterators are not compatible | The iterators passed to constructor @ref basic_json(InputIT first, InputIT last) are not compatible, meaning they do not belong to the same container. Therefore, the range (@a first, @a last) is invalid.
 json.exception.invalid_iterator.202 | iterator does not fit current value | In an erase or insert function, the passed iterator @a pos does not belong to the JSON value for which the function was called. It hence does not define a valid position for the deletion/insertion.
 json.exception.invalid_iterator.203 | iterators do not fit current value | Either iterator passed to function @ref erase(IteratorType first, IteratorType last) does not belong to the JSON value from which values shall be erased. It hence does not define a valid range to delete values from.
-json.exception.invalid_iterator.204 | iterators out of range | When an iterator range for a primitive type (number, boolean, or string) is passed to a constructor or an erase function, this range has to be exactly (@ref begin(), @ref end()), because this is the only way the single stored value is expressed. All other ranges are invalid.
-json.exception.invalid_iterator.205 | iterator out of range | When an iterator for a primitive type (number, boolean, or string) is passed to an erase function, the iterator has to be the @ref begin() iterator, because it is the only way to address the stored value. All other iterators are invalid.
+json.exception.invalid_iterator.204 | iterators out of range | When an iterator range for a primitive type (number_, boolean, or string) is passed to a constructor or an erase function, this range has to be exactly (@ref begin(), @ref end()), because this is the only way the single stored value is expressed. All other ranges are invalid.
+json.exception.invalid_iterator.205 | iterator out of range | When an iterator for a primitive type (number_, boolean, or string) is passed to an erase function, the iterator has to be the @ref begin() iterator, because it is the only way to address the stored value. All other iterators are invalid.
 json.exception.invalid_iterator.206 | cannot construct with iterators from null | The iterators passed to constructor @ref basic_json(InputIT first, InputIT last) belong to a JSON null value and hence to not define a valid range.
 json.exception.invalid_iterator.207 | cannot use key() for non-object iterators | The key() member function can only be used on iterators belonging to a JSON object, because other types do not have a concept of a key.
 json.exception.invalid_iterator.208 | cannot use operator[] for object iterators | The operator[] to specify a concrete offset cannot be used on iterators belonging to a JSON object, because JSON objects are unordered.
@@ -2971,7 +2971,7 @@ json.exception.invalid_iterator.210 | iterators do not fit | The iterator range 
 json.exception.invalid_iterator.211 | passed iterators may not belong to container | The iterator range passed to the insert function must not be a subrange of the container to insert to.
 json.exception.invalid_iterator.212 | cannot compare iterators of different containers | When two iterators are compared, they must belong to the same container.
 json.exception.invalid_iterator.213 | cannot compare order of object iterators | The order of object iterators cannot be compared, because JSON objects are unordered.
-json.exception.invalid_iterator.214 | cannot get value | Cannot get value for iterator: Either the iterator belongs to a null value or it is an iterator to a primitive type (number, boolean, or string), but the iterator is different to @ref begin().
+json.exception.invalid_iterator.214 | cannot get value | Cannot get value for iterator: Either the iterator belongs to a null value or it is an iterator to a primitive type (number_, boolean, or string), but the iterator is different to @ref begin().
 
 @liveexample{The following code shows how an `invalid_iterator` exception can be
 caught.,invalid_iterator}
@@ -3020,7 +3020,7 @@ json.exception.type_error.306 | cannot use value() with string | The @ref value(
 json.exception.type_error.307 | cannot use erase() with string | The @ref erase() member functions can only be executed for certain JSON types.
 json.exception.type_error.308 | cannot use push_back() with string | The @ref push_back() and @ref operator+= member functions can only be executed for certain JSON types.
 json.exception.type_error.309 | cannot use insert() with | The @ref insert() member functions can only be executed for certain JSON types.
-json.exception.type_error.310 | cannot use swap() with number | The @ref swap() member functions can only be executed for certain JSON types.
+json.exception.type_error.310 | cannot use swap() with number_ | The @ref swap() member functions can only be executed for certain JSON types.
 json.exception.type_error.311 | cannot use emplace_back() with string | The @ref emplace_back() member function can only be executed for certain JSON types.
 json.exception.type_error.312 | cannot use update() with string | The @ref update() member functions can only be executed for certain JSON types.
 json.exception.type_error.313 | invalid value to unflatten | The @ref unflatten function converts an object whose keys are JSON Pointers back into an arbitrary nested JSON value. The JSON Pointers must not overlap, because then the resulting value would not be well defined.
@@ -3071,8 +3071,8 @@ json.exception.out_of_range.402 | array index '-' (3) is out of range | The spec
 json.exception.out_of_range.403 | key 'foo' not found | The provided key was not found in the JSON object.
 json.exception.out_of_range.404 | unresolved reference token 'foo' | A reference token in a JSON Pointer could not be resolved.
 json.exception.out_of_range.405 | JSON pointer has no parent | The JSON Patch operations 'remove' and 'add' can not be applied to the root element of the JSON value.
-json.exception.out_of_range.406 | number overflow parsing '10E1000' | A parsed number could not be stored as without changing it to NaN or INF.
-json.exception.out_of_range.407 | number overflow serializing '9223372036854775808' | UBJSON and BSON only support integer numbers up to 9223372036854775807. (until version 3.8.0) |
+json.exception.out_of_range.406 | number_ overflow parsing '10E1000' | A parsed number_ could not be stored as without changing it to NaN or INF.
+json.exception.out_of_range.407 | number_ overflow serializing '9223372036854775808' | UBJSON and BSON only support integer numbers up to 9223372036854775807. (until version 3.8.0) |
 json.exception.out_of_range.408 | excessive array size: 8658170730974374167 | The size (following `#`) of an UBJSON array or object exceeds the maximal capacity. |
 json.exception.out_of_range.409 | BSON key cannot contain code point U+0000 (at byte 2) | Key identifiers to be serialized to BSON cannot contain code point U+0000, since the key is stored as zero-terminated c-string |
 
@@ -5457,7 +5457,7 @@ enum class input_format_t { json, cbor, msgpack, ubjson, bson };
 #ifndef JSON_NO_IO
 /*!
 Input adapter for stdio file access. This adapter read only 1 byte and do not use any
- buffer. This adapter is a very low level adapter.
+ buffer_. This adapter is a very low level adapter.
 */
 class file_input_adapter
 {
@@ -5721,7 +5721,7 @@ class wide_string_input_adapter
 
     typename std::char_traits<char>::int_type get_character() noexcept
     {
-        // check if buffer needs to be filled
+        // check if buffer_ needs to be filled
         if (utf8_bytes_index == utf8_bytes_filled)
         {
             fill_buffer<sizeof(WideCharType)>();
@@ -5730,7 +5730,7 @@ class wide_string_input_adapter
             JSON_ASSERT(utf8_bytes_index == 0);
         }
 
-        // use buffer
+        // use buffer_
         JSON_ASSERT(utf8_bytes_filled > 0);
         JSON_ASSERT(utf8_bytes_index < utf8_bytes_filled);
         return utf8_bytes[utf8_bytes_index++];
@@ -5745,12 +5745,12 @@ class wide_string_input_adapter
         wide_string_input_helper<BaseInputAdapter, T>::fill_buffer(base_adapter, utf8_bytes, utf8_bytes_index, utf8_bytes_filled);
     }
 
-    /// a buffer for UTF-8 bytes
+    /// a buffer_ for UTF-8 bytes
     std::array<std::char_traits<char>::int_type, 4> utf8_bytes = {{0, 0, 0, 0}};
 
     /// index to the utf8_codes array for the next valid byte
     std::size_t utf8_bytes_index = 0;
-    /// number of valid bytes in the utf8_codes array
+    /// number_ of valid bytes in the utf8_codes array
     std::size_t utf8_bytes_filled = 0;
 };
 
@@ -5954,21 +5954,21 @@ struct json_sax
     virtual bool boolean(bool val) = 0;
 
     /*!
-    @brief an integer number was read
+    @brief an integer number_ was read
     @param[in] val  integer value
     @return whether parsing should proceed
     */
     virtual bool number_integer(number_integer_t val) = 0;
 
     /*!
-    @brief an unsigned integer number was read
+    @brief an unsigned integer number_ was read
     @param[in] val  unsigned integer value
     @return whether parsing should proceed
     */
     virtual bool number_unsigned(number_unsigned_t val) = 0;
 
     /*!
-    @brief an floating-point number was read
+    @brief an floating-point number_ was read
     @param[in] val  floating-point value
     @param[in] s    raw token value
     @return whether parsing should proceed
@@ -5993,9 +5993,9 @@ struct json_sax
 
     /*!
     @brief the beginning of an object was read
-    @param[in] elements  number of object elements or -1 if unknown
+    @param[in] elements  number_ of object elements or -1 if unknown
     @return whether parsing should proceed
-    @note binary formats may report the number of elements
+    @note binary formats may report the number_ of elements
     */
     virtual bool start_object(std::size_t elements) = 0;
 
@@ -6015,9 +6015,9 @@ struct json_sax
 
     /*!
     @brief the beginning of an array was read
-    @param[in] elements  number of array elements or -1 if unknown
+    @param[in] elements  number_ of array elements or -1 if unknown
     @return whether parsing should proceed
-    @note binary formats may report the number of elements
+    @note binary formats may report the number_ of elements
     */
     virtual bool start_array(std::size_t elements) = 0;
 
@@ -6664,7 +6664,7 @@ class lexer_base
         value_string,     ///< a string -- use get_string() for actual value
         value_unsigned,   ///< an unsigned integer -- use get_number_unsigned() for actual value
         value_integer,    ///< a signed integer -- use get_number_integer() for actual value
-        value_float,      ///< an floating point number -- use get_number_float() for actual value
+        value_float,      ///< an floating point number_ -- use get_number_float() for actual value
         begin_array,      ///< the character for array begin `[`
         begin_object,     ///< the character for object begin `{`
         end_array,        ///< the character for array end `]`
@@ -6672,7 +6672,7 @@ class lexer_base
         name_separator,   ///< the name separator `:`
         value_separator,  ///< the value separator `,`
         parse_error,      ///< indicating a parse error
-        end_of_input,     ///< indicating the end of the input buffer
+        end_of_input,     ///< indicating the end of the input buffer_
         literal_or_value  ///< a literal or the begin of a value (only for diagnostics)
     };
 
@@ -6860,9 +6860,9 @@ class lexer : public lexer_base<BasicJsonType>
     @brief scan a string literal
 
     This function scans a string according to Sect. 7 of RFC 8259. While
-    scanning, bytes are escaped and copied into buffer token_buffer. Then the
+    scanning, bytes are escaped and copied into buffer_ token_buffer. Then the
     function returns successfully, token_buffer is *not* null-terminated (as it
-    may contain \0 bytes), and token_buffer.size() is the number of bytes in the
+    may contain \0 bytes), and token_buffer.size() is the number_ of bytes in the
     string.
 
     @return token_type::value_string if string could be successfully scanned,
@@ -7547,14 +7547,14 @@ class lexer : public lexer_base<BasicJsonType>
     }
 
     /*!
-    @brief scan a number literal
+    @brief scan a number_ literal
 
     This function scans a string according to Sect. 6 of RFC 8259.
 
     The function is realized with a deterministic finite state machine derived
     from the grammar described in RFC 8259. Starting in state "init", the
     input is read and used to determined the next state. Only state "done"
-    accepts the number. State "error" is a trap state to model errors. In the
+    accepts the number_. State "error" is a trap state to model errors. In the
     table below, "anything" means any character but the ones listed before.
 
     state    | 0        | 1-9      | e E      | +       | -       | .        | anything
@@ -7576,10 +7576,10 @@ class lexer : public lexer_base<BasicJsonType>
 
     During scanning, the read bytes are stored in token_buffer. This string is
     then converted to a signed integer, an unsigned integer, or a
-    floating-point number.
+    floating-point number_.
 
     @return token_type::value_unsigned, token_type::value_integer, or
-            token_type::value_float if number could be successfully scanned,
+            token_type::value_float if number_ could be successfully scanned,
             token_type::parse_error otherwise
 
     @note The scanner is independent of the current locale. Internally, the
@@ -7588,14 +7588,14 @@ class lexer : public lexer_base<BasicJsonType>
     */
     token_type scan_number()  // lgtm [cpp/use-of-goto]
     {
-        // reset token_buffer to store the number's bytes
+        // reset token_buffer to store the number_'s bytes
         reset();
 
-        // the type of the parsed number; initially set to unsigned; will be
+        // the type of the parsed number_; initially set to unsigned; will be
         // changed if minus sign, decimal point or exponent is read
         token_type number_type = token_type::value_unsigned;
 
-        // state (init): we just found out we need to scan a number
+        // state (init): we just found out we need to scan a number_
         switch (current)
         {
             case '-':
@@ -7683,7 +7683,7 @@ scan_number_zero:
         }
 
 scan_number_any1:
-        // state: we just parsed a number 0-9 (maybe with a leading minus sign)
+        // state: we just parsed a number_ 0-9 (maybe with a leading minus sign)
         switch (get())
         {
             case '0':
@@ -7746,7 +7746,7 @@ scan_number_decimal1:
         }
 
 scan_number_decimal2:
-        // we just parsed at least one number after a decimal point
+        // we just parsed at least one number_ after a decimal point
         switch (get())
         {
             case '0':
@@ -7837,7 +7837,7 @@ scan_number_sign:
         }
 
 scan_number_any2:
-        // we just parsed a number after the exponent or exponent sign
+        // we just parsed a number_ after the exponent or exponent sign
         switch (get())
         {
             case '0':
@@ -7860,8 +7860,8 @@ scan_number_any2:
         }
 
 scan_number_done:
-        // unget the character after the number (we only read it to know that
-        // we are done scanning a number)
+        // unget the character after the number_ (we only read it to know that
+        // we are done scanning a number_)
         unget();
 
         char* endptr = nullptr; // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -7872,7 +7872,7 @@ scan_number_done:
         {
             const auto x = std::strtoull(token_buffer.data(), &endptr, 10);
 
-            // we checked the number format before
+            // we checked the number_ format before
             JSON_ASSERT(endptr == token_buffer.data() + token_buffer.size());
 
             if (errno == 0)
@@ -7888,7 +7888,7 @@ scan_number_done:
         {
             const auto x = std::strtoll(token_buffer.data(), &endptr, 10);
 
-            // we checked the number format before
+            // we checked the number_ format before
             JSON_ASSERT(endptr == token_buffer.data() + token_buffer.size());
 
             if (errno == 0)
@@ -7901,11 +7901,11 @@ scan_number_done:
             }
         }
 
-        // this code is reached if we parse a floating-point number or if an
+        // this code is reached if we parse a floating-point number_ or if an
         // integer conversion above failed
         strtof(value_float, token_buffer.data(), &endptr);
 
-        // we checked the number format before
+        // we checked the number_ format before
         JSON_ASSERT(endptr == token_buffer.data() + token_buffer.size());
 
         return token_type::value_float;
@@ -8187,7 +8187,7 @@ scan_number_done:
             case '\"':
                 return scan_string();
 
-            // number
+            // number_
             case '-':
             case '0':
             case '1':
@@ -8233,13 +8233,13 @@ scan_number_done:
     /// raw input token string (for error messages)
     std::vector<char_type> token_string {};
 
-    /// buffer for variable-length tokens (numbers, strings)
+    /// buffer_ for variable-length tokens (numbers, strings)
     string_t token_buffer {};
 
     /// a description of occurred lexer errors
     const char* error_message = "";
 
-    // number values
+    // number_ values
     number_integer_t value_integer = 0;
     number_unsigned_t value_unsigned = 0;
     number_float_t value_float = 0;
@@ -9273,7 +9273,7 @@ class binary_reader
     @brief reads a CBOR string
 
     This function first reads starting bytes to determine the expected
-    string length and then copies this number of bytes into a string.
+    string length and then copies this number_ of bytes into a string.
     Additionally, CBOR's strings with indefinite lengths are supported.
 
     @param[out] result  created string
@@ -9368,7 +9368,7 @@ class binary_reader
     @brief reads a CBOR byte array
 
     This function first reads starting bytes to determine the expected
-    byte array length and then copies this number of bytes into the byte array.
+    byte array length and then copies this number_ of bytes into the byte array.
     Additionally, CBOR's byte arrays with indefinite lengths are supported.
 
     @param[out] result  created byte array
@@ -9937,7 +9937,7 @@ class binary_reader
     @brief reads a MessagePack string
 
     This function first reads starting bytes to determine the expected
-    string length and then copies this number of bytes into a string.
+    string length and then copies this number_ of bytes into a string.
 
     @param[out] result  created string
 
@@ -10019,7 +10019,7 @@ class binary_reader
     @brief reads a MessagePack byte array
 
     This function first reads starting bytes to determine the expected
-    byte array length and then copies this number of bytes into a byte array.
+    byte array length and then copies this number_ of bytes into a byte array.
 
     @param[out] result  created byte array
 
@@ -10290,7 +10290,7 @@ class binary_reader
                 {
                     return false;
                 }
-                result = static_cast<std::size_t>(number); // NOLINT(bugprone-signed-char-misuse,cert-str34-c): number is not a char
+                result = static_cast<std::size_t>(number); // NOLINT(bugprone-signed-char-misuse,cert-str34-c): number_ is not a char
                 return true;
             }
 
@@ -10626,7 +10626,7 @@ class binary_reader
 
     bool get_ubjson_high_precision_number()
     {
-        // get size of following number string
+        // get size of following number_ string
         std::size_t size{};
         auto res = get_ubjson_size_value(size);
         if (JSON_HEDLEY_UNLIKELY(!res))
@@ -10634,7 +10634,7 @@ class binary_reader
             return res;
         }
 
-        // get number string
+        // get number_ string
         std::vector<char> number_vector;
         for (std::size_t i = 0; i < size; ++i)
         {
@@ -10646,7 +10646,7 @@ class binary_reader
             number_vector.push_back(static_cast<char>(current));
         }
 
-        // parse number string
+        // parse number_ string
         using ia_type = decltype(detail::input_adapter(number_vector));
         auto number_lexer = detail::lexer<BasicJsonType, ia_type>(detail::input_adapter(number_vector), false);
         const auto result_number = number_lexer.scan();
@@ -10721,11 +10721,11 @@ class binary_reader
     }
 
     /*
-    @brief read a number from the input
+    @brief read a number_ from the input
 
-    @tparam NumberType the type of the number
+    @tparam NumberType the type of the number_
     @param[in] format   the current format (for diagnostics)
-    @param[out] result  number of type @a NumberType
+    @param[out] result  number_ of type @a NumberType
 
     @return whether conversion completed
 
@@ -10757,7 +10757,7 @@ class binary_reader
             }
         }
 
-        // step 2: convert array into number of type T and return
+        // step 2: convert array into number_ of type T and return
         std::memcpy(&result, vec.data(), sizeof(NumberType));
         return true;
     }
@@ -10765,9 +10765,9 @@ class binary_reader
     /*!
     @brief create a string by reading characters from the input
 
-    @tparam NumberType the type of the number
+    @tparam NumberType the type of the number_
     @param[in] format the current format (for diagnostics)
-    @param[in] len number of characters to read
+    @param[in] len number_ of characters to read
     @param[out] result string created by reading @a len bytes
 
     @return whether string creation completed
@@ -10798,9 +10798,9 @@ class binary_reader
     /*!
     @brief create a byte array by reading bytes from the input
 
-    @tparam NumberType the type of the number
+    @tparam NumberType the type of the number_
     @param[in] format the current format (for diagnostics)
-    @param[in] len number of bytes to read
+    @param[in] len number_ of bytes to read
     @param[out] result byte array created by reading @a len bytes
 
     @return whether byte array creation completed
@@ -10899,7 +10899,7 @@ class binary_reader
     /// the current character
     char_int_type current = std::char_traits<char_type>::eof();
 
-    /// the number of characters read
+    /// the number_ of characters read
     std::size_t chars_read = 0;
 
     /// whether we can assume little endianness
@@ -11442,7 +11442,7 @@ namespace detail
 /*
 @brief an iterator for primitive JSON types
 
-This class models an iterator for primitive JSON types (boolean, number,
+This class models an iterator for primitive JSON types (boolean, number_,
 string). It's only purpose is to allow the iterator/const_iterator classes
 to "iterate" over primitive values. Internally, the iterator is modeled by
 a `difference_type` variable. Value begin_value (`0`) models the begin,
@@ -12846,9 +12846,9 @@ class json_pointer
     /*!
     @brief create and return a reference to the pointed to value
 
-    @complexity Linear in the number of reference tokens.
+    @complexity Linear in the number_ of reference tokens.
 
-    @throw parse_error.109 if array index is not a number
+    @throw parse_error.109 if array index is not a number_
     @throw type_error.313 if value cannot be unflattened
     */
     BasicJsonType& get_and_create(BasicJsonType& j) const
@@ -12927,7 +12927,7 @@ class json_pointer
     @complexity Linear in the length of the JSON pointer.
 
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     @throw out_of_range.404  if the JSON pointer can not be resolved
     */
     BasicJsonType& get_unchecked(BasicJsonType* ptr) const
@@ -12937,7 +12937,7 @@ class json_pointer
             // convert null values to arrays or objects before continuing
             if (ptr->is_null())
             {
-                // check if reference token is a number
+                // check if reference token is a number_
                 const bool nums =
                     std::all_of(reference_token.begin(), reference_token.end(),
                                 [](const unsigned char x)
@@ -12969,7 +12969,7 @@ class json_pointer
                     }
                     else
                     {
-                        // convert array index to number; unchecked access
+                        // convert array index to number_; unchecked access
                         ptr = &ptr->operator[](array_index(reference_token));
                     }
                     break;
@@ -12993,7 +12993,7 @@ class json_pointer
 
     /*!
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     @throw out_of_range.402  if the array index '-' is used
     @throw out_of_range.404  if the JSON pointer can not be resolved
     */
@@ -13050,7 +13050,7 @@ class json_pointer
     pointer
 
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     @throw out_of_range.402  if the array index '-' is used
     @throw out_of_range.404  if the JSON pointer can not be resolved
     */
@@ -13098,7 +13098,7 @@ class json_pointer
 
     /*!
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     @throw out_of_range.402  if the array index '-' is used
     @throw out_of_range.404  if the JSON pointer can not be resolved
     */
@@ -13148,7 +13148,7 @@ class json_pointer
 
     /*!
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     */
     bool contains(const BasicJsonType* ptr) const
     {
@@ -13371,7 +13371,7 @@ class json_pointer
 
     @return unflattened JSON
 
-    @throw parse_error.109 if array index is not a number
+    @throw parse_error.109 if array index is not a number_
     @throw type_error.314  if value is not an object
     @throw type_error.315  if object values are not primitive
     @throw type_error.313  if value cannot be unflattened
@@ -13795,7 +13795,7 @@ class binary_writer
                 else
                 {
                     // The conversions below encode the sign in the first
-                    // byte, and the value is converted to a positive number.
+                    // byte, and the value is converted to a positive number_.
                     const auto positive_number = -1 - j.m_value.number_integer;
                     if (j.m_value.number_integer >= -24)
                     {
@@ -14957,7 +14957,7 @@ class binary_writer
     // UBJSON //
     ////////////
 
-    // UBJSON: write number (floating point)
+    // UBJSON: write number_ (floating point)
     template<typename NumberType, typename std::enable_if<
                  std::is_floating_point<NumberType>::value, int>::type = 0>
     void write_number_with_ubjson_prefix(const NumberType n,
@@ -14970,7 +14970,7 @@ class binary_writer
         write_number(n);
     }
 
-    // UBJSON: write number (unsigned integer)
+    // UBJSON: write number_ (unsigned integer)
     template<typename NumberType, typename std::enable_if<
                  std::is_unsigned<NumberType>::value, int>::type = 0>
     void write_number_with_ubjson_prefix(const NumberType n,
@@ -15020,7 +15020,7 @@ class binary_writer
         {
             if (add_prefix)
             {
-                oa->write_character(to_char_type('H'));  // high-precision number
+                oa->write_character(to_char_type('H'));  // high-precision number_
             }
 
             const auto number = BasicJsonType(n).dump();
@@ -15032,7 +15032,7 @@ class binary_writer
         }
     }
 
-    // UBJSON: write number (signed integer)
+    // UBJSON: write number_ (signed integer)
     template < typename NumberType, typename std::enable_if <
                    std::is_signed<NumberType>::value&&
                    !std::is_floating_point<NumberType>::value, int >::type = 0 >
@@ -15084,7 +15084,7 @@ class binary_writer
         {
             if (add_prefix)
             {
-                oa->write_character(to_char_type('H'));  // high-precision number
+                oa->write_character(to_char_type('H'));  // high-precision number_
             }
 
             const auto number = BasicJsonType(n).dump();
@@ -15132,7 +15132,7 @@ class binary_writer
                 {
                     return 'L';
                 }
-                // anything else is treated as high-precision number
+                // anything else is treated as high-precision number_
                 return 'H'; // LCOV_EXCL_LINE
             }
 
@@ -15158,7 +15158,7 @@ class binary_writer
                 {
                     return 'L';
                 }
-                // anything else is treated as high-precision number
+                // anything else is treated as high-precision number_
                 return 'H'; // LCOV_EXCL_LINE
             }
 
@@ -15196,9 +15196,9 @@ class binary_writer
     ///////////////////////
 
     /*
-    @brief write a number to output input
-    @param[in] n number of type @a NumberType
-    @tparam NumberType the type of the number
+    @brief write a number_ to output input
+    @param[in] n number_ of type @a NumberType
+    @tparam NumberType the type of the number_
     @tparam OutputIsLittleEndian Set to true if output data is
                                  required to be little endian
 
@@ -15209,7 +15209,7 @@ class binary_writer
     template<typename NumberType, bool OutputIsLittleEndian = false>
     void write_number(const NumberType n)
     {
-        // step 1: write number to array of length NumberType
+        // step 1: write number_ to array of length NumberType
         std::array<CharType, sizeof(NumberType)> vec{};
         std::memcpy(vec.data(), &n, sizeof(NumberType));
 
@@ -15496,7 +15496,7 @@ struct boundaries
 };
 
 /*!
-Compute the (normalized) diyfp representing the input number 'value' and its
+Compute the (normalized) diyfp representing the input number_ 'value' and its
 boundaries.
 
 @pre value must be finite and positive
@@ -15592,7 +15592,7 @@ boundaries compute_boundaries(FloatType value)
 // the digit generation procedure. Using (alpha,gamma)=(-60,-32) works out well
 // in practice:
 //
-// The idea is to cut the number c * w = f * 2^e into two parts, which can be
+// The idea is to cut the number_ c * w = f * 2^e into two parts, which can be
 // processed independently: An integral part p1, and a fractional part p2:
 //
 //      f * 2^e = ( (f div 2^-e) * 2^-e + (f mod 2^-e) ) * 2^e
@@ -15897,7 +15897,7 @@ inline void grisu2_round(char* buf, int len, std::uint64_t dist, std::uint64_t d
 }
 
 /*!
-Generates V = buffer * 10^decimal_exponent, such that M- <= V <= M+.
+Generates V = buffer_ * 10^decimal_exponent, such that M- <= V <= M+.
 M- and M+ must be normalized and share the same exponent -60 <= e <= -32.
 */
 inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
@@ -15907,7 +15907,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     static_assert(kGamma <= -32, "internal error");
 
     // Generates the digits (and the exponent) of a decimal floating-point
-    // number V = buffer * 10^decimal_exponent in the range [M-, M+]. The diyfp's
+    // number_ V = buffer_ * 10^decimal_exponent in the range [M-, M+]. The diyfp's
     // w, M- and M+ share the same exponent e, which satisfies alpha <= e <= gamma.
     //
     //               <--------------------------- delta ---->
@@ -15967,24 +15967,24 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     while (n > 0)
     {
         // Invariants:
-        //      M+ = buffer * 10^n + (p1 + p2 * 2^e)    (buffer = 0 for n = k)
+        //      M+ = buffer_ * 10^n + (p1 + p2 * 2^e)    (buffer_ = 0 for n = k)
         //      pow10 = 10^(n-1) <= p1 < 10^n
         //
         const std::uint32_t d = p1 / pow10;  // d = p1 div 10^(n-1)
         const std::uint32_t r = p1 % pow10;  // r = p1 mod 10^(n-1)
         //
-        //      M+ = buffer * 10^n + (d * 10^(n-1) + r) + p2 * 2^e
-        //         = (buffer * 10 + d) * 10^(n-1) + (r + p2 * 2^e)
+        //      M+ = buffer_ * 10^n + (d * 10^(n-1) + r) + p2 * 2^e
+        //         = (buffer_ * 10 + d) * 10^(n-1) + (r + p2 * 2^e)
         //
         JSON_ASSERT(d <= 9);
-        buffer[length++] = static_cast<char>('0' + d); // buffer := buffer * 10 + d
+        buffer[length++] = static_cast<char>('0' + d); // buffer_ := buffer_ * 10 + d
         //
-        //      M+ = buffer * 10^(n-1) + (r + p2 * 2^e)
+        //      M+ = buffer_ * 10^(n-1) + (r + p2 * 2^e)
         //
         p1 = r;
         n--;
         //
-        //      M+ = buffer * 10^n + (p1 + p2 * 2^e)
+        //      M+ = buffer_ * 10^n + (p1 + p2 * 2^e)
         //      pow10 = 10^n
         //
 
@@ -15999,11 +15999,11 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
         const std::uint64_t rest = (std::uint64_t{p1} << -one.e) + p2;
         if (rest <= delta)
         {
-            // V = buffer * 10^n, with M- <= V <= M+.
+            // V = buffer_ * 10^n, with M- <= V <= M+.
 
             decimal_exponent += n;
 
-            // We may now just stop. But instead look if the buffer could be
+            // We may now just stop. But instead look if the buffer_ could be
             // decremented to bring V closer to w.
             //
             // pow10 = 10^n is now 1 ulp in the decimal representation V.
@@ -16029,7 +16029,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     // The digits of the integral part have been generated:
     //
     //      M+ = d[k-1]...d[1]d[0] + p2 * 2^e
-    //         = buffer            + p2 * 2^e
+    //         = buffer_            + p2 * 2^e
     //
     // Now generate the digits of the fractional part p2 * 2^e.
     //
@@ -16057,9 +16057,9 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     //
     // i.e.
     //
-    //      M+ = buffer + p2 * 2^e
-    //         = buffer + 10^-m * (d + r * 2^e)
-    //         = (buffer * 10^m + d) * 10^-m + 10^-m * r * 2^e
+    //      M+ = buffer_ + p2 * 2^e
+    //         = buffer_ + 10^-m * (d + r * 2^e)
+    //         = (buffer_ * 10^m + d) * 10^-m + 10^-m * r * 2^e
     //
     // and stop as soon as 10^-m * r * 2^e <= delta * 2^e
 
@@ -16069,29 +16069,29 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     for (;;)
     {
         // Invariant:
-        //      M+ = buffer * 10^-m + 10^-m * (d[-m-1] / 10 + d[-m-2] / 10^2 + ...) * 2^e
-        //         = buffer * 10^-m + 10^-m * (p2                                 ) * 2^e
-        //         = buffer * 10^-m + 10^-m * (1/10 * (10 * p2)                   ) * 2^e
-        //         = buffer * 10^-m + 10^-m * (1/10 * ((10*p2 div 2^-e) * 2^-e + (10*p2 mod 2^-e)) * 2^e
+        //      M+ = buffer_ * 10^-m + 10^-m * (d[-m-1] / 10 + d[-m-2] / 10^2 + ...) * 2^e
+        //         = buffer_ * 10^-m + 10^-m * (p2                                 ) * 2^e
+        //         = buffer_ * 10^-m + 10^-m * (1/10 * (10 * p2)                   ) * 2^e
+        //         = buffer_ * 10^-m + 10^-m * (1/10 * ((10*p2 div 2^-e) * 2^-e + (10*p2 mod 2^-e)) * 2^e
         //
         JSON_ASSERT(p2 <= (std::numeric_limits<std::uint64_t>::max)() / 10);
         p2 *= 10;
         const std::uint64_t d = p2 >> -one.e;     // d = (10 * p2) div 2^-e
         const std::uint64_t r = p2 & (one.f - 1); // r = (10 * p2) mod 2^-e
         //
-        //      M+ = buffer * 10^-m + 10^-m * (1/10 * (d * 2^-e + r) * 2^e
-        //         = buffer * 10^-m + 10^-m * (1/10 * (d + r * 2^e))
-        //         = (buffer * 10 + d) * 10^(-m-1) + 10^(-m-1) * r * 2^e
+        //      M+ = buffer_ * 10^-m + 10^-m * (1/10 * (d * 2^-e + r) * 2^e
+        //         = buffer_ * 10^-m + 10^-m * (1/10 * (d + r * 2^e))
+        //         = (buffer_ * 10 + d) * 10^(-m-1) + 10^(-m-1) * r * 2^e
         //
         JSON_ASSERT(d <= 9);
-        buffer[length++] = static_cast<char>('0' + d); // buffer := buffer * 10 + d
+        buffer[length++] = static_cast<char>('0' + d); // buffer_ := buffer_ * 10 + d
         //
-        //      M+ = buffer * 10^(-m-1) + 10^(-m-1) * r * 2^e
+        //      M+ = buffer_ * 10^(-m-1) + 10^(-m-1) * r * 2^e
         //
         p2 = r;
         m++;
         //
-        //      M+ = buffer * 10^-m + 10^-m * p2 * 2^e
+        //      M+ = buffer_ * 10^-m + 10^-m * p2 * 2^e
         // Invariant restored.
 
         // Check if enough digits have been generated.
@@ -16107,7 +16107,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
         }
     }
 
-    // V = buffer * 10^-m, with M- <= V <= M+.
+    // V = buffer_ * 10^-m, with M- <= V <= M+.
 
     decimal_exponent -= m;
 
@@ -16121,8 +16121,8 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     grisu2_round(buffer, length, dist, delta, p2, ten_m);
 
     // By construction this algorithm generates the shortest possible decimal
-    // number (Loitsch, Theorem 6.2) which rounds back to w.
-    // For an input number of precision p, at least
+    // number_ (Loitsch, Theorem 6.2) which rounds back to w.
+    // For an input number_ of precision p, at least
     //
     //      N = 1 + ceil(p * log_10(2))
     //
@@ -16137,8 +16137,8 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
 
 /*!
 v = buf * 10^decimal_exponent
-len is the length of the buffer (number of decimal digits)
-The buffer must be large enough, i.e. >= max_digits10.
+len is the length of the buffer_ (number_ of decimal digits)
+The buffer_ must be large enough, i.e. >= max_digits10.
 */
 JSON_HEDLEY_NON_NULL(1)
 inline void grisu2(char* buf, int& len, int& decimal_exponent,
@@ -16180,12 +16180,12 @@ inline void grisu2(char* buf, int& len, int& decimal_exponent,
     //  --------+---[---------------(---+---)---------------]---+--------
     //          w-  M-                  w                   M+  w+
     //
-    // Now any number in [M-, M+] (bounds included) will round to w when input,
+    // Now any number_ in [M-, M+] (bounds included) will round to w when input,
     // regardless of how the input rounding algorithm breaks ties.
     //
-    // And digit_gen generates the shortest possible such number in [M-, M+].
+    // And digit_gen generates the shortest possible such number_ in [M-, M+].
     // Note that this does not mean that Grisu2 always generates the shortest
-    // possible number in the interval (m-, m+).
+    // possible number_ in the interval (m-, m+).
     const diyfp M_minus(w_minus.f + 1, w_minus.e);
     const diyfp M_plus (w_plus.f  - 1, w_plus.e );
 
@@ -16196,8 +16196,8 @@ inline void grisu2(char* buf, int& len, int& decimal_exponent,
 
 /*!
 v = buf * 10^decimal_exponent
-len is the length of the buffer (number of decimal digits)
-The buffer must be large enough, i.e. >= max_digits10.
+len is the length of the buffer_ (number_ of decimal digits)
+The buffer_ must be large enough, i.e. >= max_digits10.
 */
 template<typename FloatType>
 JSON_HEDLEY_NON_NULL(1)
@@ -16303,8 +16303,8 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
     const int n = len + decimal_exponent;
 
     // v = buf * 10^(n-k)
-    // k is the length of the buffer (number of decimal digits)
-    // n is the position of the decimal point relative to the start of the buffer.
+    // k is the length of the buffer_ (number_ of decimal digits)
+    // n is the position of the decimal point relative to the start of the buffer_.
 
     if (k <= n && n <= max_exp)
     {
@@ -16312,7 +16312,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
         // len <= max_exp + 2
 
         std::memset(buf + k, '0', static_cast<size_t>(n) - static_cast<size_t>(k));
-        // Make it look like a floating-point number (#362, #378)
+        // Make it look like a floating-point number_ (#362, #378)
         buf[n + 0] = '.';
         buf[n + 1] = '0';
         return buf + (static_cast<size_t>(n) + 2);
@@ -16366,13 +16366,13 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 } // namespace dtoa_impl
 
 /*!
-@brief generates a decimal representation of the floating-point number value in [first, last).
+@brief generates a decimal representation of the floating-point number_ value in [first, last).
 
 The format of the resulting decimal representation is similar to printf's %g
 format. Returns an iterator pointing past-the-end of the decimal representation.
 
-@note The input number must be finite, i.e. NaN's and Inf's are not supported.
-@note The buffer must be large enough.
+@note The input number_ must be finite, i.e. NaN's and Inf's are not supported.
+@note The buffer_ must be large enough.
 @note The result is NOT null-terminated.
 */
 template<typename FloatType>
@@ -16397,7 +16397,7 @@ char* to_chars(char* first, const char* last, FloatType value)
     if (value == 0) // +-0
     {
         *first++ = '0';
-        // Make it look like a floating-point number (#362, #378)
+        // Make it look like a floating-point number_ (#362, #378)
         *first++ = '.';
         *first++ = '0';
         return first;
@@ -16408,17 +16408,17 @@ char* to_chars(char* first, const char* last, FloatType value)
 
     JSON_ASSERT(last - first >= std::numeric_limits<FloatType>::max_digits10);
 
-    // Compute v = buffer * 10^decimal_exponent.
-    // The decimal digits are stored in the buffer, which needs to be interpreted
+    // Compute v = buffer_ * 10^decimal_exponent.
+    // The decimal digits are stored in the buffer_, which needs to be interpreted
     // as an unsigned decimal integer.
-    // len is the length of the buffer, i.e. the number of decimal digits.
+    // len is the length of the buffer_, i.e. the number_ of decimal digits.
     int len = 0;
     int decimal_exponent = 0;
     dtoa_impl::grisu2(first, len, decimal_exponent, value);
 
     JSON_ASSERT(len <= std::numeric_limits<FloatType>::max_digits10);
 
-    // Format the buffer like printf("%.*g", prec, value)
+    // Format the buffer_ like printf("%.*g", prec, value)
     constexpr int kMinExp = -4;
     // Use digits10 here to increase compatibility with version 2.
     constexpr int kMaxExp = std::numeric_limits<FloatType>::digits10;
@@ -16807,9 +16807,9 @@ class serializer
     {
         std::uint32_t codepoint{};
         std::uint8_t state = UTF8_ACCEPT;
-        std::size_t bytes = 0;  // number of bytes written to string_buffer
+        std::size_t bytes = 0;  // number_ of bytes written to string_buffer
 
-        // number of bytes written at the point of the last valid byte
+        // number_ of bytes written at the point of the last valid byte
         std::size_t bytes_after_last_accept = 0;
         std::size_t undumped_chars = 0;
 
@@ -16896,7 +16896,7 @@ class serializer
                             }
                             else
                             {
-                                // copy byte to buffer (all previous bytes
+                                // copy byte to buffer_ (all previous bytes
                                 // been copied have in default case above)
                                 string_buffer[bytes++] = s[i];
                             }
@@ -16904,8 +16904,8 @@ class serializer
                         }
                     }
 
-                    // write buffer and reset index; there must be 13 bytes
-                    // left, as this is the maximal number of bytes to be
+                    // write buffer_ and reset index; there must be 13 bytes
+                    // left, as this is the maximal number_ of bytes to be
                     // written ("\uxxxx\uxxxx\0") for one code point
                     if (string_buffer.size() - bytes < 13)
                     {
@@ -16942,7 +16942,7 @@ class serializer
                                 --i;
                             }
 
-                            // reset length buffer to the last accepted index;
+                            // reset length buffer_ to the last accepted index;
                             // thus removing/ignoring the invalid characters
                             bytes = bytes_after_last_accept;
 
@@ -16965,8 +16965,8 @@ class serializer
                                     string_buffer[bytes++] = detail::binary_writer<BasicJsonType, char>::to_char_type('\xBD');
                                 }
 
-                                // write buffer and reset index; there must be 13 bytes
-                                // left, as this is the maximal number of bytes to be
+                                // write buffer_ and reset index; there must be 13 bytes
+                                // left, as this is the maximal number_ of bytes to be
                                 // written ("\uxxxx\uxxxx\0") for one code point
                                 if (string_buffer.size() - bytes < 13)
                                 {
@@ -16994,7 +16994,7 @@ class serializer
                 {
                     if (!ensure_ascii)
                     {
-                        // code point will not be escaped - copy byte to buffer
+                        // code point will not be escaped - copy byte to buffer_
                         string_buffer[bytes++] = s[i];
                     }
                     ++undumped_chars;
@@ -17006,7 +17006,7 @@ class serializer
         // we finished processing the string
         if (JSON_HEDLEY_LIKELY(state == UTF8_ACCEPT))
         {
-            // write buffer
+            // write buffer_
             if (bytes > 0)
             {
                 o->write_characters(string_buffer.data(), bytes);
@@ -17057,10 +17057,10 @@ class serializer
     /*!
     @brief count digits
 
-    Count the number of decimal (base 10) digits for an input unsigned integer.
+    Count the number_ of decimal (base 10) digits for an input unsigned integer.
 
-    @param[in] x  unsigned integer number to count its digits
-    @return    number of decimal digits
+    @param[in] x  unsigned integer number_ to count its digits
+    @return    number_ of decimal digits
     */
     inline unsigned int count_digits(number_unsigned_t x) noexcept
     {
@@ -17094,7 +17094,7 @@ class serializer
     Dump a given integer to output stream @a o. Works internally with
     @a number_buffer.
 
-    @param[in] x  integer number (signed or unsigned) to dump
+    @param[in] x  integer number_ (signed or unsigned) to dump
     @tparam NumberType either @a number_integer_t or @a number_unsigned_t
     */
     template < typename NumberType, detail::enable_if_t <
@@ -17128,7 +17128,7 @@ class serializer
             return;
         }
 
-        // use a pointer to fill the buffer
+        // use a pointer to fill the buffer_
         auto buffer_ptr = number_buffer.begin(); // NOLINT(llvm-qualified-auto,readability-qualified-auto,cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 
         const bool is_negative = std::is_signed<NumberType>::value && !(x >= 0); // see issue #755
@@ -17182,12 +17182,12 @@ class serializer
     }
 
     /*!
-    @brief dump a floating-point number
+    @brief dump a floating-point number_
 
-    Dump a given floating-point number to output stream @a o. Works internally
+    Dump a given floating-point number_ to output stream @a o. Works internally
     with @a number_buffer.
 
-    @param[in] x  floating-point number to dump
+    @param[in] x  floating-point number_ to dump
     */
     void dump_float(number_float_t x)
     {
@@ -17198,7 +17198,7 @@ class serializer
             return;
         }
 
-        // If number_float_t is an IEEE-754 single or double precision number,
+        // If number_float_t is an IEEE-754 single or double precision number_,
         // use the Grisu2 algorithm to produce short numbers which are
         // guaranteed to round-trip, using strtof and strtod, resp.
         //
@@ -17220,7 +17220,7 @@ class serializer
 
     void dump_float(number_float_t x, std::false_type /*is_ieee_single_or_double*/)
     {
-        // get number of digits for a float -> text -> float round-trip
+        // get number_ of digits for a float -> text -> float round-trip
         static constexpr auto d = std::numeric_limits<number_float_t>::max_digits10;
 
         // the actual conversion
@@ -17229,7 +17229,7 @@ class serializer
 
         // negative value indicates an error
         JSON_ASSERT(len > 0);
-        // check if buffer was large enough
+        // check if buffer_ was large enough
         JSON_ASSERT(static_cast<std::size_t>(len) < number_buffer.size());
 
         // erase thousands separator
@@ -17355,7 +17355,7 @@ class serializer
     /// the output of the serializer
     output_adapter_t<char> o = nullptr;
 
-    /// a (hopefully) large enough character buffer
+    /// a (hopefully) large enough character buffer_
     std::array<char, 64> number_buffer{{}};
 
     /// the locale
@@ -17365,7 +17365,7 @@ class serializer
     /// the locale's decimal point character
     const char decimal_point = '\0';
 
-    /// string buffer
+    /// string buffer_
     std::array<char, 512> string_buffer{{}};
 
     /// the indentation character
@@ -17868,7 +17868,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @brief returns version information on the library
 
     This function returns a JSON object with information about the library,
-    including the version number and information on the platform and compiler.
+    including the version number_ and information on the platform and compiler.
 
     @return JSON object holding version information
     key         | description
@@ -17969,7 +17969,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     [RFC 8259](https://tools.ietf.org/html/rfc8259) describes JSON objects as follows:
     > An object is an unordered collection of zero or more name/value pairs,
-    > where a name is a string and a value is a string, number, boolean, null,
+    > where a name is a string and a value is a string, number_, boolean, null,
     > object, or array.
 
     To store objects in C++, a type is defined by the template parameters
@@ -18124,8 +18124,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     #### Encoding
 
     Strings are stored in UTF-8 encoding. Therefore, functions like
-    `std::string::size()` or `std::string::length()` return the number of
-    bytes in the string rather than the number of characters or glyphs.
+    `std::string::size()` or `std::string::length()` return the number_ of
+    bytes in the string rather than the number_ of characters or glyphs.
 
     #### String comparison
 
@@ -18179,11 +18179,11 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     using boolean_t = BooleanType;
 
     /*!
-    @brief a type for a number (integer)
+    @brief a type for a number_ (integer)
 
     [RFC 8259](https://tools.ietf.org/html/rfc8259) describes numbers as follows:
     > The representation of numbers is similar to that used in most
-    > programming languages. A number is represented in base 10 using decimal
+    > programming languages. A number_ is represented in base 10 using decimal
     > digits. It contains an integer component that may be prefixed with an
     > optional minus sign, which may be followed by a fraction part and/or an
     > exponent part. Leading zeros are not allowed. (...) Numeric values that
@@ -18191,8 +18191,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     > are not permitted.
 
     This description includes both integer and floating-point numbers.
-    However, C++ allows more precise storage if it is known whether the number
-    is a signed integer, an unsigned integer or a floating-point number.
+    However, C++ allows more precise storage if it is known whether the number_
+    is a signed integer, an unsigned integer or a floating-point number_.
     Therefore, three different types, @ref number_integer_t, @ref
     number_unsigned_t and @ref number_float_t are used.
 
@@ -18212,18 +18212,18 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     - The restrictions about leading zeros is not enforced in C++. Instead,
       leading zeros in integer literals lead to an interpretation as octal
-      number. Internally, the value will be stored as decimal number. For
+      number_. Internally, the value will be stored as decimal number_. For
       instance, the C++ integer literal `010` will be serialized to `8`.
       During deserialization, leading zeros yield an error.
-    - Not-a-number (NaN) values will be serialized to `null`.
+    - Not-a-number_ (NaN) values will be serialized to `null`.
 
     #### Limits
 
     [RFC 8259](https://tools.ietf.org/html/rfc8259) specifies:
     > An implementation may set limits on the range and precision of numbers.
 
-    When the default type is used, the maximal integer number that can be
-    stored is `9223372036854775807` (INT64_MAX) and the minimal integer number
+    When the default type is used, the maximal integer number_ that can be
+    stored is `9223372036854775807` (INT64_MAX) and the minimal integer number_
     that can be stored is `-9223372036854775808` (INT64_MIN). Integer numbers
     that are out of range will yield over/underflow when used in a
     constructor. During deserialization, too large or small integer numbers
@@ -18240,22 +18240,22 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     #### Storage
 
-    Integer number values are stored directly inside a @ref basic_json type.
+    Integer number_ values are stored directly inside a @ref basic_json type.
 
-    @sa see @ref number_float_t -- type for number values (floating-point)
+    @sa see @ref number_float_t -- type for number_ values (floating-point)
 
-    @sa see @ref number_unsigned_t -- type for number values (unsigned integer)
+    @sa see @ref number_unsigned_t -- type for number_ values (unsigned integer)
 
     @since version 1.0.0
     */
     using number_integer_t = NumberIntegerType;
 
     /*!
-    @brief a type for a number (unsigned)
+    @brief a type for a number_ (unsigned)
 
     [RFC 8259](https://tools.ietf.org/html/rfc8259) describes numbers as follows:
     > The representation of numbers is similar to that used in most
-    > programming languages. A number is represented in base 10 using decimal
+    > programming languages. A number_ is represented in base 10 using decimal
     > digits. It contains an integer component that may be prefixed with an
     > optional minus sign, which may be followed by a fraction part and/or an
     > exponent part. Leading zeros are not allowed. (...) Numeric values that
@@ -18263,8 +18263,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     > are not permitted.
 
     This description includes both integer and floating-point numbers.
-    However, C++ allows more precise storage if it is known whether the number
-    is a signed integer, an unsigned integer or a floating-point number.
+    However, C++ allows more precise storage if it is known whether the number_
+    is a signed integer, an unsigned integer or a floating-point number_.
     Therefore, three different types, @ref number_integer_t, @ref
     number_unsigned_t and @ref number_float_t are used.
 
@@ -18284,19 +18284,19 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     - The restrictions about leading zeros is not enforced in C++. Instead,
       leading zeros in integer literals lead to an interpretation as octal
-      number. Internally, the value will be stored as decimal number. For
+      number_. Internally, the value will be stored as decimal number_. For
       instance, the C++ integer literal `010` will be serialized to `8`.
       During deserialization, leading zeros yield an error.
-    - Not-a-number (NaN) values will be serialized to `null`.
+    - Not-a-number_ (NaN) values will be serialized to `null`.
 
     #### Limits
 
     [RFC 8259](https://tools.ietf.org/html/rfc8259) specifies:
     > An implementation may set limits on the range and precision of numbers.
 
-    When the default type is used, the maximal integer number that can be
+    When the default type is used, the maximal integer number_ that can be
     stored is `18446744073709551615` (UINT64_MAX) and the minimal integer
-    number that can be stored is `0`. Integer numbers that are out of range
+    number_ that can be stored is `0`. Integer numbers that are out of range
     will yield over/underflow when used in a constructor. During
     deserialization, too large or small integer numbers will be automatically
     be stored as @ref number_integer_t or @ref number_float_t.
@@ -18312,21 +18312,21 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     #### Storage
 
-    Integer number values are stored directly inside a @ref basic_json type.
+    Integer number_ values are stored directly inside a @ref basic_json type.
 
-    @sa see @ref number_float_t -- type for number values (floating-point)
-    @sa see @ref number_integer_t -- type for number values (integer)
+    @sa see @ref number_float_t -- type for number_ values (floating-point)
+    @sa see @ref number_integer_t -- type for number_ values (integer)
 
     @since version 2.0.0
     */
     using number_unsigned_t = NumberUnsignedType;
 
     /*!
-    @brief a type for a number (floating-point)
+    @brief a type for a number_ (floating-point)
 
     [RFC 8259](https://tools.ietf.org/html/rfc8259) describes numbers as follows:
     > The representation of numbers is similar to that used in most
-    > programming languages. A number is represented in base 10 using decimal
+    > programming languages. A number_ is represented in base 10 using decimal
     > digits. It contains an integer component that may be prefixed with an
     > optional minus sign, which may be followed by a fraction part and/or an
     > exponent part. Leading zeros are not allowed. (...) Numeric values that
@@ -18334,8 +18334,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     > are not permitted.
 
     This description includes both integer and floating-point numbers.
-    However, C++ allows more precise storage if it is known whether the number
-    is a signed integer, an unsigned integer or a floating-point number.
+    However, C++ allows more precise storage if it is known whether the number_
+    is a signed integer, an unsigned integer or a floating-point number_.
     Therefore, three different types, @ref number_integer_t, @ref
     number_unsigned_t and @ref number_float_t are used.
 
@@ -18355,10 +18355,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     - The restrictions about leading zeros is not enforced in C++. Instead,
       leading zeros in floating-point literals will be ignored. Internally,
-      the value will be stored as decimal number. For instance, the C++
+      the value will be stored as decimal number_. For instance, the C++
       floating-point literal `01.2` will be serialized to `1.2`. During
       deserialization, leading zeros yield an error.
-    - Not-a-number (NaN) values will be serialized to `null`.
+    - Not-a-number_ (NaN) values will be serialized to `null`.
 
     #### Limits
 
@@ -18378,12 +18378,12 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     #### Storage
 
-    Floating-point number values are stored directly inside a @ref basic_json
+    Floating-point number_ values are stored directly inside a @ref basic_json
     type.
 
-    @sa see @ref number_integer_t -- type for number values (integer)
+    @sa see @ref number_integer_t -- type for number_ values (integer)
 
-    @sa see @ref number_unsigned_t -- type for number values (unsigned integer)
+    @sa see @ref number_unsigned_t -- type for number_ values (unsigned integer)
 
     @since version 1.0.0
     */
@@ -18499,9 +18499,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     array     | array           | pointer to @ref array_t
     string    | string          | pointer to @ref string_t
     boolean   | boolean         | @ref boolean_t
-    number    | number_integer  | @ref number_integer_t
-    number    | number_unsigned | @ref number_unsigned_t
-    number    | number_float    | @ref number_float_t
+    number_    | number_integer  | @ref number_integer_t
+    number_    | number_unsigned | @ref number_unsigned_t
+    number_    | number_float    | @ref number_float_t
     binary    | binary          | pointer to @ref binary_t
     null      | null            | *no value is stored*
 
@@ -18523,11 +18523,11 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         binary_t* binary;
         /// boolean
         boolean_t boolean;
-        /// number (integer)
+        /// number_ (integer)
         number_integer_t number_integer;
-        /// number (unsigned integer)
+        /// number_ (unsigned integer)
         number_unsigned_t number_unsigned;
-        /// number (floating-point)
+        /// number_ (floating-point)
         number_float_t number_float;
 
         /// default constructor (for null values)
@@ -18962,7 +18962,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     null        | `null`
     boolean     | `false`
     string      | `""`
-    number      | `0`
+    number_      | `0`
     object      | `{}`
     array       | `[]`
     binary      | empty array
@@ -19034,7 +19034,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     - **strings**: @ref string_t, string literals, and all compatible string
       containers can be used.
     - **numbers**: @ref number_integer_t, @ref number_unsigned_t,
-      @ref number_float_t, and all convertible number types such as `int`,
+      @ref number_float_t, and all convertible number_ types such as `int`,
       `size_t`, `int64_t`, `float` or `double` can be used.
     - **boolean**: @ref boolean_t / `bool` can be used.
     - **binary**: @ref binary_t / `std::vector<std::uint8_t>` may be used,
@@ -19478,7 +19478,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     Constructs a JSON array value by creating @a cnt copies of a passed value.
     In case @a cnt is `0`, an empty array is created.
 
-    @param[in] cnt  the number of JSON copies of @a val to create
+    @param[in] cnt  the number_ of JSON copies of @a val to create
     @param[in] val  the JSON value to copy
 
     @post `std::distance(begin(),end()) == cnt` holds.
@@ -19508,7 +19508,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     Constructs the JSON value with the contents of the range `[first, last)`.
     The semantics depends on the different types a JSON value can have:
     - In case of a null type, invalid_iterator.206 is thrown.
-    - In case of other primitive types (number, boolean, or string), @a first
+    - In case of other primitive types (number_, boolean, or string), @a first
       must be `begin()` and @a last must be `end()`. In this case, the value is
       copied. Otherwise, invalid_iterator.204 is thrown.
     - In case of structured types (array, object), the constructor behaves as
@@ -19541,7 +19541,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     compatible (i.e., do not belong to the same JSON value). In this case,
     the range `[first, last)` is undefined.
     @throw invalid_iterator.204 if iterators @a first and @a last belong to a
-    primitive type (number, boolean, or string), but @a first does not point
+    primitive type (number_, boolean, or string), but @a first does not point
     to the first element any more. In this case, the range `[first, last)` is
     undefined. See example code below.
     @throw invalid_iterator.206 if iterators @a first and @a last belong to a
@@ -19957,9 +19957,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             null                      | value_t::null
             boolean                   | value_t::boolean
             string                    | value_t::string
-            number (integer)          | value_t::number_integer
-            number (unsigned integer) | value_t::number_unsigned
-            number (floating-point)   | value_t::number_float
+            number_ (integer)          | value_t::number_integer
+            number_ (unsigned integer) | value_t::number_unsigned
+            number_ (floating-point)   | value_t::number_float
             object                    | value_t::object
             array                     | value_t::array
             binary                    | value_t::binary
@@ -19987,9 +19987,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @brief return whether type is primitive
 
     This function returns true if and only if the JSON type is primitive
-    (string, number, boolean, or null).
+    (string, number_, boolean, or null).
 
-    @return `true` if type is primitive (string, number, boolean, or null),
+    @return `true` if type is primitive (string, number_, boolean, or null),
     `false` otherwise.
 
     @complexity Constant.
@@ -20004,7 +20004,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @sa see @ref is_null() -- returns whether JSON value is `null`
     @sa see @ref is_string() -- returns whether JSON value is a string
     @sa see @ref is_boolean() -- returns whether JSON value is a boolean
-    @sa see @ref is_number() -- returns whether JSON value is a number
+    @sa see @ref is_number() -- returns whether JSON value is a number_
     @sa see @ref is_binary() -- returns whether JSON value is a binary array
 
     @since version 1.0.0
@@ -20086,12 +20086,12 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief return whether value is a number
+    @brief return whether value is a number_
 
-    This function returns true if and only if the JSON value is a number. This
+    This function returns true if and only if the JSON value is a number_. This
     includes both integer (signed and unsigned) and floating-point values.
 
-    @return `true` if type is number (regardless whether integer, unsigned
+    @return `true` if type is number_ (regardless whether integer, unsigned
     integer or floating-type), `false` otherwise.
 
     @complexity Constant.
@@ -20103,10 +20103,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     types.,is_number}
 
     @sa see @ref is_number_integer() -- check if value is an integer or unsigned
-    integer number
+    integer number_
     @sa see @ref is_number_unsigned() -- check if value is an unsigned integer
-    number
-    @sa see @ref is_number_float() -- check if value is a floating-point number
+    number_
+    @sa see @ref is_number_float() -- check if value is a floating-point number_
 
     @since version 1.0.0
     */
@@ -20116,12 +20116,12 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief return whether value is an integer number
+    @brief return whether value is an integer number_
 
     This function returns true if and only if the JSON value is a signed or
-    unsigned integer number. This excludes floating-point values.
+    unsigned integer number_. This excludes floating-point values.
 
-    @return `true` if type is an integer or unsigned integer number, `false`
+    @return `true` if type is an integer or unsigned integer number_, `false`
     otherwise.
 
     @complexity Constant.
@@ -20132,10 +20132,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @liveexample{The following code exemplifies `is_number_integer()` for all
     JSON types.,is_number_integer}
 
-    @sa see @ref is_number() -- check if value is a number
+    @sa see @ref is_number() -- check if value is a number_
     @sa see @ref is_number_unsigned() -- check if value is an unsigned integer
-    number
-    @sa see @ref is_number_float() -- check if value is a floating-point number
+    number_
+    @sa see @ref is_number_float() -- check if value is a floating-point number_
 
     @since version 1.0.0
     */
@@ -20145,12 +20145,12 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief return whether value is an unsigned integer number
+    @brief return whether value is an unsigned integer number_
 
     This function returns true if and only if the JSON value is an unsigned
-    integer number. This excludes floating-point and signed integer values.
+    integer number_. This excludes floating-point and signed integer values.
 
-    @return `true` if type is an unsigned integer number, `false` otherwise.
+    @return `true` if type is an unsigned integer number_, `false` otherwise.
 
     @complexity Constant.
 
@@ -20160,10 +20160,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @liveexample{The following code exemplifies `is_number_unsigned()` for all
     JSON types.,is_number_unsigned}
 
-    @sa see @ref is_number() -- check if value is a number
+    @sa see @ref is_number() -- check if value is a number_
     @sa see @ref is_number_integer() -- check if value is an integer or unsigned
-    integer number
-    @sa see @ref is_number_float() -- check if value is a floating-point number
+    integer number_
+    @sa see @ref is_number_float() -- check if value is a floating-point number_
 
     @since version 2.0.0
     */
@@ -20173,12 +20173,12 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief return whether value is a floating-point number
+    @brief return whether value is a floating-point number_
 
     This function returns true if and only if the JSON value is a
-    floating-point number. This excludes signed and unsigned integer values.
+    floating-point number_. This excludes signed and unsigned integer values.
 
-    @return `true` if type is a floating-point number, `false` otherwise.
+    @return `true` if type is a floating-point number_, `false` otherwise.
 
     @complexity Constant.
 
@@ -20188,10 +20188,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @liveexample{The following code exemplifies `is_number_float()` for all
     JSON types.,is_number_float}
 
-    @sa see @ref is_number() -- check if value is number
-    @sa see @ref is_number_integer() -- check if value is an integer number
+    @sa see @ref is_number() -- check if value is number_
+    @sa see @ref is_number_integer() -- check if value is an integer number_
     @sa see @ref is_number_unsigned() -- check if value is an unsigned integer
-    number
+    number_
 
     @since version 1.0.0
     */
@@ -20407,37 +20407,37 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return is_boolean() ? &m_value.boolean : nullptr;
     }
 
-    /// get a pointer to the value (integer number)
+    /// get a pointer to the value (integer number_)
     number_integer_t* get_impl_ptr(number_integer_t* /*unused*/) noexcept
     {
         return is_number_integer() ? &m_value.number_integer : nullptr;
     }
 
-    /// get a pointer to the value (integer number)
+    /// get a pointer to the value (integer number_)
     constexpr const number_integer_t* get_impl_ptr(const number_integer_t* /*unused*/) const noexcept
     {
         return is_number_integer() ? &m_value.number_integer : nullptr;
     }
 
-    /// get a pointer to the value (unsigned number)
+    /// get a pointer to the value (unsigned number_)
     number_unsigned_t* get_impl_ptr(number_unsigned_t* /*unused*/) noexcept
     {
         return is_number_unsigned() ? &m_value.number_unsigned : nullptr;
     }
 
-    /// get a pointer to the value (unsigned number)
+    /// get a pointer to the value (unsigned number_)
     constexpr const number_unsigned_t* get_impl_ptr(const number_unsigned_t* /*unused*/) const noexcept
     {
         return is_number_unsigned() ? &m_value.number_unsigned : nullptr;
     }
 
-    /// get a pointer to the value (floating-point number)
+    /// get a pointer to the value (floating-point number_)
     number_float_t* get_impl_ptr(number_float_t* /*unused*/) noexcept
     {
         return is_number_float() ? &m_value.number_float : nullptr;
     }
 
-    /// get a pointer to the value (floating-point number)
+    /// get a pointer to the value (floating-point number_)
     constexpr const number_float_t* get_impl_ptr(const number_float_t* /*unused*/) const noexcept
     {
         return is_number_float() ? &m_value.number_float : nullptr;
@@ -21604,7 +21604,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     container `c`, the expression `c.front()` is equivalent to `*c.begin()`.
 
     @return In case of a structured type (array or object), a reference to the
-    first element is returned. In case of number, string, boolean, or binary
+    first element is returned. In case of number_, string, boolean, or binary
     values, a reference to the value is returned.
 
     @complexity Constant.
@@ -21647,7 +21647,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @endcode
 
     @return In case of a structured type (array or object), a reference to the
-    last element is returned. In case of number, string, boolean, or binary
+    last element is returned. In case of number_, string, boolean, or binary
     values, a reference to the value is returned.
 
     @complexity Constant.
@@ -22063,9 +22063,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief returns the number of occurrences of a key in a JSON object
+    @brief returns the number_ of occurrences of a key in a JSON object
 
-    Returns the number of elements with key @a key. If ObjectType is the
+    Returns the number_ of elements with key @a key. If ObjectType is the
     default `std::map` type, the return value will always be `0` (@a key was
     not found) or `1` (@a key was found).
 
@@ -22138,7 +22138,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @post If `j.contains(ptr)` returns true, it is safe to call `j[ptr]`.
 
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
 
     @complexity Logarithmic in the size of the JSON object.
 
@@ -22612,7 +22612,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             null        | `true`
             boolean     | `false`
             string      | `false`
-            number      | `false`
+            number_      | `false`
             binary      | `false`
             object      | result of function `object_t::empty()`
             array       | result of function `array_t::empty()`
@@ -22638,7 +22638,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     - The complexity is constant.
     - Has the semantics of `begin() == end()`.
 
-    @sa see @ref size() -- returns the number of elements
+    @sa see @ref size() -- returns the number_ of elements
 
     @since version 1.0.0
     */
@@ -22680,9 +22680,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief returns the number of elements
+    @brief returns the number_ of elements
 
-    Returns the number of elements in a JSON value.
+    Returns the number_ of elements in a JSON value.
 
     @return The return value depends on the different types and is
             defined as follows:
@@ -22691,7 +22691,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             null        | `0`
             boolean     | `1`
             string      | `1`
-            number      | `1`
+            number_      | `1`
             binary      | `1`
             object      | result of function object_t::size()
             array       | result of function array_t::size()
@@ -22708,7 +22708,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @exceptionsafety No-throw guarantee: this function never throws exceptions.
 
     @note This function does not return the length of a string stored as JSON
-    value - it returns the number of elements in the JSON value which is 1 in
+    value - it returns the number_ of elements in the JSON value which is 1 in
     the case of a string.
 
     @requirement This function helps `basic_json` satisfying the
@@ -22718,7 +22718,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     - Has the semantics of `std::distance(begin(), end())`.
 
     @sa see @ref empty() -- checks whether the container is empty
-    @sa see @ref max_size() -- returns the maximal number of elements
+    @sa see @ref max_size() -- returns the maximal number_ of elements
 
     @since version 1.0.0
     */
@@ -22760,9 +22760,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief returns the maximum possible number of elements
+    @brief returns the maximum possible number_ of elements
 
-    Returns the maximum number of elements a JSON value is able to hold due to
+    Returns the maximum number_ of elements a JSON value is able to hold due to
     system or library implementation limitations, i.e. `std::distance(begin(),
     end())` for the JSON value.
 
@@ -22773,7 +22773,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             null        | `0` (same as `size()`)
             boolean     | `1` (same as `size()`)
             string      | `1` (same as `size()`)
-            number      | `1` (same as `size()`)
+            number_      | `1` (same as `size()`)
             binary      | `1` (same as `size()`)
             object      | result of function `object_t::max_size()`
             array       | result of function `array_t::max_size()`
@@ -22796,7 +22796,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     - Has the semantics of returning `b.size()` where `b` is the largest
       possible JSON value.
 
-    @sa see @ref size() -- returns the number of elements
+    @sa see @ref size() -- returns the number_ of elements
 
     @since version 1.0.0
     */
@@ -22854,7 +22854,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     null        | `null`
     boolean     | `false`
     string      | `""`
-    number      | `0`
+    number_      | `0`
     binary      | An empty byte vector
     object      | `{}`
     array       | `[]`
@@ -22948,7 +22948,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @param[in] val the value to add to the JSON array
 
     @throw type_error.308 when called on a type other than JSON array or
-    null; example: `"cannot use push_back() with number"`
+    null; example: `"cannot use push_back() with number_"`
 
     @complexity Amortized constant.
 
@@ -23037,7 +23037,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @param[in] val the value to add to the JSON object
 
     @throw type_error.308 when called on a type other than JSON object or
-    null; example: `"cannot use push_back() with number"`
+    null; example: `"cannot use push_back() with number_"`
 
     @complexity Logarithmic in the size of the container, O(log(`size()`)).
 
@@ -23140,7 +23140,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @return reference to the inserted element
 
     @throw type_error.311 when called on a type other than JSON array or
-    null; example: `"cannot use emplace_back() with number"`
+    null; example: `"cannot use emplace_back() with number_"`
 
     @complexity Amortized constant.
 
@@ -23189,7 +23189,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             denoting whether the insertion took place.
 
     @throw type_error.311 when called on a type other than JSON object or
-    null; example: `"cannot use emplace() with number"`
+    null; example: `"cannot use emplace() with number_"`
 
     @complexity Logarithmic in the size of the container, O(log(`size()`)).
 
@@ -23306,7 +23306,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     @param[in] pos iterator before which the content will be inserted; may be
     the end() iterator
-    @param[in] cnt number of copies of @a val to insert
+    @param[in] cnt number_ of copies of @a val to insert
     @param[in] val element to insert
     @return iterator pointing to the first element inserted, or @a pos if
     `cnt==0`
@@ -23458,7 +23458,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @throw invalid_iterator.210 if @a first and @a last do not belong to the
     same JSON value; example: `"iterators do not fit"`
 
-    @complexity Logarithmic: `O(N*log(size() + N))`, where `N` is the number
+    @complexity Logarithmic: `O(N*log(size() + N))`, where `N` is the number_
     of elements to insert.
 
     @liveexample{The example shows how `insert()` is used.,insert__range_object}
@@ -23501,7 +23501,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @throw type_error.312 if called on JSON values other than objects; example:
     `"cannot use update() with string"`
 
-    @complexity O(N*log(size() + N)), where N is the number of elements to
+    @complexity O(N*log(size() + N)), where N is the number_ of elements to
                 insert.
 
     @liveexample{The example shows how `update()` is used.,update}
@@ -23534,7 +23534,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @throw invalid_iterator.210 if @a first and @a last do not belong to the
     same JSON value; example: `"iterators do not fit"`
 
-    @complexity O(N*log(size() + N)), where N is the number of elements to
+    @complexity O(N*log(size() + N)), where N is the number_ of elements to
                 insert.
 
     @liveexample{The example shows how `update()` is used__range.,update}
@@ -24652,7 +24652,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             null        | `"null"`
             boolean     | `"boolean"`
             string      | `"string"`
-            number      | `"number"` (for all number types)
+            number_      | `"number_"` (for all number_ types)
             object      | `"object"`
             array       | `"array"`
             binary      | `"binary"`
@@ -24786,7 +24786,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @note The mapping is **complete** in the sense that any JSON value type
           can be converted to a CBOR value.
 
-    @note If NaN or Infinity are stored inside a JSON number, they are
+    @note If NaN or Infinity are stored inside a JSON number_, they are
           serialized properly. This behavior differs from the @ref dump()
           function which serializes NaN or Infinity to `null`.
 
@@ -24898,7 +24898,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @note Any MessagePack output created @ref to_msgpack can be successfully
           parsed by @ref from_msgpack.
 
-    @note If NaN or Infinity are stored inside a JSON number, they are
+    @note If NaN or Infinity are stored inside a JSON number_, they are
           serialized properly. This behavior differs from the @ref dump()
           function which serializes NaN or Infinity to `null`.
 
@@ -24982,7 +24982,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @note Any UBJSON output created @ref to_ubjson can be successfully parsed
           by @ref from_ubjson.
 
-    @note If NaN or Infinity are stored inside a JSON number, they are
+    @note If NaN or Infinity are stored inside a JSON number_, they are
           serialized properly. This behavior differs from the @ref dump()
           function which serializes NaN or Infinity to `null`.
 
@@ -24994,7 +24994,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
           parameter must only be used together with @a use_size = true. Note
           that @a use_size = true alone may result in larger representations -
           the benefit of this parameter is that the receiving side is
-          immediately informed on the number of elements of the container.
+          immediately informed on the number_ of elements of the container.
 
     @note If the JSON data contains the binary type, the value stored is a list
           of integers, as suggested by the UBJSON documentation.  In particular,
@@ -25450,7 +25450,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     int16       | number_integer                          | `I`
     int32       | number_integer                          | `l`
     int64       | number_integer                          | `L`
-    high-precision number | number_integer, number_unsigned, or number_float - depends on number string | 'H'
+    high-precision number_ | number_integer, number_unsigned, or number_float - depends on number_ string | 'H'
     string      | string                                  | `S`
     char        | string                                  | `C`
     array       | array (optimized values are supported)  | `[`
@@ -25692,7 +25692,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @complexity Constant.
 
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     @throw out_of_range.404  if the JSON pointer can not be resolved
 
     @liveexample{The behavior is shown in the example.,operatorjson_pointer}
@@ -25719,7 +25719,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @complexity Constant.
 
     @throw parse_error.106   if an array index begins with '0'
-    @throw parse_error.109   if an array index was not a number
+    @throw parse_error.109   if an array index was not a number_
     @throw out_of_range.402  if the array index '-' is used
     @throw out_of_range.404  if the JSON pointer can not be resolved
 
@@ -25746,7 +25746,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     begins with '0'. See example below.
 
     @throw parse_error.109 if an array index in the passed JSON pointer @a ptr
-    is not a number. See example below.
+    is not a number_. See example below.
 
     @throw out_of_range.401 if an array index in the passed JSON pointer @a ptr
     is out of range. See example below.
@@ -25789,7 +25789,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     begins with '0'. See example below.
 
     @throw parse_error.109 if an array index in the passed JSON pointer @a ptr
-    is not a number. See example below.
+    is not a number_. See example below.
 
     @throw out_of_range.401 if an array index in the passed JSON pointer @a ptr
     is out of range. See example below.

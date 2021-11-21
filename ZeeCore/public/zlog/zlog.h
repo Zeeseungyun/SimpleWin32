@@ -1,6 +1,8 @@
 #pragma once
 #include "../core/string.h"
 #include <vector>
+#include <set>
+#include <map>
 #include <memory>
 
 namespace zee {
@@ -21,6 +23,19 @@ namespace interfaces {
 		};
 
 		static const TCHAR* verbose_to_raw_str(verbose_type vb);
+		enum class logger_result {
+			success,
+			logger_is_nullptr,
+			already_used_tag_name,
+			already_turn_off, 
+			already_turn_on,
+		};
+
+		void add(const tstring& tag, std::shared_ptr<interfaces::loggable> new_logger);
+		void remove(std::shared_ptr<interfaces::loggable> new_logger);
+		void remove(const tstring& tag);
+
+		std::vector<tstring> get_logger_tag_names() const;
 
 		void printf_detail(verbose_type vb, const TCHAR* category_name, const TCHAR* file_name, int line, const TCHAR* format, ...);
 		void printf(verbose_type vb, const TCHAR* category_name, const TCHAR* format, ...);
@@ -28,9 +43,12 @@ namespace interfaces {
 		void turn_on(const tstring& category_name);
 		void turn_off(const tstring& category_name);
 
+		bool is_on(const tstring& category_name) const;
+		bool is_off(const tstring& category_name) const;
+		
 	private:
-		int write_header_(verbose_type vb, const TCHAR* category_name);
-		int write_content_();
+		void flush_();
+		void clear_buffers();
 
 	private:
 		size_t number_ = 0;
@@ -39,8 +57,16 @@ namespace interfaces {
 		tstring header_buffer_;
 		tstring buffer_;
 
-		std::shared_ptr<interfaces::loggable> default_logger_;
-		std::vector<std::weak_ptr<interfaces::loggable>> loggers_;
+		std::set<tstring> off_categories_;
+		std::set<tstring> on_categories_;
+
+		struct tag_logger_pair {
+			tstring tag;
+			int priority;
+			std::shared_ptr<interfaces::loggable> logger;
+		};
+		
+		std::map<tstring, std::shared_ptr<interfaces::loggable>> loggers_;
 	};
 	
 #define ZEE_LOG_DETAIL(verbose, category_name, log_content, ...) \

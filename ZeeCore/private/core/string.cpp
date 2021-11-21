@@ -103,12 +103,6 @@ namespace zee {
 		return buffer_;
 	}
 
-#ifdef UNICODE
-#define ZEE_TVPRINTF vswprintf
-#else 
-#define ZEE_TVPRINTF vsnprintf
-#endif
-
 	int tstring_vformat(tstring& buffer_, const TCHAR* format, va_list args) noexcept {
 		int need_count = format_helper::calculate_buffer_size(format, args);
 		if (need_count < 0) {
@@ -120,7 +114,7 @@ namespace zee {
 			buffer_.resize((size_t)need_count + 1);
 		}
 
-		return ZEE_TVPRINTF(&buffer_[0], buffer_.size(), format, args);
+		return tvprintf(&buffer_[0], buffer_.size(), format, args);
 	}
 
 	int tstring_format(tstring& buffer_, const TCHAR* format, ...) noexcept {
@@ -160,4 +154,21 @@ namespace zee {
 		return buffer_;
 	}
 
+#ifdef UNICODE
+#define ZEE_TVPRINTF vswprintf
+#else 
+#define ZEE_TVPRINTF vsnprintf
+#endif
+
+	int tvprintf(TCHAR* buffer, size_t buf_size, const TCHAR* format, va_list args)	{
+		return ZEE_TVPRINTF(buffer, buf_size, format, args);
+	}
+
+	int tsprintf(TCHAR* buffer, size_t buf_size, const TCHAR* format, ...) {
+		va_list args;
+		va_start(args, format);
+		int ret = tvprintf(buffer, buf_size, format, args);
+		va_end(args);
+		return ret;
+	}
 }

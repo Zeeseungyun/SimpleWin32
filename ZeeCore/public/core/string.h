@@ -25,22 +25,25 @@ namespace zee {
 	std::string string_format(const char* format, ...) noexcept;
 	int string_format(std::string& buffer_, const char* format, ...) noexcept;
 
-	std::string string_vformat(const char* format, va_list v) noexcept;
-	int string_vformat(std::string& buffer_, const char* format, va_list v) noexcept;
+	std::string string_vformat(const char* format, va_list args) noexcept;
+	int string_vformat(std::string& buffer_, const char* format, va_list args) noexcept;
 
 	std::wstring wstring_format(const wchar_t* format, ...) noexcept;
 	int wstring_format(std::wstring& buffer_, const wchar_t* format, ...) noexcept;
 
-	std::wstring wstring_vformat(const wchar_t* format, va_list v) noexcept;
-	int wstring_vformat(std::wstring& buffer_, const wchar_t* format, va_list v) noexcept;
+	std::wstring wstring_vformat(const wchar_t* format, va_list args) noexcept;
+	int wstring_vformat(std::wstring& buffer_, const wchar_t* format, va_list args) noexcept;
 
 	tstring tstring_format(const TCHAR* format, ...) noexcept;
 	int tstring_format(tstring& buffer_, const TCHAR* format, ...) noexcept;
 
-	tstring tstring_vformat(const TCHAR* format, va_list v) noexcept;
-	int tstring_vformat(tstring& buffer_, const TCHAR* format, va_list v) noexcept;
+	tstring tstring_vformat(const TCHAR* format, va_list args) noexcept;
+	int tstring_vformat(tstring& buffer_, const TCHAR* format, va_list args) noexcept;
 
 	tstring current_time_to_tstring() noexcept;
+
+	int tvprintf(TCHAR* buffer, size_t buf_size, const TCHAR* format, va_list args);
+	int tsprintf(TCHAR* buffer, size_t buf_size, const TCHAR* format, ...);
 
 	using std::to_string;
 	using std::to_wstring;

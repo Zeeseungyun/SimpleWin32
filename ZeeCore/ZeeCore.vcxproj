@@ -150,7 +150,8 @@
     <ClInclude Include="public\core\random.h" />
     <ClInclude Include="public\core\string.h" />
     <ClInclude Include="public\file\path.h" />
-    <ClInclude Include="public\interfaces\printable.h" />
+    <ClInclude Include="public\interfaces\loggable.h" />
+    <ClInclude Include="public\json\json.hpp" />
     <ClInclude Include="public\log\log.h" />
     <ClInclude Include="public\math\vec\vec.h" />
     <ClInclude Include="public\math\to_string.h" />
@@ -167,11 +168,14 @@
     <ClInclude Include="public\math\math.h" />
     <ClInclude Include="public\math\vec\vec_impl.h" />
     <ClInclude Include="public\math\vec\vec_decl.h" />
+    <ClInclude Include="public\zlog\zlog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\core\random.cpp" />
     <ClCompile Include="private\core\string.cpp" />
+    <ClCompile Include="private\config\config.cpp" />
     <ClCompile Include="public\log\log.cpp" />
+    <ClCompile Include="public\zlog\zlog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

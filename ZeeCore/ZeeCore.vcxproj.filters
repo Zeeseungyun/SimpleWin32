@@ -62,7 +62,7 @@
     <ClInclude Include="public\shape\boundings.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="public\interfaces\printable.h">
+    <ClInclude Include="public\interfaces\loggable.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="public\config\config.h">
@@ -83,6 +83,12 @@
     <ClInclude Include="public\file\path.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="public\json\json.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="public\zlog\zlog.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\core\random.cpp">
@@ -92,6 +98,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="public\log\log.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="private\config\config.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="public\zlog\zlog.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
