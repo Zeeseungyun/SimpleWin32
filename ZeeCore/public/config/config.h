@@ -1,6 +1,8 @@
 #pragma once
 #include "../core/string.h"
 #include "../file/path.h"
+#include "../json/json.hpp"
+
 namespace zee {
 namespace config {
 
@@ -8,9 +10,11 @@ namespace config {
 	public:
 		ini_base(const tstring& path);
 		
-		const tstring& config_path() const noexcept;
+		const tstring& config_path() const noexcept { return config_path_; }
+		const nlohmann::json& parsed_config() const noexcept { return parsed_config_; }
 
 	private:
+		nlohmann::json parsed_config_;
 		tstring config_path_;
 	};
 
