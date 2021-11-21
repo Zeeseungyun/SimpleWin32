@@ -10,6 +10,13 @@ namespace interfaces {
 	struct loggable;
 }//zee::interfaces
 
+/*
+* TODO
+* flush_ 마저구현
+* header_buffer_ 삭제
+* add 시 로거 tag 관련 로직 작성.
+* 및 테스트.
+*/
 	class log& get_log() noexcept;
 	class log {
 		friend log& get_log() noexcept;
