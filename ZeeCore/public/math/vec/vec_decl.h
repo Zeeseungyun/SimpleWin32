@@ -6,6 +6,6 @@ namespace impl {
 	struct illegal_vec;
 	
 }//namespace zee::math::impl
-	template<size_t CompSize, typename T> struct vec;
+	template<size_t CompSize, typename T> struct vec_base;
 }//namespace zee::math  
 }//namespace zee 

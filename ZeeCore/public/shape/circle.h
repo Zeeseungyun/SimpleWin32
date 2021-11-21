@@ -1,5 +1,5 @@
 #pragma once
-#include "../math/vec/vec.h"
+#include "../math/vec_base/vec_base.h"
 #include "boundings.h"
 
 namespace zee {
@@ -29,7 +29,7 @@ namespace impl {
 	template<typename ElemT>
 	struct circle_base_impl<ElemT, true> : legal_circle {
 		typedef ElemT element_type;
-		math::vec<2, element_type> origin;
+		math::vec_base<2, element_type> origin;
 		element_type radius;
 
 		constexpr circle_base_impl() noexcept : circle_base_impl(0) { }
@@ -84,7 +84,7 @@ namespace impl {
 		constexpr circle_base() noexcept : base_type(0) { }
 
 		template<typename OriginElemT, typename RadElemT, std::enable_if_t<is_vec_element<RadElemT>::value, int> = 0>
-		constexpr circle_base(const math::vec<2, OriginElemT>& new_origin, RadElemT new_radius) noexcept
+		constexpr circle_base(const math::vec_base<2, OriginElemT>& new_origin, RadElemT new_radius) noexcept
 			: base_type(new_origin, new_radius) {
 		}
 

@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <limits>
+#include <cassert>
 
 #ifndef NOMINMAX //for windows.h
 #define NOMINMAX

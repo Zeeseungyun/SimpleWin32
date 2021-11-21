@@ -1,5 +1,5 @@
 #pragma once
-#include "../math/vec/vec.h"
+#include "../math/vec_base/vec_base.h"
 #include "boundings.h"
 
 namespace zee {
@@ -37,7 +37,7 @@ namespace impl {
 			struct {
 				element_type left, top, right, bottom;
 			};
-			math::vec<2, element_type> data[2];
+			math::vec_base<2, element_type> data[2];
 		};
 
 		constexpr rect_base_impl() noexcept : rect_base_impl(0, 0, 0, 0) { }
@@ -54,7 +54,7 @@ namespace impl {
 		}
 
 		template<typename Elem1T, typename Elem2T, std::enable_if_t<are_all_vec_element<Elem1T, Elem2T>::value, int> = 0>
-		constexpr rect_base_impl(const math::vec<2, Elem1T>& lt, const math::vec<2, Elem2T>& rb) noexcept
+		constexpr rect_base_impl(const math::vec_base<2, Elem1T>& lt, const math::vec_base<2, Elem2T>& rb) noexcept
 			: data{ lt, rb } {
 		}
 
@@ -84,12 +84,12 @@ namespace impl {
 			return get_bottom() - get_top();
 		}
 
-		constexpr math::vec<2, element_type> size() const noexcept {
+		constexpr math::vec_base<2, element_type> size() const noexcept {
 			return { width(), height() };
 		}
 
 		template<typename ElemT = element_type>
-		constexpr std::enable_if_t<is_vec_element<ElemT>::value, math::vec<2, ElemT>>
+		constexpr std::enable_if_t<is_vec_element<ElemT>::value, math::vec_base<2, ElemT>>
 			origin() const noexcept {
 			return {
 				(ElemT)get_left() + (ElemT)width() * 0.5,
@@ -170,7 +170,7 @@ namespace impl {
 	template<typename LeftElemT, typename RightElemT>
 	constexpr
 		std::enable_if_t<are_all_vec_element<LeftElemT, RightElemT>::value, rect_base_impl<promotion_t<LeftElemT, RightElemT>>>
-		operator+(const rect_base_impl<LeftElemT, true>& l, const math::vec<2, RightElemT>& r) noexcept {
+		operator+(const rect_base_impl<LeftElemT, true>& l, const math::vec_base<2, RightElemT>& r) noexcept {
 		return {
 			l.get_left() + r.data[0], l.get_top() + r.data[1],
 			l.get_right() + r.data[0], l.get_bottom() + r.data[1]
@@ -180,7 +180,7 @@ namespace impl {
 	template<typename LeftElemT, typename RightElemT>
 	constexpr
 		std::enable_if_t<are_all_vec_element<LeftElemT, RightElemT>::value, rect_base_impl<promotion_t<LeftElemT, RightElemT>>>
-		operator+(const math::vec<2, RightElemT>& l, const rect_base_impl<LeftElemT, true>& r) noexcept {
+		operator+(const math::vec_base<2, RightElemT>& l, const rect_base_impl<LeftElemT, true>& r) noexcept {
 		return {
 			l.data[0] + r.get_left() , l.data[1] + r.get_top()   ,
 			l.data[0] + r.get_right(), l.data[1] + r.get_bottom()
@@ -190,7 +190,7 @@ namespace impl {
 	template<typename LeftElemT, typename RightElemT>
 	constexpr
 		std::enable_if_t<are_all_vec_element<LeftElemT, RightElemT>::value, rect_base_impl<promotion_t<LeftElemT, RightElemT>>>
-		operator-(const rect_base_impl<LeftElemT, true>& l, const math::vec<2, RightElemT>& r) noexcept {
+		operator-(const rect_base_impl<LeftElemT, true>& l, const math::vec_base<2, RightElemT>& r) noexcept {
 		return {
 			l.get_left() - r.data[0], l.get_top() - r.data[1],
 			l.get_right() - r.data[0], l.get_bottom() - r.data[1]
@@ -200,7 +200,7 @@ namespace impl {
 	template<typename LeftElemT, typename RightElemT>
 	constexpr
 		std::enable_if_t<are_all_vec_element<LeftElemT, RightElemT>::value, rect_base_impl<promotion_t<LeftElemT, RightElemT>>>
-		operator-(const math::vec<2, RightElemT>& l, const rect_base_impl<LeftElemT, true>& r) noexcept {
+		operator-(const math::vec_base<2, RightElemT>& l, const rect_base_impl<LeftElemT, true>& r) noexcept {
 		return {
 			l.data[0] - r.get_left() , l.data[1] - r.get_top()   ,
 			l.data[0] - r.get_right(), l.data[1] - r.get_bottom()
@@ -209,7 +209,7 @@ namespace impl {
 
 	template<typename LeftElemT, typename RightElemT>
 	std::enable_if_t<are_all_vec_element<LeftElemT, RightElemT>::value, rect_base_impl<promotion_t<LeftElemT, RightElemT>>>&
-		operator+=(rect_base_impl<LeftElemT, true>& l, const math::vec<2, RightElemT>& r) noexcept {
+		operator+=(rect_base_impl<LeftElemT, true>& l, const math::vec_base<2, RightElemT>& r) noexcept {
 		l.left += (LeftElemT)r.data[0]; l.right += (LeftElemT)r.data[0];
 		l.top += (LeftElemT)r.data[1]; l.bottom += (LeftElemT)r.data[1];
 		return l;
@@ -217,7 +217,7 @@ namespace impl {
 
 	template<typename LeftElemT, typename RightElemT>
 	std::enable_if_t<are_all_vec_element<LeftElemT, RightElemT>::value, rect_base_impl<promotion_t<LeftElemT, RightElemT>>>&
-		operator-=(rect_base_impl<LeftElemT, true>& l, const math::vec<2, RightElemT>& r) noexcept {
+		operator-=(rect_base_impl<LeftElemT, true>& l, const math::vec_base<2, RightElemT>& r) noexcept {
 		l.left -= (LeftElemT)r.x; l.right -= (LeftElemT)r.x;
 		l.top -= (LeftElemT)r.y; l.bottom -= (LeftElemT)r.y;
 		return l;
@@ -253,7 +253,7 @@ namespace impl {
 		}
 
 		template<typename Elem1T, typename Elem2T, std::enable_if_t<are_all_vec_element<Elem1T, Elem2T>::value, int> = 0>
-		constexpr rect_base(const math::vec<2, Elem1T>& lt, const math::vec<2, Elem2T>& rb) noexcept
+		constexpr rect_base(const math::vec_base<2, Elem1T>& lt, const math::vec_base<2, Elem2T>& rb) noexcept
 			: base_type(lt, rb) {
 		}
 

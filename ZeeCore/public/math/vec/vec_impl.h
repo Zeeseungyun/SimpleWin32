@@ -735,7 +735,7 @@ namespace impl {
 		}
 
 		template<typename OtherElemT>
-		constexpr auto ccw(const vec<component_size, OtherElemT>& other) const noexcept {
+		constexpr auto ccw(const vec_base<component_size, OtherElemT>& other) const noexcept {
 			return data[0] * other.data[1] - other.data[0] * data[1];
 		}
 	};
@@ -1155,38 +1155,38 @@ namespace impl {
 }//namespace zee::math::impl
 
 	template<size_t CompSize, typename T> 
-	struct vec : impl::vec_impl<CompSize, T> { 
+	struct vec_base : impl::vec_impl<CompSize, T> { 
 	private:
 		typedef impl::vec_impl<CompSize, T> base_type;
 
 	public:
 		typedef T element_type;
 
-		constexpr vec() noexcept = default;
+		constexpr vec_base() noexcept = default;
 
 		template<typename... Args>
-		constexpr vec(Args&&... args) noexcept
+		constexpr vec_base(Args&&... args) noexcept
 			: base_type(args...) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const vec<base_type::component_size, OtherElemT>& other) noexcept
+		constexpr vec_base(const vec_base<base_type::component_size, OtherElemT>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
+		constexpr vec_base(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
+		vec_base& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const vec<base_type::component_size, OtherElemT>& other) noexcept {
+		vec_base& operator=(const vec_base<base_type::component_size, OtherElemT>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
@@ -1195,44 +1195,44 @@ namespace impl {
 	};
 
 	template<size_t CompSize, typename T>
-	struct vec<CompSize, T>::constants {
-		static constexpr vec<CompSize, T> zero = {};
+	struct vec_base<CompSize, T>::constants {
+		static constexpr vec_base<CompSize, T> zero = {};
 	};
 
 	template<typename T>
-	struct vec<4, T> : impl::vec_impl<4, T> {
+	struct vec_base<4, T> : impl::vec_impl<4, T> {
 	private:
 		typedef impl::vec_impl<4, T> base_type;
 
 	public:
 		typedef T element_type;
 
-		constexpr vec() noexcept = default;
+		constexpr vec_base() noexcept = default;
 
 		template<typename Elem1T, typename Elem2T, typename Elem3T, typename Elem4T, std::enable_if_t<are_all_vec_element<Elem1T, Elem2T, Elem3T, Elem4T>::value, int> = 0>
-		constexpr vec(const Elem1T& new_x, const Elem2T& new_y, const Elem3T& new_z, const Elem4T& new_w) noexcept
+		constexpr vec_base(const Elem1T& new_x, const Elem2T& new_y, const Elem3T& new_z, const Elem4T& new_w) noexcept
 			: base_type((element_type)new_x, (element_type)new_y, (element_type)new_z, (element_type)new_w) {
 		}
 
 
 		template<typename OtherElemT>
-		constexpr vec(const vec<base_type::component_size, OtherElemT>& other) noexcept
+		constexpr vec_base(const vec_base<base_type::component_size, OtherElemT>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
+		constexpr vec_base(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
+		vec_base& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const vec<base_type::component_size, OtherElemT>& other) noexcept {
+		vec_base& operator=(const vec_base<base_type::component_size, OtherElemT>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
@@ -1241,48 +1241,48 @@ namespace impl {
 	};
 
 	template<typename T>
-	struct vec<4, T>::constants {
-		static constexpr vec<4, T> zero = {};
-		static constexpr vec<4, T> one    = { 1, 1, 1, 1 };
-		static constexpr vec<4, T> unit_x = { 1, 0, 0, 0 };
-		static constexpr vec<4, T> unit_y = { 0, 1, 0, 0 };
-		static constexpr vec<4, T> unit_z = { 0, 0, 1, 0 };
-		static constexpr vec<4, T> unit_w = { 0, 0, 0, 1 };
+	struct vec_base<4, T>::constants {
+		static constexpr vec_base<4, T> zero = {};
+		static constexpr vec_base<4, T> one    = { 1, 1, 1, 1 };
+		static constexpr vec_base<4, T> unit_x = { 1, 0, 0, 0 };
+		static constexpr vec_base<4, T> unit_y = { 0, 1, 0, 0 };
+		static constexpr vec_base<4, T> unit_z = { 0, 0, 1, 0 };
+		static constexpr vec_base<4, T> unit_w = { 0, 0, 0, 1 };
 	};
 
 	template<typename T>
-	struct vec<3, T> : impl::vec_impl<3, T> {
+	struct vec_base<3, T> : impl::vec_impl<3, T> {
 	private:
 		typedef impl::vec_impl<3, T> base_type;
 
 	public:
 		typedef T element_type;
 
-		constexpr vec() noexcept = default;
+		constexpr vec_base() noexcept = default;
 
 		template<typename Elem1T, typename Elem2T, typename Elem3T, std::enable_if_t<are_all_vec_element<Elem1T, Elem2T, Elem3T>::value, int> = 0>
-		constexpr vec(const Elem1T& new_x, const Elem2T& new_y, const Elem3T& new_z) noexcept
+		constexpr vec_base(const Elem1T& new_x, const Elem2T& new_y, const Elem3T& new_z) noexcept
 			: base_type((element_type)new_x, (element_type)new_y, (element_type)new_z) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const vec<base_type::component_size, OtherElemT>& other) noexcept
+		constexpr vec_base(const vec_base<base_type::component_size, OtherElemT>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
+		constexpr vec_base(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
+		vec_base& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const vec<base_type::component_size, OtherElemT>& other) noexcept {
+		vec_base& operator=(const vec_base<base_type::component_size, OtherElemT>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
@@ -1291,47 +1291,47 @@ namespace impl {
 	};
 	
 	template<typename T>
-	struct vec<3, T>::constants {
-		static constexpr vec<3, T> zero = {};
-		static constexpr vec<3, T> one    = { 1, 1, 1 };
-		static constexpr vec<3, T> unit_x = { 1, 0, 0 };
-		static constexpr vec<3, T> unit_y = { 0, 1, 0 };
-		static constexpr vec<3, T> unit_z = { 0, 0, 1 };
+	struct vec_base<3, T>::constants {
+		static constexpr vec_base<3, T> zero = {};
+		static constexpr vec_base<3, T> one    = { 1, 1, 1 };
+		static constexpr vec_base<3, T> unit_x = { 1, 0, 0 };
+		static constexpr vec_base<3, T> unit_y = { 0, 1, 0 };
+		static constexpr vec_base<3, T> unit_z = { 0, 0, 1 };
 	};
 
 	template<typename T>
-	struct vec<2, T> : impl::vec_impl<2, T> {
+	struct vec_base<2, T> : impl::vec_impl<2, T> {
 	private:
 		typedef impl::vec_impl<2, T> base_type;
 
 	public:
 		typedef T element_type;
 
-		constexpr vec() noexcept = default;
+		constexpr vec_base() noexcept = default;
 
 		template<typename Elem1T, typename Elem2T,  std::enable_if_t<are_all_vec_element<Elem1T, Elem2T>::value, int> = 0>
-		constexpr vec(const Elem1T& new_x, const Elem2T& new_y) noexcept
+		constexpr vec_base(const Elem1T& new_x, const Elem2T& new_y) noexcept
 			: base_type((element_type)new_x, (element_type)new_y) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const vec<base_type::component_size, OtherElemT>& other) noexcept
+		constexpr vec_base(const vec_base<base_type::component_size, OtherElemT>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		constexpr vec(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
+		constexpr vec_base(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept
 			: base_type(other) {
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
+		vec_base& operator=(const impl::vec_impl<base_type::component_size, OtherElemT, true>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
 
 		template<typename OtherElemT>
-		vec& operator=(const vec<base_type::component_size, OtherElemT>& other) noexcept {
+		vec_base& operator=(const vec_base<base_type::component_size, OtherElemT>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
@@ -1340,41 +1340,41 @@ namespace impl {
 	};
 	
 	template<typename T>
-	struct vec<2, T>::constants {
-		static constexpr vec<2, T> zero = {};
-		static constexpr vec<2, T> one    = { 1, 1 };
-		static constexpr vec<2, T> unit_x = { 1, 0 };
-		static constexpr vec<2, T> unit_y = { 0, 1 };
+	struct vec_base<2, T>::constants {
+		static constexpr vec_base<2, T> zero = {};
+		static constexpr vec_base<2, T> one    = { 1, 1 };
+		static constexpr vec_base<2, T> unit_x = { 1, 0 };
+		static constexpr vec_base<2, T> unit_y = { 0, 1 };
 	};
 
 	template<size_t CompSize, typename LeftElemT, typename RightElemT>
 	promotion_t<LeftElemT, RightElemT>
-		dot(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r) noexcept {
+		dot(const vec_base<CompSize, LeftElemT>& l, const vec_base<CompSize, RightElemT>& r) noexcept {
 		return l.dot(r);
 	}
 
 	template<typename LeftElemT, typename RightElemT>
 	constexpr  promotion_t<LeftElemT, RightElemT>
-		dot(const vec<2, LeftElemT>& l, const vec<2, RightElemT>& r) noexcept {
+		dot(const vec_base<2, LeftElemT>& l, const vec_base<2, RightElemT>& r) noexcept {
 		return l.dot(r); l.dot(r);
 	}
 
 	template<typename LeftElemT, typename RightElemT>
 	constexpr  promotion_t<LeftElemT, RightElemT>
-		dot(const vec<3, LeftElemT>& l, const vec<3, RightElemT>& r) noexcept {
+		dot(const vec_base<3, LeftElemT>& l, const vec_base<3, RightElemT>& r) noexcept {
 		return l.dot(r);
 	}
 
 	template<typename LeftElemT, typename RightElemT>
 	constexpr promotion_t<LeftElemT, RightElemT>
-		dot(const vec<4, LeftElemT>& l, const vec<4, RightElemT>& r) noexcept {
+		dot(const vec_base<4, LeftElemT>& l, const vec_base<4, RightElemT>& r) noexcept {
 		return l.dot(r);
 	}
 
 	template<size_t CompSize, typename ElemT>
-	vec<CompSize, ElemT>
-		abs(const vec<CompSize, ElemT>& v) noexcept {
-		vec<CompSize, ElemT> ret;
+	vec_base<CompSize, ElemT>
+		abs(const vec_base<CompSize, ElemT>& v) noexcept {
+		vec_base<CompSize, ElemT> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = abs(v.data[i]);
 		}
@@ -1382,9 +1382,9 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT>
-	std::enable_if_t<std::is_floating_point<ElemT>::value, vec<CompSize, ElemT>>
-		ceil(const vec<CompSize, ElemT>& v) noexcept {
-		vec<CompSize, ElemT> ret;
+	std::enable_if_t<std::is_floating_point<ElemT>::value, vec_base<CompSize, ElemT>>
+		ceil(const vec_base<CompSize, ElemT>& v) noexcept {
+		vec_base<CompSize, ElemT> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = ceil(v.data[i]);
 		}
@@ -1392,15 +1392,15 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT>
-	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec<CompSize, ElemT>&>
-		ceil(const vec<CompSize, ElemT>& v) noexcept {
+	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec_base<CompSize, ElemT>&>
+		ceil(const vec_base<CompSize, ElemT>& v) noexcept {
 		return v;
 	}
 
 	template<size_t CompSize, typename ElemT>
-	std::enable_if_t<std::is_floating_point<ElemT>::value, vec<CompSize, ElemT>>
-		floor(const vec<CompSize, ElemT>& v) noexcept {
-		vec<CompSize, ElemT> ret;
+	std::enable_if_t<std::is_floating_point<ElemT>::value, vec_base<CompSize, ElemT>>
+		floor(const vec_base<CompSize, ElemT>& v) noexcept {
+		vec_base<CompSize, ElemT> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = floor(v.data[i]);
 		}
@@ -1408,15 +1408,15 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT>
-	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec<CompSize, ElemT>&>
-		floor(const vec<CompSize, ElemT>& v) noexcept {
+	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec_base<CompSize, ElemT>&>
+		floor(const vec_base<CompSize, ElemT>& v) noexcept {
 		return v;
 	}
 
 	template<size_t CompSize, typename ElemT>
-	std::enable_if_t<std::is_floating_point<ElemT>::value, vec<CompSize, ElemT>>
-		round(const vec<CompSize, ElemT>& v) noexcept {
-		vec<CompSize, ElemT> ret;
+	std::enable_if_t<std::is_floating_point<ElemT>::value, vec_base<CompSize, ElemT>>
+		round(const vec_base<CompSize, ElemT>& v) noexcept {
+		vec_base<CompSize, ElemT> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = round(v.data[i]);
 		}
@@ -1424,15 +1424,15 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT>
-	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec<CompSize, ElemT>&>
-		round(const vec<CompSize, ElemT>& v) noexcept {
+	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec_base<CompSize, ElemT>&>
+		round(const vec_base<CompSize, ElemT>& v) noexcept {
 		return v;
 	}
 
 	template<size_t CompSize, typename ElemT>
-	std::enable_if_t<std::is_floating_point<ElemT>::value, vec<CompSize, ElemT>>
-		trunc(const vec<CompSize, ElemT>& v) noexcept {
-		vec<CompSize, ElemT> ret;
+	std::enable_if_t<std::is_floating_point<ElemT>::value, vec_base<CompSize, ElemT>>
+		trunc(const vec_base<CompSize, ElemT>& v) noexcept {
+		vec_base<CompSize, ElemT> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = trunc(v.data[i]);
 		}
@@ -1440,15 +1440,15 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT>
-	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec<CompSize, ElemT>&>
-		trunc(const vec<CompSize, ElemT>& v) noexcept {
+	constexpr std::enable_if_t<!std::is_floating_point<ElemT>::value, const vec_base<CompSize, ElemT>&>
+		trunc(const vec_base<CompSize, ElemT>& v) noexcept {
 		return v;
 	}
 
 	template<size_t CompSize, typename ElemT, typename RemT>
-	std::enable_if_t<are_any_floating_point<ElemT, RemT>::value, vec<CompSize, promotion_t<ElemT, RemT>>>
-		fmod(const vec<CompSize, ElemT>& v, RemT r) noexcept {
-		vec<CompSize, promotion_t<ElemT, RemT>> ret;
+	std::enable_if_t<are_any_floating_point<ElemT, RemT>::value, vec_base<CompSize, promotion_t<ElemT, RemT>>>
+		fmod(const vec_base<CompSize, ElemT>& v, RemT r) noexcept {
+		vec_base<CompSize, promotion_t<ElemT, RemT>> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = fmod(v.data[i], r);
 		}
@@ -1456,9 +1456,9 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT, typename RemT>
-	constexpr std::enable_if_t<!are_any_floating_point<ElemT, RemT>::value, vec<CompSize, promotion_t<ElemT, RemT>>>
-		fmod(const vec<CompSize, ElemT>& v, RemT r) noexcept {
-		vec<CompSize, promotion_t<ElemT, RemT>> ret;
+	constexpr std::enable_if_t<!are_any_floating_point<ElemT, RemT>::value, vec_base<CompSize, promotion_t<ElemT, RemT>>>
+		fmod(const vec_base<CompSize, ElemT>& v, RemT r) noexcept {
+		vec_base<CompSize, promotion_t<ElemT, RemT>> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = v.data[i] % r;
 		}
@@ -1466,9 +1466,9 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT, typename RemT>
-	std::enable_if_t<are_any_floating_point<ElemT, RemT>::value, vec<CompSize, promotion_t<ElemT, RemT>>>
-		fmod(const vec<CompSize, ElemT>& v, const vec<CompSize, RemT>& r) noexcept {
-		vec<CompSize, promotion_t<ElemT, RemT>> ret;
+	std::enable_if_t<are_any_floating_point<ElemT, RemT>::value, vec_base<CompSize, promotion_t<ElemT, RemT>>>
+		fmod(const vec_base<CompSize, ElemT>& v, const vec_base<CompSize, RemT>& r) noexcept {
+		vec_base<CompSize, promotion_t<ElemT, RemT>> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = fmod(v.data[i], r.data[i]);
 		}
@@ -1476,9 +1476,9 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename ElemT, typename RemT>
-	constexpr std::enable_if_t<!are_any_floating_point<ElemT, RemT>::value, vec<CompSize, promotion_t<ElemT, RemT>>>
-		fmod(const vec<CompSize, ElemT>& v, const vec<CompSize, RemT>& r) noexcept {
-		vec<CompSize, promotion_t<ElemT, RemT>> ret;
+	constexpr std::enable_if_t<!are_any_floating_point<ElemT, RemT>::value, vec_base<CompSize, promotion_t<ElemT, RemT>>>
+		fmod(const vec_base<CompSize, ElemT>& v, const vec_base<CompSize, RemT>& r) noexcept {
+		vec_base<CompSize, promotion_t<ElemT, RemT>> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = v.data[i] % r.data[i];
 		}
@@ -1486,9 +1486,9 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename LeftElemT, typename RightElemT>
-	constexpr vec<CompSize, promotion_t<LeftElemT, RightElemT>>
-		min(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r) noexcept {
-		vec<CompSize, promotion_t<LeftElemT, RightElemT>> ret;
+	constexpr vec_base<CompSize, promotion_t<LeftElemT, RightElemT>>
+		min(const vec_base<CompSize, LeftElemT>& l, const vec_base<CompSize, RightElemT>& r) noexcept {
+		vec_base<CompSize, promotion_t<LeftElemT, RightElemT>> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = min(l.data[i], r.data[i]);
 		}
@@ -1496,9 +1496,9 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename LeftElemT, typename RightElemT>
-	constexpr vec<CompSize, promotion_t<LeftElemT, RightElemT>>
-		max(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r) noexcept {
-		vec<CompSize, promotion_t<LeftElemT, RightElemT>> ret;
+	constexpr vec_base<CompSize, promotion_t<LeftElemT, RightElemT>>
+		max(const vec_base<CompSize, LeftElemT>& l, const vec_base<CompSize, RightElemT>& r) noexcept {
+		vec_base<CompSize, promotion_t<LeftElemT, RightElemT>> ret;
 		for (size_t i = 0; i != CompSize; ++i) {
 			ret.data[i] = max(l.data[i], r.data[i]);
 		}
@@ -1506,74 +1506,84 @@ namespace impl {
 	}
 
 	template<size_t CompSize, typename SrcElemT, typename MinElemT, typename MaxElemT>
-	constexpr vec<CompSize, promotion_t<SrcElemT, MinElemT, MaxElemT>>
-		clamp(const vec<CompSize, SrcElemT>& src_v, const vec<CompSize, MinElemT>& min_v, const vec<CompSize, MaxElemT>& max_v) noexcept {
+	constexpr vec_base<CompSize, promotion_t<SrcElemT, MinElemT, MaxElemT>>
+		clamp(const vec_base<CompSize, SrcElemT>& src_v, const vec_base<CompSize, MinElemT>& min_v, const vec_base<CompSize, MaxElemT>& max_v) noexcept {
 		return min(max(src_v, min_v), max_v);
+	}
+
+	template<size_t CompSize, typename T>
+	constexpr vec_base<CompSize, T>
+		saturate(const vec_base<CompSize,T>& v) noexcept {
+		vec_base<CompSize, T> ret = v;
+		for (size_t i = 0; i != CompSize; ++i) {
+			ret.data[i] = max(min(ret.data[i], 1), 0);
+		}
+		return ret;
 	}
 
 	template<typename LeftElemT, typename RightElemT>
 	constexpr auto
-		cross(const vec<3, LeftElemT>& l, const vec<3, RightElemT>& r) noexcept {
+		cross(const vec_base<3, LeftElemT>& l, const vec_base<3, RightElemT>& r) noexcept {
 		return l.cross(r);
 	}
 
 	template<typename LeftElemT, typename RightElemT>
 	constexpr auto
-		ccw(const vec<2, LeftElemT>& l, const vec<2, RightElemT>& r) noexcept {
+		ccw(const vec_base<2, LeftElemT>& l, const vec_base<2, RightElemT>& r) noexcept {
 		return l.ccw(r);
 	}
 
 	template<size_t CompSize, typename LeftElemT, typename RightElemT, typename EpsT = promotion_t<LeftElemT, RightElemT>>
 	std::enable_if_t<is_vec_element<EpsT>::value, bool>
-		is_near_equal(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r, EpsT eps = epsilon<EpsT>()) noexcept {
+		is_near_equal(const vec_base<CompSize, LeftElemT>& l, const vec_base<CompSize, RightElemT>& r, EpsT eps = epsilon<EpsT>()) noexcept {
 		return l.is_near_equal(r, eps);
 	}
 
 	template<size_t CompSize, typename LeftElemT, typename RightElemT, typename EpsT = promotion_t<LeftElemT, RightElemT>>
 	std::enable_if_t<is_vec_element<EpsT>::value, bool>
-		is_near_not_equal(const vec<CompSize, LeftElemT>& l, const vec<CompSize, RightElemT>& r, EpsT eps = epsilon<EpsT>()) noexcept {
+		is_near_not_equal(const vec_base<CompSize, LeftElemT>& l, const vec_base<CompSize, RightElemT>& r, EpsT eps = epsilon<EpsT>()) noexcept {
 		return !is_near_equal(l, r, eps);
 	}
 
 	template<size_t CompSize, typename VecElemT, typename EpsT = VecElemT>
 	std::enable_if_t<is_vec_element<EpsT>::value, bool>
-		is_near_zero(const vec<CompSize, VecElemT>& v, EpsT eps = epsilon<EpsT>()) noexcept {
+		is_near_zero(const vec_base<CompSize, VecElemT>& v, EpsT eps = epsilon<EpsT>()) noexcept {
 		return v.is_near_zero(eps);
 	}
 
 	template<size_t CompSize, typename VecElemT, typename EpsT = VecElemT>
 	std::enable_if_t<is_vec_element<EpsT>::value, bool>
-		is_near_not_zero(const vec<CompSize, VecElemT>& v, EpsT eps = epsilon<EpsT>()) noexcept {
+		is_near_not_zero(const vec_base<CompSize, VecElemT>& v, EpsT eps = epsilon<EpsT>()) noexcept {
 		return !v.is_near_zero(eps);
 	}
 
 	template<size_t CompSize, typename VecElemT>
 	constexpr auto
-		reciprocal(const vec<CompSize, VecElemT>& v) noexcept {
+		reciprocal(const vec_base<CompSize, VecElemT>& v) noexcept {
 		return v.reciprocal();
 	}
 
 	template<size_t CompSize, typename VecElem1T, typename VecElem2T, typename DeltaT>
 	constexpr std::enable_if_t<std::is_floating_point<DeltaT>::value,
-		vec<CompSize, promotion_t<VecElem1T, VecElem2T, DeltaT>>>
-		lerp(const vec<CompSize, VecElem1T>& p1, const vec<CompSize, VecElem2T>& p2, DeltaT d) noexcept {
+		vec_base<CompSize, promotion_t<VecElem1T, VecElem2T, DeltaT>>>
+		lerp(const vec_base<CompSize, VecElem1T>& p1, const vec_base<CompSize, VecElem2T>& p2, DeltaT d) noexcept {
 		return p1 + d * (p2 - p1);
 	}
 
 	template<size_t CompSize, typename VecElem1T, typename VecElem2T, typename VecElem3T, typename VecElem4T, typename DeltaT>
 	std::enable_if_t<std::is_floating_point<DeltaT>::value,
-		vec<CompSize, promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT>>>
+		vec_base<CompSize, promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT>>>
 		catmullrom(
-			const vec<CompSize, VecElem1T>& p1,
-			const vec<CompSize, VecElem2T>& p2,
-			const vec<CompSize, VecElem3T>& p3,
-			const vec<CompSize, VecElem4T>& p4,
+			const vec_base<CompSize, VecElem1T>& p1,
+			const vec_base<CompSize, VecElem2T>& p2,
+			const vec_base<CompSize, VecElem3T>& p3,
+			const vec_base<CompSize, VecElem4T>& p4,
 			DeltaT d) noexcept {
 		typedef promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT> promotion_t;
-		vec<CompSize, promotion_t> v1 = p2; 
-		vec<CompSize, promotion_t> v2 = p3;
-		vec<CompSize, promotion_t> t1 = (p3 - p1) * (promotion_t)0.5;
-		vec<CompSize, promotion_t> t2 = (p4 - p2) * (promotion_t)0.5;
+		vec_base<CompSize, promotion_t> v1 = p2; 
+		vec_base<CompSize, promotion_t> v2 = p3;
+		vec_base<CompSize, promotion_t> t1 = (p3 - p1) * (promotion_t)0.5;
+		vec_base<CompSize, promotion_t> t2 = (p4 - p2) * (promotion_t)0.5;
 		const promotion_t delta_cubic_mul_2 = 0;
 		return p2;
 	}

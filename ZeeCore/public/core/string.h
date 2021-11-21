@@ -14,14 +14,31 @@
 namespace zee {
 	typedef std::basic_string<TCHAR> tstring;
 
+	struct format_helper {
+
+		static int calculate_buffer_size(const wchar_t* format, ...) noexcept;
+		static int calculate_buffer_size(const char* format, ...) noexcept;
+		static int calculate_buffer_size(const wchar_t* format, va_list args) noexcept;
+		static int calculate_buffer_size(const char* format, va_list args) noexcept;
+	};
+
 	std::string string_format(const char* format, ...) noexcept;
-	void string_format(std::string& buffer, const char* format, ...) noexcept;
+	int string_format(std::string& buffer_, const char* format, ...) noexcept;
+
+	std::string string_vformat(const char* format, va_list v) noexcept;
+	int string_vformat(std::string& buffer_, const char* format, va_list v) noexcept;
 
 	std::wstring wstring_format(const wchar_t* format, ...) noexcept;
-	void wstring_format(std::wstring& buffer, const wchar_t* format, ...) noexcept;
+	int wstring_format(std::wstring& buffer_, const wchar_t* format, ...) noexcept;
+
+	std::wstring wstring_vformat(const wchar_t* format, va_list v) noexcept;
+	int wstring_vformat(std::wstring& buffer_, const wchar_t* format, va_list v) noexcept;
 
 	tstring tstring_format(const TCHAR* format, ...) noexcept;
-	void tstring_format(tstring& buffer, const TCHAR* format, ...) noexcept;
+	int tstring_format(tstring& buffer_, const TCHAR* format, ...) noexcept;
+
+	tstring tstring_vformat(const TCHAR* format, va_list v) noexcept;
+	int tstring_vformat(tstring& buffer_, const TCHAR* format, va_list v) noexcept;
 
 	tstring current_time_to_tstring() noexcept;
 

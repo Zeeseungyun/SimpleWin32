@@ -8,7 +8,7 @@ namespace impl {
 	template<size_t CompSize, typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const vec_impl<CompSize, T, true>& v) noexcept {
-		std::wstring ret = wstring_format(L"vec%d(" , CompSize);
+		std::wstring ret = wstring_format(L"vec_base%d(" , CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
 			ret += wstring_format(L"%f, ", v[i]);
 		}
@@ -19,7 +19,7 @@ namespace impl {
 	template<size_t CompSize, typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const vec_impl<CompSize, T, true>& v) noexcept {
-		std::wstring ret = wstring_format(L"vec%d(", CompSize);
+		std::wstring ret = wstring_format(L"vec_base%d(", CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
 			ret += wstring_format(L"%d, ", v[i]);
 		}
@@ -30,7 +30,7 @@ namespace impl {
 	template<size_t CompSize, typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
 		to_string(const vec_impl<CompSize, T, true>& v) noexcept {
-		std::string ret = string_format("vec%d(" , CompSize);
+		std::string ret = string_format("vec_base%d(" , CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
 			ret += string_format("%f, ", v[i]);
 		}
@@ -41,7 +41,7 @@ namespace impl {
 	template<size_t CompSize, typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
 		to_string(const vec_impl<CompSize, T, true>& v) noexcept {
-		std::string ret = string_format("vec%d(" , CompSize);
+		std::string ret = string_format("vec_base%d(" , CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
 			ret += string_format("%d, ", v[i]);
 		}
@@ -52,17 +52,17 @@ namespace impl {
 }//namespace zee::math::impl
 
 	template<size_t CompSize, typename T>
-	auto to_string(const vec<CompSize, T>& v) noexcept {
+	auto to_string(const vec_base<CompSize, T>& v) noexcept {
 		return impl::to_string(v);
 	}
 
 	template<size_t CompSize, typename T>
-	auto to_wstring(const vec<CompSize, T>& v) noexcept {
+	auto to_wstring(const vec_base<CompSize, T>& v) noexcept {
 		return impl::to_wstring(v);
 	}
 
 	template<size_t CompSize, typename T>
-	tstring to_tstring(const vec<CompSize, T>& v) noexcept {
+	tstring to_tstring(const vec_base<CompSize, T>& v) noexcept {
 #ifdef UNICODE
 		return to_wstring(v);
 #else 

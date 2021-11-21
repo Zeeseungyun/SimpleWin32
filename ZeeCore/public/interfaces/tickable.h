@@ -4,6 +4,7 @@ namespace zee {
 namespace interfaces {
 	struct tickable {
 		virtual void tick(float delta_time) = 0;
+		virtual ~tickable() = default;
 	};
 }//namespace zee::interfaces
 
