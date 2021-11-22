@@ -1,9 +1,9 @@
 #pragma once
+#include "random.h"
 #include <memory>
 #include <functional>
 #include <limits>
 #include <map>
-#include "random.h"
 
 namespace zee {
 	typedef std::size_t size_t;

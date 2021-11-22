@@ -1,20 +1,5 @@
 #pragma once
-#include <vector>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <unordered_set>
-#include <algorithm>
-#include <cmath>
-#include <limits>
-#include <memory>
-#include <chrono>
-#include <cassert>
-#include <functional>
-#include <type_traits>
 #include <cstdint>
-#include <limits>
-#include <cassert>
 
 #ifndef NOMINMAX //for windows.h
 #define NOMINMAX

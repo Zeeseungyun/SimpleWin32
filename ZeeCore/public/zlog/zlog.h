@@ -1,5 +1,7 @@
 #pragma once
 #include "../core/string.h"
+#include "../core/core_base.h"
+
 #include <vector>
 #include <set>
 #include <map>
@@ -29,51 +31,56 @@ namespace interfaces {
 			fatal
 		};
 
-		static const TCHAR* verbose_to_raw_str(verbose_type vb);
-		enum class logger_result {
-			success,
-			logger_is_nullptr,
-			already_used_tag_name,
-			already_turn_off, 
-			already_turn_on,
+		enum class status {
+			on,
+			off,
+			not_exists
 		};
 
-		void add(const tstring& tag, std::shared_ptr<interfaces::loggable> new_logger);
-		void remove(std::shared_ptr<interfaces::loggable> new_logger);
+		static const TCHAR* verbose_to_raw_str(verbose_type vb);
+
+		void add(const tstring& tag, const std::shared_ptr<interfaces::loggable>& new_logger, int32 new_priority = 0);
+		void remove(const std::shared_ptr<interfaces::loggable>& remove_logger);
 		void remove(const tstring& tag);
+		void change_priority(const tstring& tag, int32 new_priority);
 
 		std::vector<tstring> get_logger_tag_names() const;
 
-		void printf_detail(verbose_type vb, const TCHAR* category_name, const TCHAR* file_name, int line, const TCHAR* format, ...);
+		void printf_detail(verbose_type vb, const TCHAR* category_name, const TCHAR* file_name, int32 line, const TCHAR* format, ...);
 		void printf(verbose_type vb, const TCHAR* category_name, const TCHAR* format, ...);
 
-		void turn_on(const tstring& category_name);
-		void turn_off(const tstring& category_name);
+		void turn_on_category(const tstring& category_name);
+		void turn_off_category(const tstring& category_name);
 
-		bool is_on(const tstring& category_name) const;
-		bool is_off(const tstring& category_name) const;
-		
+		status category_status(const tstring& category_name) const;
+		status logger_status(const tstring& logger_tag) const;
+
+		void turn_on_logger(const tstring& tag_name);
+		void turn_off_logger(const tstring& tag_name);
+
 	private:
 		void flush_();
 		void clear_buffers();
 
+		struct logger_info {
+			int32 priority = -1;
+			bool is_on = true;
+			tstring tag;
+			std::shared_ptr<interfaces::loggable> logger;
+			bool operator<(const logger_info& other) const noexcept {
+				return priority < other.priority;
+			}
+		};
+
 	private:
 		size_t number_ = 0;
-		size_t header_buffer_size_ = 0;
 		size_t buffer_size_ = 0;
-		tstring header_buffer_;
 		tstring buffer_;
 
 		std::set<tstring> off_categories_;
-		std::set<tstring> on_categories_;
 
-		struct tag_logger_pair {
-			tstring tag;
-			int priority;
-			std::shared_ptr<interfaces::loggable> logger;
-		};
-		
-		std::map<tstring, std::shared_ptr<interfaces::loggable>> loggers_;
+		std::vector<logger_info> logger_infos_;
+		std::map<tstring, size_t> tag_map_idx_;
 	};
 	
 #define ZEE_LOG_DETAIL(verbose, category_name, log_content, ...) \

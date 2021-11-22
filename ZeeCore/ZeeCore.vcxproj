@@ -160,6 +160,7 @@
     <ClInclude Include="public\shape\rect.h" />
     <ClInclude Include="public\shape\shape.h" />
     <ClInclude Include="public\shape\to_string.h" />
+    <ClInclude Include="public\util\alogorithm.h" />
     <ClInclude Include="public\util\type_supports.h" />
     <ClInclude Include="public\interfaces\clonable.h" />
     <ClInclude Include="public\interfaces\shareable.h" />
@@ -174,7 +175,6 @@
     <ClCompile Include="private\core\random.cpp" />
     <ClCompile Include="private\core\string.cpp" />
     <ClCompile Include="private\config\config.cpp" />
-    <ClCompile Include="public\log\log.cpp" />
     <ClCompile Include="public\zlog\zlog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

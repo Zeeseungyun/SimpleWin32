@@ -1,4 +1,5 @@
 #pragma once
+#include "core_base.h"
 #include <string>
 
 #ifndef TEXT
