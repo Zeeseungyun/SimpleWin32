@@ -1,8 +1,8 @@
 #include "image.h"
 #include "core/core.h"
-#include "application/application.h"
-#include "util/file_supports.h"
-#include "log/log.h"
+//#include "application/application.h"
+//#include "util/file_supports.h"
+//#include "log/log.h"
 
 #include <Windows.h>
 

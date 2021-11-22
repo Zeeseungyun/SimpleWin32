@@ -11,7 +11,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
 		to_string(const circle_base_impl<T>& v) noexcept {
-		return string_format(
+		return string_sprintf(
 			"circle(origin(%f, %f), radius(%f))",
 			v.origin.x,
 			v.origin.y,
@@ -22,7 +22,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const circle_base_impl<T>& v) noexcept {
-		return wstring_format(
+		return wstring_sprintf(
 			"circle(origin(%f, %f), radius(%f))",
 			v.origin.x,
 			v.origin.y,
@@ -33,7 +33,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
 		to_string(const circle_base_impl<T>& v) noexcept {
-		return string_format(
+		return string_sprintf(
 			"circle(origin(%d, %d), radius(%d))",
 			v.origin.x,
 			v.origin.y,
@@ -44,7 +44,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const circle_base_impl<T>& v) noexcept {
-		return wstring_format(
+		return wstring_sprintf(
 			L"circle(origin(%d, %d), radius(%d))",
 			v.origin.x,
 			v.origin.y,
@@ -55,7 +55,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
 		to_string(const rect_base_impl<T, true>& v) noexcept {
-		return string_format(
+		return string_sprintf(
 			"rect(l(%f), t(%f), r(%f), b(%f))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
@@ -64,7 +64,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const rect_base_impl<T, true>& v) noexcept {
-		return string_format(
+		return wstring_sprintf(
 			L"rect(l(%f), t(%f), r(%f), b(%f))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
@@ -73,7 +73,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
 		to_string(const rect_base_impl<T, true>& v) noexcept {
-		return string_format(
+		return string_sprintf(
 			"rect(l(%d), t(%d), r(%d), b(%d))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);
@@ -82,7 +82,7 @@ namespace impl {
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
 		to_wstring(const rect_base_impl<T, true>& v) noexcept {
-		return string_format(
+		return wstring_sprintf(
 			L"rect(l(%d), t(%d), r(%d), b(%d))",
 			v.get_left(), v.get_top(), v.get_right(), v.get_bottom()
 		);

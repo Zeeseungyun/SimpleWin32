@@ -51,17 +51,17 @@ namespace impl {
 		
 	private:
 		default_logger() {
-			tstring ctime = current_time_to_tstring();
-			for (auto& c : ctime) {
-				if (std::isspace(c) || c == TEXT('-')) {
-					c = TEXT('_');
-				}
+			tstring log_file_path = zee::file::paths::log_dir() + TEXT("log_") + current_time_to_tstring(TEXT("%y_%m_%d_%H_%M_%S")) + TEXT(".txt");
+			if (!fs::exists(file::paths::log_dir())) {
+				fs::create_directories(file::paths::log_dir());
 			}
 
-			tstring log_file_path = zee::file::paths::log_dir + TEXT("log_") + ctime + TEXT(".txt");
-			if (!fs::exists(file::paths::log_dir)) {
-				fs::create_directories(file::paths::log_dir);
-			}
+			//TODO:: 로그 쌓이면 삭제하는 로직 추가해야함.
+			//for (const auto& dir_entry : fs::directory_iterator(file::paths::log_dir())) {
+			//	dir_entry.is_regular_file();
+			//	dir_entry.path();
+			//}
+
 			out.open(log_file_path);
 		}
 
@@ -120,7 +120,7 @@ namespace impl {
 
 		const int32 content_size = format_helper::calculate_buffer_size(format, args);
 		if (content_size > 0) {
-			buffer_size_ = (size_t)(header_size + content_size + 1);
+			buffer_size_ = (size_t)header_size + content_size + 1;
 			buffer_.clear();
 			buffer_.resize(buffer_size_ + 1);
 			tsprintf(buffer_.data(), buffer_.size(), header_format,
@@ -136,8 +136,8 @@ namespace impl {
 				args
 			);
 
-			buffer_[header_size + content_size] = TEXT('\r');
-			buffer_[header_size + content_size + 1] = TEXT('\n');
+			buffer_[buffer_size_ - 1] = TEXT('\r');
+			buffer_[buffer_size_] = TEXT('\n');
 
 			number_ = math::clamp(number_ + 1, 0, 1000000);
 			flush_();
@@ -170,7 +170,7 @@ namespace impl {
 
 		const int32 content_size = format_helper::calculate_buffer_size(format, args);
 		if (content_size > 0) {
-			buffer_size_ = (size_t)(header_size + content_size + 1);
+			buffer_size_ = (size_t)header_size + content_size + 1;
 			buffer_.clear();
 			buffer_.resize(buffer_size_ + 1);
 			tsprintf(buffer_.data(), buffer_.size(), header_format,
@@ -184,8 +184,8 @@ namespace impl {
 				args
 			);
 
-			buffer_[header_size + content_size] = TEXT('\r');
-			buffer_[header_size + content_size + 1] = TEXT('\n');
+			buffer_[buffer_size_ - 1] = TEXT('\r');
+			buffer_[buffer_size_] = TEXT('\n');
 			
 			number_ = math::clamp(number_ + 1, 0, 1000000);
 			flush_();

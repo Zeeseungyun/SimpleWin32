@@ -15,7 +15,7 @@ namespace render {
 		shape::rectf render;
 
 	private:
-		std::weak_ptr<resource> resources;
+		//std::weak_ptr<resource> resources;
 	};
 
 }//namespace zee::render 

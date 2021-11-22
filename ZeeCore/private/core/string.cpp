@@ -5,7 +5,9 @@
 #include <cstdio>
 
 namespace zee {
+namespace impl {
 
+}//namespace zee::impl
 	int format_helper::calculate_buffer_size(const wchar_t* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
@@ -30,30 +32,30 @@ namespace zee {
 		return vsnprintf(NULL, 0, format, args);
 	}
 
-	std::string string_format(const char* format, ...) noexcept {
+	std::string string_sprintf(const char* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
 		std::string buffer_;
-		string_vformat(buffer_, format, args);
+		string_vprintf(buffer_, format, args);
 		va_end(args);
 		return buffer_;
 	}
 
-	int string_format(std::string& buffer_, const char* format, ...) noexcept {
+	int string_sprintf(std::string& buffer_, const char* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
-		int wrote_count = string_vformat(buffer_, format, args);
+		int wrote_count = string_vprintf(buffer_, format, args);
 		va_end(args);
 		return wrote_count;
 	}
 
-	std::string string_vformat(const char* format, va_list args) noexcept {
+	std::string string_vprintf(const char* format, va_list args) noexcept {
 		std::string buffer_;
-		string_vformat(buffer_, format, args);
+		string_vprintf(buffer_, format, args);
 		return buffer_;
 	}
 
-	int string_vformat(std::string& buffer_, const char* format, va_list args) noexcept {
+	int string_vprintf(std::string& buffer_, const char* format, va_list args) noexcept {
 		int need_count = format_helper::calculate_buffer_size(format, args);
 		if (need_count < 0) {
 			return need_count;
@@ -63,30 +65,30 @@ namespace zee {
 		return vsnprintf(&buffer_[0], buffer_.size(), format, args);
 	}
 
-	std::wstring wstring_format(const wchar_t* format, ...) noexcept {
+	std::wstring wstring_sprintf(const wchar_t* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
 		std::wstring buffer_;
-		wstring_vformat(buffer_, format, args);
+		wstring_vprintf(buffer_, format, args);
 		va_end(args);
 		return buffer_;
 	}
 
-	int wstring_format(std::wstring& buffer_, const wchar_t* format, ...) noexcept {
+	int wstring_sprintf(std::wstring& buffer_, const wchar_t* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
-		const int wrote_count = wstring_vformat(buffer_, format, args);
+		const int wrote_count = wstring_vprintf(buffer_, format, args);
 		va_end(args);
 		return wrote_count;
 	}
 
-	std::wstring wstring_vformat(const wchar_t* format, va_list args) noexcept {
+	std::wstring wstring_vprintf(const wchar_t* format, va_list args) noexcept {
 		std::wstring buffer_;
-		wstring_vformat(buffer_, format, args);
+		wstring_vprintf(buffer_, format, args);
 		return buffer_;
 	}
 
-	int wstring_vformat(std::wstring& buffer_, const wchar_t* format, va_list args) noexcept {
+	int wstring_vprintf(std::wstring& buffer_, const wchar_t* format, va_list args) noexcept {
 		int need_count = format_helper::calculate_buffer_size(format, args);
 		if (need_count < 0) {
 			return need_count;
@@ -96,15 +98,15 @@ namespace zee {
 		return vswprintf(&buffer_[0], buffer_.size(), format, args);
 	}
 
-	tstring tstring_format(const TCHAR* format, ...) noexcept {
+	tstring tstring_sprintf(const TCHAR* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
-		tstring buffer_ = tstring_vformat(format, args);
+		tstring buffer_ = tstring_vprintf(format, args);
 		va_end(args);
 		return buffer_;
 	}
 
-	int tstring_vformat(tstring& buffer_, const TCHAR* format, va_list args) noexcept {
+	int tstring_vprintf(tstring& buffer_, const TCHAR* format, va_list args) noexcept {
 		int need_count = format_helper::calculate_buffer_size(format, args);
 		if (need_count < 0) {
 			return need_count;
@@ -118,31 +120,31 @@ namespace zee {
 		return tvprintf(&buffer_[0], buffer_.size(), format, args);
 	}
 
-	int tstring_format(tstring& buffer_, const TCHAR* format, ...) noexcept {
+	int tstring_sprintf(tstring& buffer_, const TCHAR* format, ...) noexcept {
 		va_list args;
 		va_start(args, format);
-		const int wrote_count = tstring_vformat(buffer_, format, args);
+		const int wrote_count = tstring_vprintf(buffer_, format, args);
 		va_end(args);
 		return wrote_count;
 	}
 
-	tstring tstring_vformat(const TCHAR* format, va_list args) noexcept {
+	tstring tstring_vprintf(const TCHAR* format, va_list args) noexcept {
 		tstring buffer_;
-		tstring_vformat(buffer_, format, args);
+		tstring_vprintf(buffer_, format, args);
 		return buffer_;
 	}
 
 
-	tstring current_time_to_tstring() noexcept {
+	tstring current_time_to_tstring(const TCHAR* const format) noexcept {
 		time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		tm tmm;
 		if (localtime_s(&tmm, &t) != 0) {
 			return TEXT("wrong time.");
 		}
-
+		
 		tstring buffer_;
 		buffer_.resize(32);
-		int written_size = 0;
+		size_t written_size = 0;
 		while (
 			(written_size = 
 #ifdef UNICODE
@@ -150,7 +152,7 @@ namespace zee {
 #else
 			std::strftime
 #endif
-			(&buffer_[0], buffer_.size() - 1, TEXT("%y-%m-%d %H %M %S"), &tmm)) == 0) {
+			(&buffer_[0], buffer_.size() - 1, format, &tmm)) == 0) {
 			buffer_.resize(buffer_.size() * 2);
 		}
 		buffer_.resize((size_t)written_size);
@@ -173,6 +175,14 @@ namespace zee {
 		int ret = tvprintf(buffer, buf_size, format, args);
 		va_end(args);
 		return ret;
+	}
+
+	int tsscanf(const TCHAR* const buffer, const TCHAR* format, ...) noexcept {
+		return 0;
+	}
+
+	int tvscanf(const TCHAR* const buffer, const TCHAR* format, va_list args) noexcept {
+		return 0;
 	}
 
 #ifdef _MSC_VER

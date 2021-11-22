@@ -7,14 +7,14 @@
 namespace zee {
 namespace render {
 
-	class renderer {
-		class resource;
-	public:
-		shape::rectf re;
-
-	private:
-		std::weak_ptr<resource> resources;
-	};
+	//class renderer {
+	//	class resource;
+	//public:
+	//	shape::rectf re;
+	//
+	//private:
+	//	//std::weak_ptr<resource> resources;
+	//};
 
 }//namespace zee::render 
 }//namespace zee 

@@ -3,10 +3,37 @@
 #include "math/vec/vec.h"
 #include "math/to_string.h"
 #include "zlog/zlog.h"
+#include "interfaces/loggable.h"
 
 using namespace zee;
 using namespace std;
 #include <thread>
+#ifdef TEXT
+#undef TEXT
+#endif
+#include <Windows.h>
+
+struct debug_output_logger : interfaces::loggable {
+
+    virtual void print(const TCHAR* null_terminated_str, size_t length ) {
+        OutputDebugString(null_terminated_str);
+    }
+
+    virtual void on_bind(zee::log& owner_log) {
+
+    }
+
+    virtual void on_unbind() {
+
+    }
+};
+
+struct debug_output_logger_creator {
+    debug_output_logger_creator() {
+        zee::get_log().add(TEXT("ouput_debug"), std::make_shared<debug_output_logger>());
+    }
+}temp;
+
 int main() {
     constexpr math::vec2f a0 = { 2,-3 };
     constexpr math::vec2f a1 = { 2,3 };
@@ -24,7 +51,6 @@ int main() {
     constexpr auto fb = (va_dot_vb * math::saturate(fa) + vb_dot_a0_b0) / vb.length_sq();
     constexpr bool is_intersect = fa >= 0 && fa <= 1.0f;
 
-    //print_test();
     ZEE_LOG_DETAIL(normal, TEXT("default"), TEXT("test1"));
     std::this_thread::sleep_for(3s);
     ZEE_LOG(normal, TEXT("default"), TEXT("test2"));
@@ -37,5 +63,6 @@ int main() {
     std::this_thread::sleep_for(3s);
     ZEE_LOG(normal, TEXT("default"), TEXT("test3"));
     std::this_thread::sleep_for(3s);
+    std::system("pause");
     return 0;
 }
