@@ -62,7 +62,7 @@ namespace zee {
 		return b ? TEXT("true") : TEXT("false");
 	}
 
-	tstring to_string(const char* c_str) ;
-	tstring to_string(const wchar_t* w_str) ;
+	tstring to_tstring(const char* c_str) ;
+	tstring to_tstring(const wchar_t* w_str) ;
 }
 

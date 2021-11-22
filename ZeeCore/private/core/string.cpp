@@ -142,10 +142,10 @@ namespace zee {
 
 		tstring buffer_;
 		buffer_.resize(32);
-#ifdef UNICODE
 		int written_size = 0;
 		while (
 			(written_size = 
+#ifdef UNICODE
 			std::wcsftime
 #else
 			std::strftime
@@ -175,8 +175,15 @@ namespace zee {
 		return ret;
 	}
 
-	tstring to_string(const char* c_str) {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+
+//https://www.fluentcpp.com/2019/08/30/how-to-disable-a-warning-in-cpp/
+	tstring to_tstring(const char* c_str) {
 #ifdef UNICODE
+
 		std::wstring buffer(std::strlen(c_str), 0);
 		buffer.resize(std::mbstowcs(0, c_str, 0) + 1);
 		std::mbstowcs(buffer.data(), c_str, buffer.size());
@@ -186,7 +193,7 @@ namespace zee {
 #endif
 	}
 
-	tstring to_string(const wchar_t* c_str) {
+	tstring to_tstring(const wchar_t* c_str) {
 #ifdef UNICODE
 		return c_str;
 #else
@@ -196,4 +203,8 @@ namespace zee {
 		return buffer;
 #endif
 	}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 }
