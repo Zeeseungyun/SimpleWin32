@@ -1,12 +1,16 @@
 #include "zlog.h"
+#include "../math/common.h"
+#include "../interfaces/loggable.h"
+#include "../util/alogorithm.h"
+#include "../file/path.h"
+
 #include <cstdarg>
 #include <cstdio>
 #include <chrono>
 #include <cassert>
-#include "../math/common.h"
-#include "../interfaces/loggable.h"
 #include <algorithm>
-#include "../util/alogorithm.h"
+#include <fstream>
+#include <filesystem>
 
 namespace zee {
 	//static tstring error_to_str(DWORD error_code) {
@@ -29,6 +33,47 @@ namespace zee {
 	//tstring log::last_error_to_string() {
 	//	return error_to_str(GetLastError());
 	//}
+namespace impl {
+	namespace fs = std::filesystem;
+	struct default_logger : interfaces::loggable {
+		friend class zee::log;
+		void print(const TCHAR* null_terminated_str, size_t length = tstring::npos) final {
+			length = length == tstring::npos ? std::char_traits<TCHAR>::length(null_terminated_str) : length;
+			out.write(null_terminated_str, length);
+			out.flush();
+		}
+		
+		void on_bind(log& owner_log) final {
+		}
+		
+		void on_unbind() final {
+		}
+		
+	private:
+		default_logger() {
+			tstring ctime = current_time_to_tstring();
+			for (auto& c : ctime) {
+				if (std::isspace(c) || c == TEXT('-')) {
+					c = TEXT('_');
+				}
+			}
+
+			tstring log_file_path = zee::file::paths::log_dir + TEXT("log_") + ctime + TEXT(".txt");
+			if (!fs::exists(file::paths::log_dir)) {
+				fs::create_directories(file::paths::log_dir);
+			}
+			out.open(log_file_path);
+		}
+
+		std::basic_ofstream<TCHAR> out;
+	};
+
+}//namespace impl
+
+	log::log() noexcept {
+		std::shared_ptr<impl::default_logger> default_logger(new impl::default_logger);
+		add(TEXT("default"), default_logger);
+	}
 
 	const TCHAR* log::verbose_to_raw_str(verbose_type  vb) {
 		switch (vb)
@@ -62,8 +107,8 @@ namespace zee {
 			current_tiem_str.c_str(),
 			verbose_to_raw_str(vb),
 			category_name,
-			file_name,
-			line
+			line,
+			file_name
 		);
 
 		if (header_size < 0) {
@@ -73,23 +118,26 @@ namespace zee {
 		va_list args;
 		va_start(args, format);
 
-		const int32 content_size = format_helper::calculate_buffer_size(content_format, args);
+		const int32 content_size = format_helper::calculate_buffer_size(format, args);
 		if (content_size > 0) {
-			size_t new_buffer_size = header_size + content_size;
+			buffer_size_ = (size_t)(header_size + content_size + 1);
 			buffer_.clear();
-			buffer_.resize(new_buffer_size + 1);
+			buffer_.resize(buffer_size_ + 1);
 			tsprintf(buffer_.data(), buffer_.size(), header_format,
 				number_,
 				current_tiem_str.c_str(),
 				verbose_to_raw_str(vb),
 				category_name,
-				file_name,
-				line
+				line,
+				file_name
 			);
 
-			tvprintf(buffer_.data() + header_size, buffer_.size() - header_size, content_format,
+			tvprintf(buffer_.data() + header_size, buffer_.size() - header_size, format,
 				args
 			);
+
+			buffer_[header_size + content_size] = TEXT('\r');
+			buffer_[header_size + content_size + 1] = TEXT('\n');
 
 			number_ = math::clamp(number_ + 1, 0, 1000000);
 			flush_();
@@ -120,11 +168,11 @@ namespace zee {
 		va_list args;
 		va_start(args, format);
 
-		const int32 content_size = format_helper::calculate_buffer_size(content_format, args);
+		const int32 content_size = format_helper::calculate_buffer_size(format, args);
 		if (content_size > 0) {
-			size_t new_buffer_size = header_size + content_size;
+			buffer_size_ = (size_t)(header_size + content_size + 1);
 			buffer_.clear();
-			buffer_.resize(new_buffer_size + 1);
+			buffer_.resize(buffer_size_ + 1);
 			tsprintf(buffer_.data(), buffer_.size(), header_format,
 				number_,
 				current_tiem_str.c_str(),
@@ -132,10 +180,13 @@ namespace zee {
 				category_name
 			);
 
-			tvprintf(buffer_.data() + header_size, buffer_.size() - header_size, content_format,
+			tvprintf(buffer_.data() + header_size, buffer_.size() - header_size, format,
 				args
 			);
 
+			buffer_[header_size + content_size] = TEXT('\r');
+			buffer_[header_size + content_size + 1] = TEXT('\n');
+			
 			number_ = math::clamp(number_ + 1, 0, 1000000);
 			flush_();
 		}
@@ -164,8 +215,9 @@ namespace zee {
 
 	void log::flush_() {
 		for (const auto& logger_info : logger_infos_) {
-			logger_info.logger->print(buffer_.c_str(), buffer_size_);
-			logger_info.logger->print(TEXT("\n"), 1);
+			if (logger_info.is_on) {
+				logger_info.logger->print(buffer_.c_str(), buffer_size_);
+			}
 		}
 
 		clear_buffers();
@@ -184,11 +236,17 @@ namespace zee {
 	}
 
 	void log::turn_on_logger(const tstring& tag_name) {
-
+		auto found = tag_map_idx_.find(tag_name);
+		if (found != end(tag_map_idx_)) {
+			logger_infos_[found->second].is_on = true;
+		}
 	}
 
 	void log::turn_off_logger(const tstring& tag_name) {
-
+		auto found = tag_map_idx_.find(tag_name);
+		if (found != end(tag_map_idx_)) {
+			logger_infos_[found->second].is_on = false;
+		}
 	}
 
 	log::status log::logger_status(const tstring& logger_tag) const {
@@ -216,15 +274,16 @@ namespace zee {
 
 	void log::remove(const std::shared_ptr<interfaces::loggable>& remove_logger) {
 		tstring logger_tag;
-		algo::remove_single(logger_infos_, begin(logger_infos_), end(logger_infos_), [&](const logger_info& old_item){
-			if (old_item.logger == remove_logger) {
-				logger_tag = old_item.tag;
-				return true;
-			}
-			return false;
-		});
-
-		tag_map_idx_.erase(logger_tag);
+		if (algo::remove_single(logger_infos_, begin(logger_infos_), end(logger_infos_), 
+			[&](const logger_info& old_item) {
+				if (old_item.logger == remove_logger) {
+					logger_tag = old_item.tag;
+					return true;
+				}
+				return false;
+			})) {
+			tag_map_idx_.erase(logger_tag);
+		}
 	}
 
 	void log::remove(const tstring& tag) {

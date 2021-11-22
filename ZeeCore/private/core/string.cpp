@@ -143,15 +143,17 @@ namespace zee {
 		tstring buffer_;
 		buffer_.resize(32);
 #ifdef UNICODE
+		int written_size = 0;
 		while (
+			(written_size = 
 			std::wcsftime
 #else
 			std::strftime
 #endif
-			(&buffer_[0], buffer_.size() - 1, TEXT("%y-%m-%d %H %M %S"), &tmm) == 0) {
+			(&buffer_[0], buffer_.size() - 1, TEXT("%y-%m-%d %H %M %S"), &tmm)) == 0) {
 			buffer_.resize(buffer_.size() * 2);
 		}
-
+		buffer_.resize((size_t)written_size);
 		return buffer_;
 	}
 
@@ -171,5 +173,27 @@ namespace zee {
 		int ret = tvprintf(buffer, buf_size, format, args);
 		va_end(args);
 		return ret;
+	}
+
+	tstring to_string(const char* c_str) {
+#ifdef UNICODE
+		std::wstring buffer(std::strlen(c_str), 0);
+		buffer.resize(std::mbstowcs(0, c_str, 0) + 1);
+		std::mbstowcs(buffer.data(), c_str, buffer.size());
+		return buffer;
+#else
+		return c_str;
+#endif
+	}
+
+	tstring to_string(const wchar_t* c_str) {
+#ifdef UNICODE
+		return c_str;
+#else
+		std::string buffer(std::wcslen(c_str), 0);
+		buffer.resize(std::wcstombs(0, c_str, 0) + 1);
+		std::wcstombs(buffer.data(), c_str, buffer.size());
+		return buffer;
+#endif
 	}
 }

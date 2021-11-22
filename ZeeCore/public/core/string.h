@@ -57,5 +57,12 @@ namespace zee {
 		return to_string(v);
 #endif 
 	}
+
+	inline tstring to_tstring(bool b) noexcept {
+		return b ? TEXT("true") : TEXT("false");
+	}
+
+	tstring to_string(const char* c_str) ;
+	tstring to_string(const wchar_t* w_str) ;
 }
 

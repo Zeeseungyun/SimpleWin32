@@ -2,7 +2,7 @@
 #include "core/core.h"
 #include "math/vec/vec.h"
 #include "math/to_string.h"
-//#include "log/log.h"
+#include "zlog/zlog.h"
 
 using namespace zee;
 using namespace std;
@@ -23,11 +23,19 @@ int main() {
     constexpr auto fa = (va_dot_vb * vb_dot_a0_b0 + va_dot_b0_a0 * vb.length_sq()) / denom;
     constexpr auto fb = (va_dot_vb * math::saturate(fa) + vb_dot_a0_b0) / vb.length_sq();
     constexpr bool is_intersect = fa >= 0 && fa <= 1.0f;
-    std::vector<int> vi1 = { 1,2,3 };
-    std::vector<int> vi2 = { 1,2,3 };
-    std::cout << (vi1.begin() == vi2.begin());
 
     //print_test();
-    //ZEE_LOG(normal, TEXT("asdfasdf"));
+    ZEE_LOG_DETAIL(normal, TEXT("default"), TEXT("test1"));
+    std::this_thread::sleep_for(3s);
+    ZEE_LOG(normal, TEXT("default"), TEXT("test2"));
+    std::this_thread::sleep_for(3s);
+    ZEE_LOG(normal, TEXT("default"), TEXT("test3"));
+    std::this_thread::sleep_for(3s);
+    ZEE_LOG(normal, TEXT("default"), TEXT("test3"));
+    std::this_thread::sleep_for(3s);
+    ZEE_LOG(normal, TEXT("default"), TEXT("test3"));
+    std::this_thread::sleep_for(3s);
+    ZEE_LOG(normal, TEXT("default"), TEXT("test3"));
+    std::this_thread::sleep_for(3s);
     return 0;
 }
