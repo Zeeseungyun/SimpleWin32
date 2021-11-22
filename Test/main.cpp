@@ -59,7 +59,7 @@ bool check(math::vec2f b0, math::vec2f e0, math::vec2f b1, math::vec2f e1) {
 	//xx near xx : 오차 감안 시 사용하는 함수
 	//엡실론. 오차 막기위함
 	//일단 표준 값에서 10을 곱한건 너무 타이트해서 삑사리남. 그래서 10곱해줬음.
-	if (math::is_near_not_zero(ccw(b0_e0, b1_e1), math::epsilon<float>() * 10)) {	
+	if (math::is_near_not_zero(ccw(b0_e0, b1_e1), math::epsilon<float>() * 10)) {
 		math::vec2f e0_b1 = e0 - b1;
 		const auto n1_ccw_b0 = b1_e1.ccw(b0_b1);
 		const auto n1_ccw_e0 = b1_e1.ccw(e0_b1);
@@ -107,6 +107,7 @@ const shape::collide_type intersect_with_vector(math::vec2f begin1, math::vec2f 
 
 	//두 선분이 한 직선 위에 있거나, 끝점이 겹치는 경우
 	if (begin1.ccw(begin2) * begin1.ccw(end2) == 0 && begin2.ccw(begin1) * begin2.ccw(end1) == 0) {
+		//공식 참고. 원리 이해는 못함
 		if (comparator(end1, begin1)) {
 			swap(begin1, end1);
 		}
@@ -130,11 +131,10 @@ const shape::collide_type intersect_with_vector(math::vec2f begin1, math::vec2f 
 }
 //선 vs 선 2.1. 방정식 pt대입 버전 
 const shape::collide_type intersect(const math::vec2f& begin1, const math::vec2f& end1, const math::vec2f& begin2, const math::vec2f& end2, math::vec2f& out_pt) noexcept {
-	//P(t) = (1 - t)P1 + tP2	P(s) = (1 - s)P1 + tP2
 	float t;
 	float s;
 	//직선의 방정식 공식 참고 1
-	float under = (end2.y - begin2.y) * (end1.x - begin1.x) - (end2.x - begin2.x) * (end1.y - begin1.y);	
+	float under = (end2.y - begin2.y) * (end1.x - begin1.x) - (end2.x - begin2.x) * (end1.y - begin1.y);
 	if (under == 0) {
 		//완전 내접: 좌변 선이 우변 선을 완전히 포함할 경우
 		if (begin1.x <= begin2.x && begin1.y <= begin2.y && end1.x >= end2.x && end1.y >= end2.y) {	//operator < > 필요
@@ -159,11 +159,10 @@ const shape::collide_type intersect(const math::vec2f& begin1, const math::vec2f
 		return shape::collide_type::none;
 	}
 	//교차
-	out_pt.x = begin1.x + t * static_cast<float>(end1.x - begin1.x);
-	out_pt.y = begin1.y + t * (end1.y - begin1.y);
+	out_pt = begin1 + t * (end1 - begin1);
 	return shape::collide_type::intersect;
 }
-//선 vs 선. 2.2. 방정식
+//선 vs 선. 2.2.
 const shape::collide_type intersect(const math::vec2f& begin1, const math::vec2f& end1, const math::vec2f& begin2, const math::vec2f& end2) noexcept {
 	math::vec2f tmp = { -10000, -10000 };	//교차점에 의미 없는 값 선 세팅
 	return intersect(begin1, end1, begin2, end2, tmp);
@@ -189,31 +188,97 @@ const shape::collide_type intersect(const shape::rectf rect, const math::vec2f b
 	return shape::collide_type::none;
 }
 //선 vs 원형
-const shape::collide_type intersect(const shape::circlef circle, const math::vec2f begin, const math::vec2f end) noexcept {
-	//교차점 x = x1 + u(x2 - x1)		원의 중심(x3, y3)	u = ( (x3 - x1)(x2 - x1) + (y3 - y1)(y2 - y1) ) / (p2 - p1)^2 
-	//거리 <= 반지름
-	//선분은 u가 0과 1 사이에 있는지 테스트
-	math::vec2f distVector = circle.origin - begin;
-	if (distVector.length() < circle.radius) {
-		double distance = circle.radius - distVector.length();
-		math::vec2f moveVector = distVector.normalize() * distance;
+const shape::collide_type intersect(const shape::circlef& circle, const math::vec2f& begin, const math::vec2f& end) noexcept {
+	float d_cb = circle.origin.distance(begin);	//선분 시작점과 원 중심 사이 거리
+	float d_ce = circle.origin.distance(end);
+	//포함
+	if (d_ce < circle.radius && d_cb < circle.radius) {
+		return shape::collide_type::contain;
 	}
-	math::vec2f out_pt;
+	//교차: 선분 한 점이 원 안에
+	else if ((d_cb < circle.radius && d_ce > circle.radius) || (d_cb > circle.radius && d_ce < circle.radius)) {
+		return shape::collide_type::intersect;
+	}
+	else {
+		//선의 법선과 p1에서 c(원 중심)까지의 벡터로 외적하여 구한 평행사변형 넓이 == 선분 정규화에 의해 만들어진 직사각형 영역
+		//원리 이해는 못함
+		const math::vec2f eb = { end.x - begin.x, end.y - begin.y };
+		const math::vec2f n_eb = eb.normalize();
+		const math::vec2f bec = { circle.origin.x - begin.x, end.y - circle.origin.y };
+
+		float v = math::abs(ccw(n_eb, bec));
+		if (v <= circle.radius) {
+			return shape::collide_type::intersect;
+		}
+		return shape::collide_type::none;
+	}
+}
+const shape::collide_type intersect2(const shape::circlef& circle, const math::vec2f& begin, const math::vec2f& end) noexcept {
+	float d_cb = circle.origin.distance(begin);	//선분 시작점과 원 중심 사이 거리
+	float d_ce = circle.origin.distance(end);
+	//포함
+	if (d_ce < circle.radius && d_cb < circle.radius) {
+		return shape::collide_type::contain;
+	}
+	//교차: 선분 한 점이 원 안에
+	else if ((d_cb < circle.radius && d_ce > circle.radius) || (d_cb > circle.radius && d_ce < circle.radius)) {
+		return shape::collide_type::intersect;
+	}
+	else {
+
+		return shape::collide_type::none;
+	}
 }
 //사각형 vs 원형
-/*
-const shape::collide_type intersect(const shape::rectf, const shape::circlef) {
-
+const shape::collide_type intersect(const shape::rectf& rect, const shape::circlef& circle) {
+	math::vec2f lt = { rect.left, rect.top };
+	math::vec2f lb = { rect.left, rect.bottom };
+	math::vec2f rt = { rect.right, rect.top };
+	math::vec2f rb = { rect.right, rect.bottom };
+	//교차: 네 선 중 하나라도 겹침
+	if (intersect(circle, lt, lb) == shape::collide_type::intersect
+		|| intersect(circle, lb, rb) == shape::collide_type::intersect
+		|| intersect(circle, rb, rt) == shape::collide_type::intersect
+		|| intersect(circle, rt, lt) == shape::collide_type::intersect) {
+		return shape::collide_type::intersect;
+	}
+	//포함
+	else if (circle.origin.x > rect.left && circle.origin.x < rect.right
+		&& circle.origin.y > rect.top && circle.origin.y < rect.bottom
+		&& circle.radius * 2 <= rect.width() && circle.radius * 2 <= rect.height()) {
+		return shape::collide_type::contain;
+	}
+	return shape::collide_type::none;
 }
-const shape::collide_type intersect(const shape::circlef, const shape::rectf) {
-
+//원형 vs 사각형
+const shape::collide_type intersect(const shape::circlef& circle, const shape::rectf& rect) {
+	math::vec2f lt = { rect.left, rect.top };
+	math::vec2f lb = { rect.left, rect.bottom };
+	math::vec2f rt = { rect.right, rect.top };
+	math::vec2f rb = { rect.right, rect.bottom };
+	//교차: 네 선 중 하나라도 겹침
+	if (intersect(circle, lt, lb) == shape::collide_type::intersect
+		|| intersect(circle, lb, rb) == shape::collide_type::intersect
+		|| intersect(circle, rb, rt) == shape::collide_type::intersect
+		|| intersect(circle, rt, lt) == shape::collide_type::intersect) {
+		return shape::collide_type::intersect;
+	}
+	//포함
+	else if (rect.left > circle.origin.x - circle.radius
+		&& rect.right < circle.origin.x + circle.radius
+		&& rect.bottom < circle.origin.x + circle.radius
+		&& rect.top > circle.origin.x - circle.radius) {
+		return shape::collide_type::contain;
+	}
+	return shape::collide_type::none;
 }
-*/
+
 int main() {
 	std::cout << std::boolalpha;
+	/*
 	constexpr zee::math::vec2f v = { 10, 10 };
-	constexpr zee::math::impl::vec_impl<2, float> v_parent = { 10, 10 }; 
-	
+	constexpr zee::math::impl::vec_impl<2, float> v_parent = { 10, 10 };
+
 	constexpr zee::shape::recti rt = { 1,2,3,4 };
 	constexpr zee::shape::circlei cc = { v, 4.0f };
 	std::cout << to_string(cc) << std::endl;
@@ -242,16 +307,16 @@ int main() {
 	constexpr shape::circlef circle = { pt, 3 };
 	std::cout << to_string(intersect(begin, end, pt)) << std::endl;
 	std::cout << to_string(intersect(rect, pt)) << std::endl;
-
+	*/
 
 	//YJJ 테스트
-	math::vec2f rx = { 0, 0 };
-	math::vec2f ry = { 1, 1 };
-	shape::rectf rct = { rx, ry };
-	constexpr math::vec2f pot = { 1, 2 };
-	constexpr shape::circlef c = { pot, 3 };
-	std::cout << "선분과 점 포함? " << to_string(contain(rt, rt)) << std::endl;
-	std::cout << "사각형에 점 포함? " << to_string(contain(c, c)) << std::endl;
+	math::vec2f lt = { 0, 0 };
+	math::vec2f rb = { 1, 1 };
+	shape::rectf rect = { lt, rb };
+	math::vec2f pt = { 1, 2 };
+	shape::circlef c = { pt, 3 };
+	std::cout << "[포함] 사각형 vs 사각형? " << to_string(contain(rect, rect)) << std::endl;
+	std::cout << "[포함] 원형 vs 원형? " << to_string(contain(c, c)) << std::endl;
 
 	puts("");
 	math::vec2f begin1 = { 2, 0 };
@@ -259,42 +324,134 @@ int main() {
 	math::vec2f begin2 = { 1, 0 };
 	math::vec2f end2 = { 1, 1 };
 	math::vec2f out_pt = { 10000, 10000 };
-	std::cout << "방정식 / 방정식pt대입 / 벡터이용 순서" << std::endl;
-	std::cout << "충돌 x 평행 x? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
+	std::cout << "선 vs 선 : 방정식 / 방정식pt대입 / 벡터이용 순서" << std::endl;
+	std::cout << "[충돌 x 평행 x]? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
 	std::cout << to_string(intersect(begin1, end1, begin2, end2, out_pt)) << ' ';
 	std::cout << to_string(intersect_with_vector(begin1, end1, begin2, end2)) << std::endl;
 	begin2 = { 0, 0 };
-	std::cout << "충돌 x 평행 o? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
+	std::cout << "[충돌 x 평행 o]? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
 	std::cout << to_string(intersect(begin1, end1, begin2, end2, out_pt)) << ' ';
 	std::cout << to_string(intersect_with_vector(begin1, end1, begin2, end2)) << std::endl;
 	begin2 = { 2, 0 };
-	std::cout << "끝점(2, 0)? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
+	std::cout << "[끝점(2, 0) 충돌]? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
 	std::cout << to_string(intersect(begin1, end1, begin2, end2, out_pt)) << ' ';
 	std::cout << to_string(out_pt) << ' ';
 	std::cout << to_string(intersect_with_vector(begin1, end1, begin2, end2)) << std::endl;
 	begin2 = { 3, 0 };
-	std::cout << "중간점 충돌? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
+	std::cout << "[중간점 충돌]? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
 	std::cout << to_string(intersect(begin1, end1, begin2, end2, out_pt)) << ' ';
 	std::cout << to_string(out_pt) << ' ';
 	std::cout << to_string(intersect_with_vector(begin1, end1, begin2, end2)) << std::endl;
 	begin2 = { 2, 0 };
 	end2 = { 4, 2 };
-	std::cout << "일부 내접? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
+	std::cout << "[일부 내접]? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
 	std::cout << to_string(intersect(begin1, end1, begin2, end2, out_pt)) << ' ';
 	std::cout << to_string(intersect_with_vector(begin1, end1, begin2, end2)) << std::endl;
 	end2 = { 3, 1 };
-	std::cout << "완전 내접? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
+	std::cout << "[완전 내접]? " << to_string(intersect(begin1, end1, begin2, end2)) << ' ';
 	std::cout << to_string(intersect(begin1, end1, begin2, end2, out_pt)) << ' ';
 	std::cout << to_string(intersect_with_vector(begin1, end1, begin2, end2)) << std::endl;
 
 	puts("");
-	rx = { -1, -1 };	ry = { 2, 2 };
-	shape::rectf rct2 = { rx, ry };
-	begin1 = { 0, 0 };	end1 = { 2, 2 };
-	std::cout << "선 vs 사각형 포함? " << to_string(intersect(rct2, begin1, end1)) << std::endl;
-	begin1 = { 1, 1 };	end1 = { 3, 3 };
-	std::cout << "선 vs 사각형 충돌? " << to_string(intersect(rct2, begin1, end1)) << std::endl;
+	lt = { -1, -1 };	rb = { 2, 2 };
+	shape::rectf rct2 = { lt, rb };
 	begin1 = { 4, 4 };	end1 = { 5, 5 };
-	std::cout << "선 vs 사각형 비충돌? " << to_string(intersect(rct2, begin1, end1)) << std::endl;
+	std::cout << "[비충돌] 선 vs 사각형? " << to_string(intersect(rct2, begin1, end1)) << std::endl;
+	begin1 = { 1, 1 };	end1 = { 3, 3 };
+	std::cout << "[충돌] 선 vs 사각형? " << to_string(intersect(rct2, begin1, end1)) << std::endl;
+	begin1 = { 0, 0 };	end1 = { 2, 2 };
+	std::cout << "[포함] 선 vs 사각형? " << to_string(intersect(rct2, begin1, end1)) << std::endl;
 
+	puts("");
+	math::vec2f ori = { 2, 2 };
+	shape::circlef c2 = { ori, 2 };
+	begin1 = { 6, 6 };	end1 = { 7, 7 };
+	std::cout << "[비충돌] 선 vs 원? " << to_string(intersect(c2, begin1, end1)) << std::endl;
+	begin1 = { 3, 3 };	end1 = { 7, 7 };
+	std::cout << "[시작점or끝점 내접] 선 vs 원 충돌? " << to_string(intersect(c2, begin1, end1)) << std::endl;
+	begin1 = { 4, 0 };	end1 = { 4, 4 };
+	std::cout << "[중간점 한 점 내접] 선 vs 원 충돌? " << to_string(intersect(c2, begin1, end1)) << std::endl;
+	begin1 = { 1, 1 };	end1 = { 2, 2 };
+	std::cout << "[포함] 선 vs 원? " << to_string(intersect(c2, begin1, end1)) << std::endl;
+
+	puts("");
+	lt = { 0, 0 };	rb = { 4, 4 };
+	shape::rectf rct3 = { lt, rb };
+	ori = { 4, 2 };	shape::circlef c3 = { ori, 1 };
+	std::cout << "[충돌] 사각형 vs 원형? " << to_string(intersect(rct3, c3)) << std::endl;
+	std::cout << "[충돌] 원형 vs 사각형? " << to_string(intersect(c3, rct3)) << std::endl;
+	ori = { 9, 9 };	c3 = { ori, 1 };
+	std::cout << "[비충돌] 사각형 vs 원형? " << to_string(intersect(rct3, c3)) << std::endl;
+	std::cout << "[비충돌] 원형 vs 사각형? " << to_string(intersect(c3, rct3)) << std::endl;
+	ori = { 2, 2 }; c3 = { ori, 1 };
+	std::cout << "[사각형 내부 원] 사각형 vs 원형 포함? " << to_string(intersect(rct3, c3)) << std::endl;
+	std::cout << "[사각형 내부 원] 원형 vs 사각형 포함? " << to_string(intersect(c3, rct3)) << std::endl;
+	ori = { 2, 2 };	c3 = { ori, 9 };
+	std::cout << "[원 내부 사각형] 사각형 vs 원형? " << to_string(intersect(rct3, c3)) << std::endl;
+	std::cout << "[원 내부 사각형] 원형 vs 사각형? " << to_string(intersect(c3, rct3)) << std::endl;
 }
+
+/*
+//공식들
+constexpr math::vec2f a0 = { 2,-3 };
+constexpr math::vec2f a1 = { 2,3 };
+constexpr math::vec2f b0 = { 1,0 };
+constexpr math::vec2f b1 = { 3,0 };
+constexpr auto va = a1 - a0;
+constexpr auto vb = b1 - b0;
+constexpr auto a0_b0 = a0 - b0;
+constexpr auto b0_a0 = -a0_b0;
+constexpr auto vb_dot_a0_b0 = vb.dot(a0_b0);
+constexpr auto va_dot_b0_a0 = va.dot(b0_a0);
+constexpr auto va_dot_vb = va.dot(vb);
+constexpr auto denom = va.length_sq() * vb.length_sq() - va_dot_vb * va_dot_vb;
+constexpr auto fa = (va_dot_vb * vb_dot_a0_b0 + va_dot_b0_a0 * vb.length_sq()) / denom;
+constexpr auto fb = (va_dot_vb * math::saturate(fa) + vb_dot_a0_b0) / vb.length_sq();
+constexpr bool is_intersect = fa >= 0 && fa <= 1.0f;
+
+//구현 필요한 함수들
+//무한 평면에서 교점을 반환.
+bool intersectInfPlane(const Vec3& origin, const Vec3& dir, const Plane& plane, Vec3& out_intersectPos);
+bool intersectInfPlane(const Vec3& origin, const Vec3& dir, const Vec3& v0, const Vec3& v1, const Vec3& v2, Vec3& out_intersectPos);
+
+bool intersectInfPlaneFront(const Vec3& origin, const Vec3& dir, const Plane& plane, Vec3& out_intersectPos);
+bool intersectInfPlaneFront(const Vec3& origin, const Vec3& dir, const Vec3& v0, const Vec3& v1, const Vec3& v2, Vec3& out_intersectPos);
+
+bool intersectInfPlaneBack(const Vec3& origin, const Vec3& dir, const Plane& plane, Vec3& out_intersectPos);
+bool intersectInfPlaneBack(const Vec3& origin, const Vec3& dir, const Vec3& v0, const Vec3& v1, const Vec3& v2, Vec3& out_intersectPos);
+
+//삼각형의 앞, 뒷면 상관없이
+bool intersectTriangle(const Vec3& origin, const Vec3& dir, const Vec3& v0, const Vec3& v1, const Vec3& v2, float& dist);
+//삼각형의 앞면과 충돌
+bool intersectTriangleFront(const Vec3& origin, const Vec3& dir, const Vec3& v0, const Vec3& v1, const Vec3& v2, float& dist);
+//삼각형의 뒷면과 충돌
+bool intersectTriangleBack(const Vec3& origin, const Vec3& dir, const Vec3& v0, const Vec3& v1, const Vec3& v2, float& dist);
+
+float closetPointFromLineToLine(const Vec3& A0, const Vec3& A1, const Vec3& B0, const Vec3& B1, Vec3& AP, Vec3& BP);
+float closetPointFromPointToLine(const Vec3& pt, const Vec3& l0, const Vec3& l1, Vec3& lp);
+
+float distanceSqPtToLine(const Vec3& pt, const Vec3& l0, const Vec3& l1);
+float distanceSqLineToLine(const Vec3& A0, const Vec3& A1, const Vec3& B0, const Vec3& B1);
+
+bool pointOnPlaneInsideTriangle(const Vec3& pt, const Vec3& v0, const Vec3& v1, const Vec3& v2);
+void intersectPlaneTriangle(const Vec3& p0, const Vec3& p1, const Vec3& p2, const Plane& plane, bool& outSide, bool& inSide);
+collide triangleContainedByPlane(const Vec3& v0, const Vec3& v1, const Vec3& v2, const Planes& planes);
+
+void intersectPlaneSphere(const BoundingSphere& sp, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneSphere(const Vec3& center, float radius, const Plane& plane, bool& outSide, bool& inSide);
+
+void intersectPlaneCorners(const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5, const Vec3& p6, const Vec3& p7, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneCorners(const Vec3(&corners)[8], const Plane& plane, bool& outSide, bool& inSide);
+
+void intersectPlaneObb(const Zee::BoundingOrientedBox& obb, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneObb(const Zee::BoundingOrientedBox& obb, const Vec3& axisX, const Vec3& axisY, const Vec3& axisZ, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneObb(const Vec3& center, const Vec3& extents, const Vec3& axisX, const Vec3& axisY, const Vec3& axisZ, const Plane& plane, bool& outSide, bool& inSide);
+
+void intersectPlaneAabb(const Zee::BoundingBox& aabb, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneAabb(const Vec3& center, const Vec3& extents, const Plane& plane, bool& outSide, bool& inSide);
+
+void intersectPlaneCorners(const Corners& Corners, const Plane& plane, bool& outSide, bool& inSide);
+
+void intersectPlaneCapsule(const Zee::BoundingCapsule& capsule, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneCapsule(const Zee::BoundingCapsule& capsule, const Vec3& bot, const Vec3& top, const Plane& plane, bool& outSide, bool& inSide);
+*/
