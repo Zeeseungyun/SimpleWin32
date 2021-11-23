@@ -176,7 +176,7 @@
     <ClCompile Include="private\core\string.cpp" />
     <ClCompile Include="private\config\config.cpp" />
     <ClCompile Include="private\file\path.cpp" />
-    <ClCompile Include="public\zlog\zlog.cpp" />
+    <ClCompile Include="private\zlog\zlog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,8 +1,10 @@
 #pragma once
 #include "core_base.h"
 #include <string>
-#include <cassert>
 #include <cstdarg>
+#include <chrono>
+#include <cwchar>
+#include <cstdio>
 
 #ifndef TEXT
 	#ifdef UNICODE
@@ -15,47 +17,16 @@
 #endif //TEXT
 
 namespace zee {
-	typedef std::basic_string<TCHAR> tstring;
-
-	struct format_helper {
-
-		static int calculate_buffer_size(const wchar_t* format, ...) noexcept;
-		static int calculate_buffer_size(const char* format, ...) noexcept;
-		static int calculate_buffer_size(const wchar_t* format, va_list args) noexcept;
-		static int calculate_buffer_size(const char* format, va_list args) noexcept;
-	};
-
-	std::string string_sprintf(const char* format, ...) noexcept;
-	int string_sprintf(std::string& buffer_, const char* format, ...) noexcept;
-
-	std::string string_vprintf(const char* format, va_list args) noexcept;
-	int string_vprintf(std::string& buffer_, const char* format, va_list args) noexcept;
-
-	std::wstring wstring_sprintf(const wchar_t* format, ...) noexcept;
-	int wstring_sprintf(std::wstring& buffer_, const wchar_t* format, ...) noexcept;
-
-	std::wstring wstring_vprintf(const wchar_t* format, va_list args) noexcept;
-	int wstring_vprintf(std::wstring& buffer_, const wchar_t* format, va_list args) noexcept;
-
-	tstring tstring_sprintf(const TCHAR* format, ...) noexcept;
-	int tstring_sprintf(tstring& buffer_, const TCHAR* format, ...) noexcept;
-
-	tstring tstring_vprintf(const TCHAR* format, va_list args) noexcept;
-	int tstring_vprintf(tstring& buffer_, const TCHAR* format, va_list args) noexcept;
-
 namespace impl {
-	template<typename CharT>
-	struct strmanip_base_impl {
+	template<typename CharT /*= TCHAR */, typename TraitT /*= std::char_traits<CharT>*/>
+	struct strmanip_base_impl {	};
 
-	};
-	/*
-	* strmanip_base_impl마저 작성.
-	* 
-	*/
-	template<>
-	struct strmanip_base_impl<char> : std::char_traits<char> {
-		typedef std::basic_string<char_type> string_type;
+	template<typename TraitT>
+	struct strmanip_base_impl<char, TraitT> : TraitT {
+		using typename TraitT::char_type;
+		using typename TraitT::int_type;
 
+		//https://en.cppreference.com/w/c/io/vfprintf
 		static int_type vprintf(char_type* const buf, size_t buf_size, const char_type* fmt, va_list args) noexcept {
 			if (!fmt || !args) {
 				return -1;
@@ -63,54 +34,99 @@ namespace impl {
 			return std::vsnprintf(buf, buf_size, fmt, args);
 		}
 
+		static const char_type* get_default_time_format() noexcept { return L"%y-%m-%d %H:%M:%S"; }
+
 		//*https://en.cppreference.com/w/cpp/chrono/c/strftime
-		static string_type cur_time_to_str(const char_type* const format);
+		static size_t time_to_str( char_type* buf, size_t buf_size, const time_t& time_v, const char_type* fmt) noexcept {
+			if (!fmt || !buf) {
+				assert(0 && " buf, fmt must be not nullptr.");
+				return 0;
+			}
+
+			tm tm_v;
+			if (localtime_s(&tm_v, &time_v) != 0) {
+				return 0;
+			}
+			return std::strftime(buf, buf_size, fmt, &tm_v);
+		}
+
+		//https://en.cppreference.com/w/c/io/vfscanf
+		static int_type vsscanf(const char_type* buf, const char_type* fmt, va_list args) noexcept {
+			return ::vsscanf_s(buf, fmt, args);
+		}
 	};
 
-	template<>
-	struct strmanip_base_impl<wchar_t> : std::char_traits<wchar_t> {
-		typedef std::basic_string<char_type> string_type;
+	template<typename TraitT>
+	struct strmanip_base_impl<wchar_t, TraitT> : TraitT {
+		using typename TraitT::int_type;
+		using typename TraitT::char_type;
 
+		//https://en.cppreference.com/w/c/io/vfwprintf
 		static int_type vprintf(char_type* const buf, size_t buf_size, const char_type* fmt, va_list args) noexcept {
-			if (!fmt || !args) {
+			if (!fmt) {
+				assert(0 && " fmt must be not nullptr.");
 				return -1;
 			}
 			return std::vswprintf(buf, buf_size, fmt, args);
 		}
+
+		static const char_type* get_default_time_format() noexcept { return L"%y-%m-%d %H:%M:%S"; }
+
+		//https://en.cppreference.com/w/cpp/chrono/c/wcsftime
+		static size_t time_to_str(char_type* buf, size_t buf_size, const time_t& time_v, const char_type* fmt) noexcept {
+			if (!fmt || !buf) {
+				assert(0 && " buf, fmt must be not nullptr.");
+				return 0;
+			}
+
+			tm tm_v;
+			if (localtime_s(&tm_v, &time_v) != 0) {
+				return 0;
+			}
+
+			return std::wcsftime(buf, buf_size, fmt, &tm_v);
+		}
+
+		//https://en.cppreference.com/w/c/io/vfwscanf
+		static int_type vsscanf(const char_type* buf, const char_type* fmt, va_list args) noexcept {
+			return ::vswscanf_s(buf, fmt, args);
+		}
 	};
 
-
 }//namespace impl
-	template<typename CharT = TCHAR>
-	struct strmanip_base : impl::strmanip_base_impl<CharT> {
+
+	template<typename CharT = TCHAR, typename TraitT = std::char_traits<CharT>>
+	struct strmanip_base : impl::strmanip_base_impl<CharT, TraitT> {
 	private:
-		typedef impl::strmanip_base_impl<CharT> base_type;
+		typedef impl::strmanip_base_impl<CharT, TraitT> base_type;
 
 	public:
 		using typename base_type::int_type;
 		using typename base_type::char_type;
 
-		typedef std::basic_string<char_type> string_type;
-
-		static int_type vprintf(string_type& buf, const char_type* fmt, va_list args) noexcept {
+		template<typename TraitU, typename AllocU>
+		static int_type vprintf(std::basic_string<char_type, TraitU, AllocU>& buf, const char_type* fmt, va_list args) noexcept {
 			if (!fmt || !args) {
+				assert(0 && "invalid arguments.");
 				return -1;
 			}
 
-			int_type ret = vprintf(0, 0, fmt, args);
+			int_type ret = base_type::vprintf(0, 0, fmt, args);
 			if (ret < 0) {
+				assert(0 && "something wrong.");
 				return ret;
 			}
 
-#define NULL_TERMINATED_STR_COMPLEMENT 1
-			const size_t need_buf_size = (size_t)ret + NULL_TERMINATED_STR_COMPLEMENT;
-#undef NULL_TERMINATED_STR_COMPLEMENT
-			const size_t old_offset = buf.length();
+			const size_t add_buf_size = (size_t)ret + 1;
+			const size_t old_length = buf.length();
 
-			buf.resize(old_offset + need_buf_size);
-			ret = base_type::vprintf(&buf[old_offset], old_offset + need_buf_size, fmt, args);
-			assert(buf.size() == ret);
-			return ret;
+			//include null char
+			buf.resize(old_length + add_buf_size);
+			ret = base_type::vprintf(&buf[0] + old_length, old_length + add_buf_size, fmt, args);
+			assert((size_t)ret == add_buf_size - 1 && "something wrong.");
+			//remove null char
+			buf.resize(old_length + add_buf_size - 1); 
+			return (int_type)buf.length();
 		}
 
 		static int_type sprintf(char_type* const buf, size_t buf_size, const char_type* fmt, ...) noexcept {
@@ -121,48 +137,184 @@ namespace impl {
 			return ret;
 		}
 
-		static string_type vprintf(const char_type* fmt, va_list args) noexcept {
-			string_type ret;
-			base_type::vprintf(ret, fmt, args);
-			return ret;
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static std::basic_string<char_type, TraitU, AllocU> vprintf(const char_type* fmt, va_list args) noexcept {
+			std::basic_string<char_type, TraitU, AllocU> buf;
+			vprintf(buf, fmt, args);
+			return buf;
 		}
 
-		static int_type sprintf(string_type& buf, const char_type* fmt, ...) noexcept {
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static int_type sprintf(std::basic_string<char_type, TraitU, AllocU>& buf, const char_type* fmt, ...) noexcept {
 			va_list args;
 			va_start(args, fmt);
-			const int_type ret = base_type::vprintf(buf, fmt, args);
+			const int_type ret = vprintf(buf, fmt, args);
 			va_end(args);
 			return ret;
 		}
 
-		static string_type sprintf(const char_type* fmt, ...) noexcept {
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static std::basic_string<char_type, TraitU, AllocU> sprintf(const char_type* fmt, ...) noexcept {
 			va_list args;
 			va_start(args, fmt);
-			string_type buffer = base_type::vprintf(fmt, args);
+			std::basic_string<char_type, TraitU, AllocU> buf;
+			vprintf(buf, fmt, args);
 			va_end(args);
-			return buffer;
+			return buf;
+		}
+
+		//*https://en.cppreference.com/w/cpp/chrono/c/strftime
+		//성공하면 0 아닌 값, 실패하면 0.
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static size_t
+			time_to_str(std::basic_string<char_type, TraitU, AllocU>& buf, const time_t& time_v, const char_type* fmt) noexcept {
+			const size_t old_length = buf.length();
+			size_t add_buf_size = 32;
+			buf.resize(old_length + add_buf_size);
+			size_t written_size = 0;
+			while ((written_size = base_type::time_to_str(&buf[0] + old_length, buf.size(), time_v, fmt)) == 0) {
+				add_buf_size *= 2;
+				buf.resize(old_length + add_buf_size);
+			}
+			buf.resize(old_length + written_size);
+			return buf.length();
+		}
+
+		//성공하면 0 아닌 값, 실패하면 0.
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static std::basic_string<char_type, TraitU, AllocU>
+			time_to_str(const time_t& time_v, const char_type* fmt) noexcept {
+			std::basic_string<char_type, TraitU, AllocU> buf;
+			time_to_str(buf, time_v, fmt);
+			return buf;
+		}
+
+		//*https://en.cppreference.com/w/cpp/chrono/c/strftime
+		//성공하면 0 아닌 값, 실패하면 0.
+		static size_t 
+			cur_time_to_str(char_type* buf, size_t buf_size, const char_type* fmt = base_type::get_default_time_format()) noexcept {
+			return base_type::time_to_str(buf, buf_size, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), fmt);
+		}
+
+		//*https://en.cppreference.com/w/cpp/chrono/c/strftime
+		//성공하면 0 아닌 값, 실패하면 0.
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static size_t
+			cur_time_to_str(std::basic_string<char_type, TraitU, AllocU>& buf, const char_type* fmt = base_type::get_default_time_format()) noexcept {
+			return time_to_str(buf, std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()), fmt);
+		}
+
+		//성공하면 0 아닌 값, 실패하면 0.
+		template<typename TraitU = TraitT, typename AllocU = std::allocator<char_type>>
+		static std::basic_string<char_type, TraitU, AllocU>
+			cur_time_to_str(const char_type* fmt = base_type::get_default_time_format()) noexcept {
+			std::basic_string<char_type, TraitU, AllocU> buf;
+			cur_time_to_str(buf, fmt);
+			return buf;
+		}
+
+		//성공 시, 적용된 인자의 개수
+		//실패 시, EOF
+		static int_type sscanf(const char_type* buf, const char_type* fmt, ...) noexcept {
+			va_list args;
+			va_start(args, fmt);
+			const int_type ret = base_type::vsscanf(buf, fmt, args);
+			va_end(args);
+			return ret;
 		}
 	};
 
-	tstring current_time_to_string(const char* const format = "%y-%m-%d %H:%M:%S") noexcept;
-	tstring current_time_to_wstring(const wchar_t* const format = L"%y-%m-%d %H:%M:%S") noexcept;
-	tstring current_time_to_tstring(const TCHAR* const format = TEXT("%y-%m-%d %H:%M:%S")) noexcept;
+	typedef std::basic_string<TCHAR> tstring;
 
-	int tvprintf(TCHAR* buffer, size_t buf_size, const TCHAR* format, va_list args);
-	int tsprintf(TCHAR* buffer, size_t buf_size, const TCHAR* format, ...);
+	//template<typename CharT = TCHAR, typename TraitT = std::char_traits<CharT>>
+	template struct strmanip_base<char>;
+	template struct strmanip_base<wchar_t>;
 	
-	int tsscanf(const TCHAR* const buffer, const TCHAR* format, ...) noexcept;
-	int tvscanf(const TCHAR* const buffer, const TCHAR* format, va_list args) noexcept;
+	using strmanip = strmanip_base<char>;
+	using wstrmanip = strmanip_base<wchar_t>;
+	using tstrmanip = strmanip_base<TCHAR>;
 
 	using std::to_string;
 	using std::to_wstring;
 
+	inline
+#ifdef UNICODE
+		tstring 
+#else
+		const tstring&
+#endif
+		to_tstring(const std::string& str) {
+#ifdef UNICODE
+		return to_tstring(str.c_str());
+#else
+		return str;
+#endif
+	}
+
+	inline
+#ifdef UNICODE
+		const tstring&
+#else
+		tstring
+#endif
+		to_tstring(const std::wstring& str) {
+#ifdef UNICODE
+		return str;
+#else
+		return to_tstring(str.c_str());
+#endif
+	}
+
+	inline tstring to_tstring(const char* c_str) {
+#ifdef UNICODE
+		size_t buf_size = 0;
+		const size_t str_len = strmanip::length(c_str);
+		errno_t err = ::mbstowcs_s(&buf_size, 0, 0, c_str, str_len);
+		if (err != 0) {
+			return {};
+		}
+
+		tstring buf;
+		buf.resize(buf_size);//include null character.
+		err = ::mbstowcs_s(&buf_size, &buf[0], buf.size(), c_str, str_len);
+		if (err != 0) {
+			return{};
+		}
+		buf.resize(buf_size - 1);//remove null character.
+		return buf;
+#else
+		return c_str;
+#endif
+	}
+
+	inline tstring to_tstring(const wchar_t* c_str) {
+#ifdef UNICODE
+		return c_str;
+#else
+		size_t buf_size = 0;
+		const size_t str_len = strmanip::length(c_str);
+		errno_t err = ::wcstombs_s(&buf_size, 0, 0, c_str, str_len);
+		if (err != 0) {
+			return {};
+	}
+
+		tstring buf;
+		buf.resize(buf_size);//include null character.
+		err = ::wcstombs_s(&buf_size, &buf[0], buf.size(), c_str, str_len);
+		if (err != 0) {
+			return{};
+		}
+		buf.resize(buf_size - 1);//remove null character.
+		return buf;
+#endif
+	}
+
 	template<typename T>
 	tstring to_tstring(const T& v) noexcept {
 #ifdef UNICODE
-		return to_wstring(v);
+		return std::to_wstring(v);
 #else
-		return to_string(v);
+		return std::to_string(v);
 #endif 
 	}
 
@@ -170,7 +322,5 @@ namespace impl {
 		return b ? TEXT("true") : TEXT("false");
 	}
 
-	tstring to_tstring(const char* c_str) ;
-	tstring to_tstring(const wchar_t* w_str) ;
 }
 

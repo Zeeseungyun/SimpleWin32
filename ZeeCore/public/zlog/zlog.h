@@ -12,13 +12,6 @@ namespace interfaces {
 	struct loggable;
 }//zee::interfaces
 
-/*
-* TODO
-* flush_ 마저구현
-* header_buffer_ 삭제
-* add 시 로거 tag 관련 로직 작성.
-* 및 테스트.
-*/
 	class log& get_log() noexcept;
 	class log {
 		friend log& get_log() noexcept;
@@ -41,7 +34,7 @@ namespace interfaces {
 
 		void add(const tstring& tag, const std::shared_ptr<interfaces::loggable>& new_logger, int32 new_priority = 0);
 		void remove(const std::shared_ptr<interfaces::loggable>& remove_logger);
-		void remove(const tstring& tag);
+		void remove(const tstring& remove_tag);
 		void change_priority(const tstring& tag, int32 new_priority);
 
 		std::vector<tstring> get_logger_tag_names() const;
@@ -60,7 +53,6 @@ namespace interfaces {
 
 	private:
 		void flush_();
-		void clear_buffers();
 
 		struct logger_info {
 			int32 priority = -1;
@@ -74,7 +66,6 @@ namespace interfaces {
 
 	private:
 		size_t number_ = 0;
-		size_t buffer_size_ = 0;
 		tstring buffer_;
 
 		std::set<tstring> off_categories_;

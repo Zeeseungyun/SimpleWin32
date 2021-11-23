@@ -8,7 +8,7 @@ namespace config {
 
 	class ini_base {
 	public:
-		ini_base(const tstring& path);
+		ini_base(const tstring& ini_path);
 		
 		const tstring& config_path() const noexcept { return config_path_; }
 		const nlohmann::json& parsed_config() const noexcept { return parsed_config_; }
