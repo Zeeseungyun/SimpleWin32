@@ -497,25 +497,41 @@ namespace impl {
 		typedef typename promotion_type_impl<Args...>::type args_type;
 
 	public:
-		typedef typename promotion_type_impl<T, args_type>::type type;
+		typedef std::conditional_t<
+			std::is_arithmetic<T>::value&& std::is_arithmetic<args_type>::value
+			, typename promotion_type_impl<T, args_type>::type
+			, void
+		> type;
+	};
+
+	template<typename T, typename U, bool IsValid = std::is_arithmetic<T>::value&& std::is_arithmetic<U>::value>
+	struct promotion_if_valid_impl;
+
+	template<typename T, typename U>
+	struct promotion_if_valid_impl <T, U, true> {
+		typedef decltype(T(0) + U(0)) type;
+	};
+
+	template<typename T, typename U>
+	struct promotion_if_valid_impl <T, U, false> {
+		typedef void type;
 	};
 
 	template<typename FirstT, typename SecondT>
 	struct promotion_type_impl<FirstT, SecondT> {
 	public:
-		typedef decltype(FirstT(0) + SecondT(0)) type;
+		typedef typename promotion_if_valid_impl<FirstT, SecondT>::type type;
 	};
 
 	template<typename SameT>
 	struct promotion_type_impl<SameT, SameT> {
 	public:
-		typedef SameT type;
+		typedef std::conditional_t<std::is_arithmetic<SameT>::value, SameT, void> type;
 	};
 
 	template<typename AloneT>
 	struct promotion_type_impl<AloneT> {
-	public:
-		typedef AloneT type;
+		typedef std::conditional_t<std::is_arithmetic<AloneT>::value, AloneT, void> type;
 	};
 
 }//namespace zee::impl
