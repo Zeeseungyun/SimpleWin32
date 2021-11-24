@@ -152,6 +152,7 @@
     <ClInclude Include="public\file\path.h" />
     <ClInclude Include="public\interfaces\loggable.h" />
     <ClInclude Include="public\json\json.hpp" />
+    <ClInclude Include="public\json\json.h" />
     <ClInclude Include="public\log\log.h" />
     <ClInclude Include="public\math\vec\vec.h" />
     <ClInclude Include="public\math\to_string.h" />

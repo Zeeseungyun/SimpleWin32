@@ -1,17 +1,19 @@
 #include <iostream>
-#include "json/json.hpp"
+#include "json/json.h"
 #include "math/vec/vec.h"
 #include "math/to_string.h"
-
+#include "ini_test.h"
+#include "zlog/zlog.h"
 int main() {
-	char temp2[] = R"(
-{
-	"id": "asdf",
-	"pw" : "asdflkjasdf"
-}
-	)";
-	nlohmann::json temp = nlohmann::json::parse(std::begin(temp2), std::end(temp2));
-	//int d = 0;
+	ZEE_LOG(normal, TEXT("test"), TEXT("logtest"));
+
+	zee::test::test_config config;
+	std::cout << config << std::endl;
+	int d12 = 0;
+	zee::json temp;
+	temp["id"] = 1;
+
+	int d = 0;
 	std::cout << temp["id"] << std::endl;
 	zee::math::vec2f v;
 	std::cout << to_string(v * v) << std::endl;

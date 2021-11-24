@@ -9,28 +9,28 @@ namespace impl {
 	template<size_t CompSize, typename T>
 	auto to_wstring(const vec_impl<CompSize, T, true>& v) noexcept
 		-> decltype(std::enable_if_t<std::is_floating_point<T>::value>(),
-			std::basic_string<char>()) {
-		typedef char char_type;
+			std::basic_string<wchar_t>()) {
+		typedef wchar_t char_type;
 		std::basic_string<char_type> ret;
 		strmanip_base<char_type>::sprintf(ret, L"vec_base%d(", CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
-			strmanip::sprintf(ret, L"%f, ", v[i]);
+			strmanip_base<char_type>::sprintf(ret, L"%f, ", v[i]);
 		}
-		strmanip::sprintf(ret, L"%f)", v[CompSize - 1]);
+		strmanip_base<char_type>::sprintf(ret, L"%f)", v[CompSize - 1]);
 		return ret;
 	}
 
 	template<size_t CompSize, typename T>
 	auto to_wstring(const vec_impl<CompSize, T, true>& v) noexcept
 		-> decltype(std::enable_if_t<!std::is_floating_point<T>::value>(),
-			std::basic_string<char>()) {
-		typedef char char_type;
+			std::basic_string<wchar_t>()) {
+		typedef wchar_t char_type;
 		std::basic_string<char_type> ret;
 		strmanip_base<char_type>::sprintf(ret, L"vec_base%d(", CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
-			strmanip::sprintf(ret, L"%d, ", v[i]);
+			strmanip_base<char_type>::sprintf(ret, L"%d, ", v[i]);
 		}
-		strmanip::sprintf(ret, L"%d)", v[CompSize - 1]);
+		strmanip_base<char_type>::sprintf(ret, L"%d)", v[CompSize - 1]);
 		return ret;
 	}
 
@@ -42,9 +42,9 @@ namespace impl {
 		std::basic_string<char_type> ret;
 		strmanip_base<char_type>::sprintf(ret, "vec_base%d(", CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
-			strmanip::sprintf(ret, "%f, ", v[i]);
+			strmanip_base<char_type>::sprintf(ret, "%f, ", v[i]);
 		}
-		strmanip::sprintf(ret, "%f)", v[CompSize - 1]);
+		strmanip_base<char_type>::sprintf(ret, "%f)", v[CompSize - 1]);
 		return ret;
 	}
 
@@ -56,9 +56,9 @@ namespace impl {
 		std::basic_string<char_type> ret;
 		strmanip_base<char_type>::sprintf(ret, "vec_base%d(", CompSize);
 		for (size_t i = 0; i != CompSize - 1; ++i) {
-			strmanip::sprintf(ret, "%d, ", v[i]);
+			strmanip_base<char_type>::sprintf(ret, "%d, ", v[i]);
 		}
-		strmanip::sprintf(ret, "%d)", v[CompSize - 1]);
+		strmanip_base<char_type>::sprintf(ret, "%d)", v[CompSize - 1]);
 		return ret;
 	}
 

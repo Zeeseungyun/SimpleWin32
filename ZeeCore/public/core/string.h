@@ -54,6 +54,7 @@ namespace impl {
 		static int_type vsscanf(const char_type* buf, const char_type* fmt, va_list args) noexcept {
 			return ::vsscanf_s(buf, fmt, args);
 		}
+		
 	};
 
 	template<typename TraitT>
@@ -237,75 +238,104 @@ namespace impl {
 	using std::to_string;
 	using std::to_wstring;
 
-	inline
+namespace impl {
+	template<typename TraitsT = std::char_traits<char>, typename AllocT = std::allocator<char>>
+	std::basic_string<char, TraitsT, AllocT> 
+		wstr_to_str_impl(const wchar_t* const c_str, const size_t len) {
+		size_t buf_size = 0;
+		errno_t err = ::wcstombs_s(&buf_size, 0, 0, c_str, len);
+		if (err != 0) {
+			return {};
+		}
+
+		std::basic_string<char, TraitsT, AllocT> buf;
+		buf.resize(buf_size);//include null character.
+		err = ::wcstombs_s(&buf_size, &buf[0], buf.size(), c_str, len);
+		if (err != 0) {
+			return {};
+		}
+
+		buf.resize(buf_size - 1);//remove null character.
+		return buf;
+	}
+
+	template<typename TraitsT = std::char_traits<wchar_t>, typename AllocT = std::allocator<wchar_t>>
+	std::basic_string<wchar_t, TraitsT, AllocT>
+		str_to_wstr_impl(const char* const c_str, const size_t len) {
+		size_t buf_size = 0;
+		errno_t err = ::mbstowcs_s(&buf_size, 0, 0, c_str, len);
+		if (err != 0) {
+			return {};
+		}
+
+		std::basic_string<wchar_t, TraitsT, AllocT> buf;
+		buf.resize(buf_size);//include null character.
+		err = ::mbstowcs_s(&buf_size, &buf[0], buf.size(), c_str, len);
+		if (err != 0) {
+			return {};
+		}
+
+		buf.resize(buf_size - 1);//remove null character.
+		return buf;
+	}
+
+}//namespace zee::impl
+
+	template<typename TraitsT = std::char_traits<wchar_t>, typename AllocT = std::allocator<wchar_t>>
+	std::basic_string<wchar_t, TraitsT, AllocT>
+		to_wstring(const char* str) {
+		return impl::str_to_wstr_impl<TraitsT, AllocT>(str, std::char_traits<char>::length(str));
+	}
+
+	template<typename TraitsT = std::char_traits<char>, typename AllocT = std::allocator<char>>
+	std::basic_string<char, TraitsT, AllocT>
+		to_string(const wchar_t* str) {
+		return impl::wstr_to_str_impl<TraitsT, AllocT>(str, std::char_traits<wchar_t>::length(str));
+	}
+
+	template<typename TraitsU, typename AllocU, typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
 #ifdef UNICODE
-		tstring 
+		std::basic_string<TCHAR, TraitsT, AllocT>
 #else
-		const tstring&
+		const std::basic_string<TCHAR, TraitsT, AllocT>&
 #endif
-		to_tstring(const std::string& str) {
+		to_tstring(const std::basic_string<char, TraitsU, AllocU>& str) {
 #ifdef UNICODE
-		return to_tstring(str.c_str());
+		return impl::str_to_wstr_impl<TraitsT, AllocT>(str.c_str(), str.size());
 #else
 		return str;
 #endif
 	}
 
-	inline
+		template<typename TraitsU, typename AllocU, typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
 #ifdef UNICODE
-		const tstring&
+		const std::basic_string<TCHAR, TraitsT, AllocT>&
 #else
-		tstring
+		std::basic_string<TCHAR, TraitsT, AllocT>
 #endif
-		to_tstring(const std::wstring& str) {
+		to_tstring(const std::basic_string<wchar_t, TraitsU, AllocU>& str) {
 #ifdef UNICODE
 		return str;
 #else
-		return to_tstring(str.c_str());
+		return impl::wstr_to_str_impl<TraitsT, AllocT>(str.c_str(), str.size());
 #endif
 	}
 
-	inline tstring to_tstring(const char* c_str) {
+	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
+	std::basic_string<TCHAR, TraitsT, AllocT> to_tstring(const char* c_str) {
 #ifdef UNICODE
-		size_t buf_size = 0;
-		const size_t str_len = strmanip::length(c_str);
-		errno_t err = ::mbstowcs_s(&buf_size, 0, 0, c_str, str_len);
-		if (err != 0) {
-			return {};
-		}
-
-		tstring buf;
-		buf.resize(buf_size);//include null character.
-		err = ::mbstowcs_s(&buf_size, &buf[0], buf.size(), c_str, str_len);
-		if (err != 0) {
-			return{};
-		}
-		buf.resize(buf_size - 1);//remove null character.
-		return buf;
+		return impl::str_to_wstr_impl<TraitsT, AllocT>(c_str, strmanip::length(c_str));
 #else
 		return c_str;
 #endif
 	}
 
-	inline tstring to_tstring(const wchar_t* c_str) {
+	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
+	std::basic_string<TCHAR, TraitsT, AllocT> to_tstring(const wchar_t* c_str) {
 #ifdef UNICODE
 		return c_str;
 #else
-		size_t buf_size = 0;
-		const size_t str_len = strmanip::length(c_str);
-		errno_t err = ::wcstombs_s(&buf_size, 0, 0, c_str, str_len);
-		if (err != 0) {
-			return {};
-	}
-
-		tstring buf;
-		buf.resize(buf_size);//include null character.
-		err = ::wcstombs_s(&buf_size, &buf[0], buf.size(), c_str, str_len);
-		if (err != 0) {
-			return{};
-		}
-		buf.resize(buf_size - 1);//remove null character.
-		return buf;
+		return impl::wstr_to_str_impl<TraitsT, AllocT>(c_str, wstrmanip::length(c_str));
 #endif
 	}
 

@@ -92,6 +92,9 @@
     <ClInclude Include="public\util\alogorithm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="public\json\json.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\core\random.cpp">

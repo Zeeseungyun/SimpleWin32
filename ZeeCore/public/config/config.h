@@ -1,21 +1,25 @@
 #pragma once
 #include "../core/string.h"
 #include "../file/path.h"
-#include "../json/json.hpp"
+#include "../json/json.h"
 
 namespace zee {
 namespace config {
 
-	class ini_base {
+	class ini_base : public json {
+	private:
+		typedef json base_type;
+
+	protected:
+		ini_base(const tstring& load_file_name);
+		~ini_base();
+
 	public:
-		ini_base(const tstring& ini_path);
-		
-		const tstring& config_path() const noexcept { return config_path_; }
-		const nlohmann::json& parsed_config() const noexcept { return parsed_config_; }
+		const tstring& file_name() const noexcept { return file_name_; }
+		bool is_loaded() const { return !is_null(); }
 
 	private:
-		nlohmann::json parsed_config_;
-		tstring config_path_;
+		tstring file_name_;
 	};
 
 }//namespace zee::config 

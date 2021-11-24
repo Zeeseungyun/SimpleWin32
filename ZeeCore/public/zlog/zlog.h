@@ -75,18 +75,18 @@ namespace interfaces {
 	};
 	
 #define ZEE_LOG_DETAIL(verbose, category_name, log_content, ...) \
-		[&]() ->void { get_log().printf_detail(log::verbose_type::##verbose, category_name, to_tstring(__FILE__).c_str() , __LINE__, log_content, __VA_ARGS__); \
+		[&]() ->void { using namespace zee; get_log().printf_detail(log::verbose_type::##verbose, category_name, to_tstring(__FILE__).c_str() , __LINE__, log_content, __VA_ARGS__); \
 		}()
 
 #define ZEE_CLOG_DETAIL(condtion, verbose, category_name, log_content, ...) \
-		[&]() ->void { if((bool)(condition)) get_log().printf_detail(log::verbose_type::##verbose, category_name, to_tstring(__FILE__).c_str() , __LINE__, log_content, __VA_ARGS__); \
+		[&]() ->void { using namespace zee; if((bool)(condition)) get_log().printf_detail(log::verbose_type::##verbose, category_name, to_tstring(__FILE__).c_str() , __LINE__, log_content, __VA_ARGS__); \
 		}()
 
 #define ZEE_LOG(verbose, category_name, log_content, ...) \
-		[&]() ->void {  get_log().printf(log::verbose_type::##verbose, category_name, log_content, __VA_ARGS__); \
+		[&]() ->void { using namespace zee; get_log().printf(log::verbose_type::##verbose, category_name, log_content, __VA_ARGS__); \
 		}()
 
 #define ZEE_CLOG(condtion, verbose, category_name, log_content, ...) \
-		[&]() ->void { if((bool)(condition)) get_log().printf(log::verbose_type::##verbose, category_name, log_content, __VA_ARGS__); \
+		[&]() ->void { using namespace zee; if((bool)(condition)) get_log().printf(log::verbose_type::##verbose, category_name, log_content, __VA_ARGS__); \
 		}()
 }//namespace zee

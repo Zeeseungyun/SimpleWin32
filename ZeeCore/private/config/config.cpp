@@ -7,22 +7,33 @@
 
 namespace zee {
 namespace config {
+#ifdef _DEBUG
+	static constexpr bool is_allow_exception = true;
+	static constexpr bool ignore_comments = false;
+#else
+	static constexpr bool is_allow_exception = false;
+	static constexpr bool ignore_comments = true;
+#endif
+
 	namespace fs = std::filesystem;
-	ini_base::ini_base(const tstring& path)	{
-		if (!fs::exists(path)) {
-			ZEE_LOG_DETAIL(warning, TEXT("config"), TEXT("path[%s] is not exist."), path.c_str());
+	ini_base::ini_base(const tstring& load_file_name) : file_name_(load_file_name) {
+		const tstring config_file_name = file::paths::config_dir() + file_name();
+		if (!fs::exists(config_file_name)) {
+			ZEE_LOG_DETAIL(warning, TEXT("config"), TEXT("file_name[%s] is not exists."), config_file_name.c_str());
 			return;
 		}
 
-		int mode = 0;
-		mode |= std::ios_base::in;
-		
-		std::basic_ifstream<char> in(path, mode);
-		std::vector<char> buffer;
-		const auto file_size = (size_t)fs::file_size(path);
-		buffer.resize(file_size, 0);
-		in.read(&buffer[0], file_size);
-		parsed_config_ = buffer;
+		std::ifstream in(config_file_name);//, std::ios_base::in);
+		base_type::operator=(json::parse(in, nullptr, is_allow_exception, ignore_comments));
+	}
+
+	ini_base::~ini_base() {
+		if (!fs::exists(file::paths::config_dir())) {
+			fs::create_directories(file::paths::config_dir());
+		}
+		const tstring config_file_name = file::paths::config_dir() + file_name();
+		std::ofstream out(config_file_name);//, std::ios_base::out);
+		out << *this;
 	}
 
 }//namespace zee::config
