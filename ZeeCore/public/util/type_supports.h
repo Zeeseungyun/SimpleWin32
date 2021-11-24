@@ -599,8 +599,16 @@ namespace impl {
 	template<size_t CompSize, typename VecElemT>
 	struct is_vec<math::vec_base<CompSize, VecElemT>> : 
 		std::conditional_t<
-		std::is_base_of<math::impl::legal_vec, math::vec_base<CompSize, VecElemT>>::value && is_vec_argument<CompSize, VecElemT>::value,
+		is_vec_argument<CompSize, VecElemT>::value,
 		std::true_type, 
+		std::false_type> {
+	};
+
+	template<size_t CompSize, typename VecElemT, bool IsValid>
+	struct is_vec<math::impl::vec_impl<CompSize, VecElemT, IsValid>> :
+		std::conditional_t<
+		is_vec_argument<CompSize, VecElemT>::value,
+		std::true_type,
 		std::false_type> {
 	};
 
