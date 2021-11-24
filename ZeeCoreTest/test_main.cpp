@@ -4,6 +4,7 @@
 #include "math/to_string.h"
 #include "ini_test.h"
 #include "zlog/zlog.h"
+
 int main() {
 	ZEE_LOG(normal, TEXT("test"), TEXT("logtest"));
 
@@ -12,6 +13,7 @@ int main() {
 	int d12 = 0;
 	zee::json temp;
 	temp["id"] = 1;
+	auto temp22 = temp["id"].get<int>();
 
 	int d = 0;
 	std::cout << temp["id"] << std::endl;

@@ -21,5 +21,6 @@ namespace file {
 		const tstring log_dir_ = exe_dir_ + TEXT("log/");
 	};
 
+	bool exists(const tstring& file_path) noexcept;
 }//namespace zee::file
 }//namespace zee 

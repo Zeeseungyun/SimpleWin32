@@ -143,7 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="public\config\config.h" />
+    <ClInclude Include="public\zconfig\zconfig.h" />
     <ClInclude Include="public\core\core.h" />
     <ClInclude Include="public\core\core_base.h" />
     <ClInclude Include="public\core\delegate.h" />
@@ -170,12 +170,13 @@
     <ClInclude Include="public\math\math.h" />
     <ClInclude Include="public\math\vec\vec_impl.h" />
     <ClInclude Include="public\math\vec\vec_decl.h" />
+    <ClInclude Include="public\util\helper_macros.h" />
     <ClInclude Include="public\zlog\zlog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\core\random.cpp" />
     <ClCompile Include="private\core\string.cpp" />
-    <ClCompile Include="private\config\config.cpp" />
+    <ClCompile Include="private\zconfig\zconfig.cpp" />
     <ClCompile Include="private\file\path.cpp" />
     <ClCompile Include="private\zlog\zlog.cpp" />
   </ItemGroup>

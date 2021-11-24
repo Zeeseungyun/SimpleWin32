@@ -1,4 +1,4 @@
-#include "../../public/config/config.h"
+#include "../../public/zconfig/zconfig.h"
 #include "../../public/zlog/zlog.h"
 
 #include <filesystem>

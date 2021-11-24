@@ -4,7 +4,7 @@ namespace zee {
 namespace interfaces {
 	template<typename CloneObjectT>
 	struct clonable {
-		virtual std::decay_t<CloneObjectT> clone() = 0;
+		virtual CloneObjectT clone() = 0;
 		virtual ~clonable() = default;
 	};
 

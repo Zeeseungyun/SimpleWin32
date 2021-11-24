@@ -19,16 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="render\renderer.h" />
-    <ClInclude Include="render\win32gdi\color.h" />
-    <ClInclude Include="render\win32gdi\device_context.h" />
-    <ClInclude Include="render\win32gdi\image.h" />
+    <ClInclude Include="application\application.h" />
+    <ClInclude Include="application\application_delegates.h" />
+    <ClInclude Include="win32gdi\color.h" />
+    <ClInclude Include="win32gdi\device_context.h" />
+    <ClInclude Include="win32gdi\image.h" />
+    <ClInclude Include="win32helper\win32helper.h" />
+    <ClInclude Include="win32helper\windows_nominmax.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="render\win32gdi\color.cpp" />
-    <ClCompile Include="render\win32gdi\device_context.cpp" />
-    <ClCompile Include="render\win32gdi\image.cpp" />
-    <ClCompile Include="render\win32gdi\renderer.cpp" />
+    <ClCompile Include="application\application.cpp" />
+    <ClCompile Include="application\application_config.cpp" />
+    <ClCompile Include="application\application_delegates.cpp" />
+    <ClCompile Include="win32gdi\color.cpp" />
+    <ClCompile Include="win32gdi\device_context.cpp" />
+    <ClCompile Include="win32gdi\image.cpp" />
+    <ClCompile Include="win32helper\win32helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZeeCore\ZeeCore.vcxproj">

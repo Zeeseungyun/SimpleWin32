@@ -1,10 +1,10 @@
 #include "image.h"
 #include "core/core.h"
-//#include "application/application.h"
-//#include "util/file_supports.h"
-//#include "log/log.h"
-
-#include <Windows.h>
+#include "../application/application.h"
+#include "../win32helper/windows_nominmax.h"
+#include "../win32helper/win32helper.h"
+#include <zlog/zlog.h>
+#include <file/path.h>
 
 namespace zee {
 namespace win32gdi {
@@ -47,11 +47,11 @@ namespace win32gdi {
 	image_load_result load_image(handle_t& out_handle, const tstring& file_path) noexcept {
 		out_handle = NULL;
 
-		if (!application::is_application_started()) {
+		if (!application::get().is_started()) {
 			return image_load_result::failed_application_not_started;
 		}
 		
-		if (!file::exist_file(file_path)) {
+		if (!file::exists(file_path)) {
 			return image_load_result::failed_not_exist_image;
 		}
 
@@ -63,7 +63,9 @@ namespace win32gdi {
 		handle_t instance_handle = application::get().instance_handle();
 		HBITMAP loaded_bitmap = (HBITMAP)LoadImage((HINSTANCE)instance_handle, file_path.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 		if (loaded_bitmap == NULL) {
-			ZEE_LOG_DETAIL(log::verbose_type::warning, TEXT("load_image is failed. detail: [%s]"), log::last_error_to_string().c_str());
+			ZEE_LOG_DETAIL(warning, TEXT("image"), TEXT("load_image is failed. detail: [%s]"), 
+				win32helper::last_error_to_tstring().c_str()
+			);
 			return image_load_result::failed_unknown_check_output_debug;
 		}
 

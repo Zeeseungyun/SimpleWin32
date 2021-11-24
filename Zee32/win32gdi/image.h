@@ -16,7 +16,7 @@ namespace win32gdi {
 	enum class image_load_type {
 		none,
 		file,
-		buffer_
+		buffer
 	};
 
 	struct simple_bitmap_desc {

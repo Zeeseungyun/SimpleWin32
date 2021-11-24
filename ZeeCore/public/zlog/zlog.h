@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/string.h"
 #include "../core/core_base.h"
+#include "../util/helper_macros.h"
 
 #include <vector>
 #include <set>
@@ -14,6 +15,8 @@ namespace interfaces {
 
 	class log& get_log() noexcept;
 	class log {
+		ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(log)
+	private:
 		friend log& get_log() noexcept;
 		log() noexcept;
 

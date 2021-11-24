@@ -1,8 +1,9 @@
 #include "../../public/file/path.h"
 #include <memory>
+#include <filesystem>
 namespace zee {
 namespace file {
-
+	namespace fs = std::filesystem;
 	const paths& paths::get_paths() {
 		static std::unique_ptr<paths> paths_instance;
 		if (!paths_instance) {
@@ -11,5 +12,8 @@ namespace file {
 		return *paths_instance;
 	}
 
+	bool exists(const tstring& file_path) noexcept {
+		return fs::exists(file_path);
+	}
 }//namespace zee::file
 }//namespace zee 

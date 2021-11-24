@@ -3,7 +3,8 @@
 #include "core/string.h"
 #include "image.h"
 #include "math/math.h"
-#include "util/idioms.h"
+#include "shape/shape.h"
+#include "util/helper_macros.h"
 #include "color.h"
 #include <vector>
 
@@ -42,11 +43,6 @@ namespace win32gdi {
 		src_paint,
 	};
 
-	enum class device_context_auto_type {
-		none,
-		paint,
-		temp
-	};
 
 	/*
 	* 디바이스 컨택스트 기반 클래스.
@@ -54,11 +50,13 @@ namespace win32gdi {
 	*/
 	class device_context_base {
 	private:
-		REMOVE_COPY_FUNCTION_DEFINE(device_context_base);
+		ZEE_DEFINE_REMOVE_COPY_FUNCTION(device_context_base)
 
 	protected:
 		struct handle_pair {
-			DEFAULT_COPY_FUNCTION_DEFINE(handle_pair);
+			ZEE_DEFINE_DEFAULT_COPY_FUNCTION(handle_pair)
+
+		public:
 			handle_t old_handle = NULL, new_handle = NULL;
 			
 			handle_pair() = default;
@@ -87,17 +85,19 @@ namespace win32gdi {
 		}
 
 	public:
-		const math::size2& get_bitmap_size() const noexcept;
+		const math::vec2i& get_bitmap_size() const noexcept;
 		const simple_bitmap_desc& get_bitmap_desc() const noexcept;
 
 		//bitmap
 	public:
-		void bit_blt(device_context_base& dest_dc, const math::point& dest_pos, const math::point& src_pos, const math::size2& src_size,  bitblt_raster_op_type rop = bitblt_raster_op_type::src_copy) noexcept;
-		void bit_blt(device_context_base& dest_dc, const math::point& dest_pos) noexcept;
-		void transparent_blt(device_context_base& dest_dc, const math::point& dest_pos, const math::size2& dest_size, const math::point& src_pos, const math::size2& src_size, color transparent_color) noexcept;
-		void transparent_blt(device_context_base& dest_dc, const math::point& dest_pos, color transparent_color) noexcept;
-		void alphablend(device_context_base& dest_dc, const math::point& dest_pos, const math::size2& dest_size, const math::point& src_pos, const math::size2& src_size, float alpha) noexcept;
-		void alphablend(device_context_base& dest_dc, const math::point& dest_pos, float alpha) noexcept;
+		void bit_blt(device_context_base& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const math::vec2i& src_size,  bitblt_raster_op_type rop = bitblt_raster_op_type::src_copy) noexcept;
+		void bit_blt(device_context_base& dest_dc, const math::vec2i& dest_pos) noexcept;
+
+		void transparent_blt(device_context_base& dest_dc, const math::vec2i& dest_pos, const math::vec2i& dest_size, const math::vec2i& src_pos, const math::vec2i& src_size, color transparent_color) noexcept;
+		void transparent_blt(device_context_base& dest_dc, const math::vec2i& dest_pos, color transparent_color) noexcept;
+		
+		void alphablend(device_context_base& dest_dc, const math::vec2i& dest_pos, const math::vec2i& dest_size, const math::vec2i& src_pos, const math::vec2i& src_size, float alpha) noexcept;
+		void alphablend(device_context_base& dest_dc, const math::vec2i& dest_pos, float alpha) noexcept;
 
 		//font
 	public:
@@ -105,8 +105,12 @@ namespace win32gdi {
 
 		//brush
 	public:
-		void rectangle(const math::rect& rt) noexcept;
-		void circle(const math::circle& cc) noexcept;
+		void rectangle(const shape::recti& rt) noexcept;
+		void rectangle(const shape::recti& rt, const math::vec2i& pt) noexcept;
+
+		void circle(const shape::circlei& cc) noexcept;
+		void circle(const shape::circlei& cc, const math::vec2i& pt) noexcept;
+
 		void ellipse(int32 left, int32 top, int32 right, int32 bottom) noexcept;
 
 	protected:
@@ -116,11 +120,11 @@ namespace win32gdi {
 		virtual void release_pen_handle();
 
 	protected:
-		static math::size2 calc_bitmap_size(handle_t bitmap_handle);
+		static math::vec2i calc_bitmap_size(handle_t bitmap_handle);
 
 	protected:
 		handle_t dc_handle_;
-		math::size2 bitmap_size_;
+		math::vec2i bitmap_size_;
 
 		handle_pair image_handle_;
 		handle_pair font_handle_;
@@ -129,15 +133,21 @@ namespace win32gdi {
 
 		simple_bitmap_desc bitmap_desc_;
 	};
-	
+
+	enum class device_context_auto_type {
+		none,
+		paint,
+		temp
+	};
+
 	/* 
 	* 임시로 사용되는 디바이스 컨택스트용 클래스.
 	* BeginPaint 혹은 GetDC로 획득한 DC를 생성자에 전달하여 사용.
 	* 소멸자에서 아무런 처리를 하지 않음.
 	*/
-	class device_context_auto final : public device_context_base {
+	class device_context_auto : public device_context_base {
 	private:
-		REMOVE_MOVE_AND_COPY_FUNCTION_DEFINE(device_context_auto);
+		ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(device_context_auto)
 
 	public:
 		explicit device_context_auto(handle_t window_handle, device_context_auto_type new_type) noexcept;
@@ -145,10 +155,10 @@ namespace win32gdi {
 
 		device_context_auto_type get_type() const noexcept { return type_; }
 
-	private:
+	protected:
 		handle_t window_handle_ = NULL;
 		device_context_auto_type type_;
-		std::vector<byte> buffer_;
+		std::vector<byte> buf_;
 	};
 
 	/*
@@ -156,14 +166,16 @@ namespace win32gdi {
 	* 소멸자를 통해 사용된 핸들을 모두 반환하도록 해줌.
 	* BMP파일을 불러오거나 이미지버퍼를 생성할 수 있음.
 	*/
-	class device_context_dynamic final : public device_context_base, public interfaces::clonable {
+	class device_context_dynamic : 
+		public device_context_base, 
+		public interfaces::clonable<device_context_dynamic> {
 	private:
-		REMOVE_COPY_FUNCTION_DEFINE(device_context_dynamic);
+		ZEE_DEFINE_REMOVE_COPY_FUNCTION(device_context_dynamic)
 		typedef device_context_base parent_class;
 
 	public:
 		//~begin interfaces::clonable
-		void clone(void* out_device_context_ptr) final;
+		virtual device_context_dynamic clone() override;
 		//~end interfaces::clonable
 
 	public:
@@ -175,10 +187,10 @@ namespace win32gdi {
 		bool load_image(const tstring& str);
 
 		// width != 0 && height != 0
-		bool create_empty_image(const math::size2& new_size);
+		bool create_empty_image(const math::vec2i& new_size);
 		void clear() noexcept;
 
-	private:
+	protected:
 		void move_from(device_context_dynamic&& other) noexcept;
 
 		bool create_if_has_no_dc();
