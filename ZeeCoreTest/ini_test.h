@@ -6,13 +6,11 @@
 namespace zee {
 namespace test {
 	struct test_config {
-		static constexpr const TCHAR* config_path_name() noexcept { return TEXT("test_config");}
 		math::vec2f temp_vec1 = { 1,2 };
 		math::vec2f temp_vec2 = { 2,4 };
 		math::vec2f temp_vec3 = { 3,4 };
 	};
-
-
+	
 	inline void to_json(json& j, const test_config& c) {
 
 		j = {

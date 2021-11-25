@@ -26,7 +26,7 @@ namespace impl {
 	}
 
 	bool config_base_impl::load_impl() noexcept {
-		const tstring config_file_path = config_dir() + ini_file_name();
+		const tstring config_file_path = ini_file_name();
 		if (!fs::exists(config_file_path)) {
 			ZEE_LOG_DETAIL(warning, config_name().c_str() , TEXT("config file[%s] is not exists."), config_file_path.c_str());
 			return false;
@@ -41,11 +41,11 @@ namespace impl {
 	}
 
 	void config_base_impl::save_impl() noexcept {
-		if (!fs::exists(config_dir() + ini_file_name())) {
-			fs::create_directories(file::paths::config_dir() + ini_file_name());
+		if (!fs::exists(ini_file_name())) {
+			fs::create_directories(config_dir());
 		}
 
-		std::ofstream out(file::paths::config_dir() + ini_file_name());
+		std::ofstream out(ini_file_name());
 		if (out) {
 			out << json_;
 		}

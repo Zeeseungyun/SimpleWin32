@@ -18,7 +18,7 @@ namespace impl {
 
 	protected:
 		bool load_impl() noexcept;
-		void save_impl() const noexcept;
+		void save_impl() noexcept;
 
 	protected:
 		bool is_loaded_successfully_ = false;
@@ -160,7 +160,7 @@ namespace impl {
 			return true;
 		}
 
-		void save() const noexcept {
+		void save() noexcept {
 			this->json_ = config();
 			base_type::save_impl();
 		}

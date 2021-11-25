@@ -56,8 +56,5 @@
     <ClCompile Include="application\application_delegates.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="application\application_config.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

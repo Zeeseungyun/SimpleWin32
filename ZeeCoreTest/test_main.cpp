@@ -15,13 +15,18 @@ struct temp_struct {
 
 int main() {
 	ZEE_LOG(normal, TEXT("test"), TEXT("logtest"));
+	using namespace zee;
 	std::string temp = "zee/test/test_config";
 	auto off = temp.find("::");
 	off = temp.find_last_of("/");
 	temp.erase(off);
 	int d = 0;
-
-	std::wcout << ZEE_GET_CONFIG(zee::test::test_config).config_name() << std::endl;
+	
+	config::config<test::test_config>::get().load();
+	std::cout << to_string(config::config<test::test_config>::get().config().temp_vec1) << std::endl;
+	//config::config<test::test_config>::get().config().temp_vec1.x = 10.0f;
+	//config::config<test::test_config>::get().save();
+	//config::config<test_config>::get().config()std::wcout << ZEE_GET_CONFIG(zee::test::test_config).config_name() << std::endl;
 	
 	return 0;
 }

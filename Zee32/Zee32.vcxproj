@@ -29,7 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\application.cpp" />
-    <ClCompile Include="application\application_config.cpp" />
     <ClCompile Include="application\application_delegates.cpp" />
     <ClCompile Include="win32gdi\color.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />
