@@ -13,7 +13,7 @@ namespace zee {
 		ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(application_delegates)
 
 	private:
-		application_delegates();
+		application_delegates() = default;
 		static application_delegates& inst() noexcept;
 
 	public:

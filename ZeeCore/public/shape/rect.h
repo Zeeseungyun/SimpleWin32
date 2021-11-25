@@ -1,6 +1,7 @@
 #pragma once
 #include "../math/vec/vec.h"
 #include "boundings.h"
+#include "rect_decl.h"
 
 namespace zee {
 namespace shape {
@@ -22,9 +23,12 @@ namespace impl {
 	private:
 		illegal_rect(dummy) = delete;
 	};
-
-	template<typename ElemT, bool IsValidRect = is_vec_element<ElemT>::value>
-	struct rect_base_impl;
+	
+	//
+	// Declared in rect_decl.h.
+	//
+	//template<typename ElemT, bool IsValidRect = is_vec_element<ElemT>::value>
+	//struct rect_base_impl;
 
 	template<typename ElemT>
 	struct rect_base_impl<ElemT, false> : illegal_rect {
@@ -42,10 +46,10 @@ namespace impl {
 
 		constexpr rect_base_impl() noexcept : rect_base_impl(0, 0, 0, 0) { }
 
-		template<typename RetT = element_type> constexpr RetT get_left() const noexcept { return data[0][0]; }
-		template<typename RetT = element_type> constexpr RetT get_top() const noexcept { return data[0][1]; }
-		template<typename RetT = element_type> constexpr RetT get_right() const noexcept { return data[1][0]; }
-		template<typename RetT = element_type> constexpr RetT get_bottom() const noexcept { return data[1][1]; }
+		template<typename RetT = element_type> constexpr RetT get_left() const noexcept { return (RetT)data[0][0]; }
+		template<typename RetT = element_type> constexpr RetT get_top() const noexcept { return (RetT)data[0][1]; }
+		template<typename RetT = element_type> constexpr RetT get_right() const noexcept { return (RetT)data[1][0]; }
+		template<typename RetT = element_type> constexpr RetT get_bottom() const noexcept { return (RetT)data[1][1]; }
 
 		template<typename Elem1T, typename Elem2T, typename Elem3T, typename Elem4T,
 			std::enable_if_t<are_all_vec_element<Elem1T, Elem2T, Elem3T, Elem4T>::value, int> = 0>
@@ -69,6 +73,15 @@ namespace impl {
 
 		template<typename OtherElemT>
 		rect_base_impl& operator=(const rect_base_impl<OtherElemT, true>& other) noexcept {
+			left = other.get_left<element_type>();
+			top = other.get_top<element_type>();
+			right = other.get_right<element_type>();
+			bottom = other.get_bottom<element_type>();
+			return *this;
+		}
+
+		template<typename OtherElemT>
+		rect_base_impl& operator=(rect_base_impl<OtherElemT, true>&& other) noexcept {
 			left = other.get_left<element_type>();
 			top = other.get_top<element_type>();
 			right = other.get_right<element_type>();
@@ -278,11 +291,22 @@ namespace impl {
 		}
 
 		template<typename OtherElemT>
+		rect_base& operator=(rect_base<OtherElemT>&& other) noexcept {
+			base_type::operator=(other);
+			return *this;
+		}
+
+		template<typename OtherElemT>
 		rect_base& operator=(const impl::rect_base_impl<OtherElemT, true>& other) noexcept {
 			base_type::operator=(other);
 			return *this;
 		}
 
+		template<typename OtherElemT>
+		rect_base& operator=(impl::rect_base_impl<OtherElemT, true>&& other) noexcept {
+			base_type::operator=(other);
+			return *this;
+		}
 	};
 
 	template struct rect_base<float>;

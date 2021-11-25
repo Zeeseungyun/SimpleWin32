@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="public\shape\rect_decl.h" />
+    <ClInclude Include="public\shape\circle_decl.h" />
     <ClInclude Include="public\zconfig\zconfig.h" />
     <ClInclude Include="public\core\core.h" />
     <ClInclude Include="public\core\core_base.h" />

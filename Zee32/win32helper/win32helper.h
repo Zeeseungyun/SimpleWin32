@@ -1,6 +1,6 @@
 #pragma once
 #include "core/string.h"
-#include "windows_nominmax.h"
+#include "windows_with_macro.h"
 
 namespace zee {
 namespace win32helper {

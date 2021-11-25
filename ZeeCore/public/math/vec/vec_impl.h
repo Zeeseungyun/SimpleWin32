@@ -364,6 +364,14 @@ namespace impl {
 
 		element_type data[component_size];
 
+		constexpr element_type* begin() const noexcept { return (element_type*)data; }
+		element_type* begin() noexcept { return (element_type*)data; }
+
+		constexpr element_type* end() const noexcept { return (element_type*)data + component_size; }
+		element_type* end() noexcept { return (element_type*)data + component_size; }
+
+		constexpr size_t size() const noexcept { return component_size; }
+
 		template<typename... Args>
 		constexpr vec_impl(Args&&... args) noexcept 
 			: data{ (element_type)(args)... } {
@@ -556,6 +564,31 @@ namespace impl {
 		}
 	};
 
+	template<size_t CompSize, typename ElemT>
+	constexpr ElemT* begin(const vec_impl<CompSize, ElemT, true>& v) noexcept { 
+		return v.begin();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	constexpr ElemT* end(const vec_impl<CompSize, ElemT, true>& v) noexcept {
+		return v.end();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	ElemT* begin(vec_impl<CompSize, ElemT, true>& v) noexcept {
+		return v.begin();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	ElemT* end(vec_impl<CompSize, ElemT, true>& v) noexcept {
+		return v.end();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	constexpr size_t size(vec_impl<CompSize, ElemT, true>& v) noexcept {
+		return CompSize;
+	}
+
 	template<typename T>
 	struct vec_impl<2, T, true> : legal_vec {
 		static constexpr size_t component_size = 2;
@@ -567,6 +600,14 @@ namespace impl {
 			};
 			element_type data[component_size];
 		};
+
+		constexpr element_type* begin() const noexcept { return (element_type*)data; }
+		element_type* begin() noexcept { return (element_type*)data; }
+
+		constexpr element_type* end() const noexcept { return (element_type*)data + component_size; }
+		element_type* end() noexcept { return (element_type*)data + component_size; }
+
+		constexpr size_t size() const noexcept { return component_size; }
 
 		constexpr vec_impl() noexcept
 			: vec_impl(0, 0) {
@@ -592,8 +633,8 @@ namespace impl {
 
 		template<typename OtherElemT>
 		vec_impl& operator=(const vec_impl<component_size, OtherElemT, true>& other) noexcept {
-			data[0] = other.data[0];
-			data[1] = other.data[1];
+			data[0] = (element_type)other.data[0];
+			data[1] = (element_type)other.data[1];
 			return *this;
 		}
 
@@ -752,6 +793,14 @@ namespace impl {
 			element_type data[component_size];
 		};
 
+		constexpr element_type* begin() const noexcept { return (element_type*)data; }
+		element_type* begin() noexcept { return (element_type*)data; }
+
+		constexpr element_type* end() const noexcept { return (element_type*)data + component_size; }
+		element_type* end() noexcept { return (element_type*)data + component_size; }
+
+		constexpr size_t size() const noexcept { return component_size; }
+
 		constexpr vec_impl() noexcept
 			: vec_impl(0, 0, 0) {
 		}
@@ -777,9 +826,9 @@ namespace impl {
 
 		template<typename OtherElemT>
 		vec_impl& operator=(const vec_impl<component_size, OtherElemT, true>& other) noexcept {
-			data[0] = other.data[0];
-			data[1] = other.data[1];
-			data[2] = other.data[2];
+			data[0] = (element_type)other.data[0];
+			data[1] = (element_type)other.data[1];
+			data[2] = (element_type)other.data[2];
 			return *this;
 		}
 
@@ -958,6 +1007,14 @@ namespace impl {
 			element_type data[component_size];
 		};
 
+		constexpr element_type* begin() const noexcept { return (element_type*)data; }
+		element_type* begin() noexcept { return (element_type*)data; }
+
+		constexpr element_type* end() const noexcept { return (element_type*)data + component_size; }
+		element_type* end() noexcept { return (element_type*)data + component_size; }
+
+		constexpr size_t size() const noexcept { return component_size; }
+
 		constexpr vec_impl() noexcept
 			: vec_impl(0, 0, 0, 0) {
 		}
@@ -984,10 +1041,10 @@ namespace impl {
 
 		template<typename OtherElemT>
 		vec_impl& operator=(const vec_impl<component_size, OtherElemT, true>& other) noexcept {
-			data[0] = other.data[0];
-			data[1] = other.data[1];
-			data[2] = other.data[2];
-			data[3] = other.data[3];
+			data[0] = (element_type)other.data[0];
+			data[1] = (element_type)other.data[1];
+			data[2] = (element_type)other.data[2];
+			data[3] = (element_type)other.data[3];
 			return *this;
 		}
 
@@ -1193,6 +1250,31 @@ namespace impl {
 
 		struct constants;
 	};
+
+	template<size_t CompSize, typename ElemT>
+	constexpr ElemT* begin(const vec_base<CompSize, ElemT>& v) noexcept {
+		return v.begin();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	constexpr ElemT* end(const vec_base<CompSize, ElemT>& v) noexcept {
+		return v.end();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	ElemT* begin(vec_base<CompSize, ElemT>& v) noexcept {
+		return v.begin();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	ElemT* end(vec_base<CompSize, ElemT>& v) noexcept {
+		return v.end();
+	}
+
+	template<size_t CompSize, typename ElemT>
+	constexpr size_t size(vec_base<CompSize, ElemT>& v) noexcept {
+		return CompSize;
+	}
 
 	template<size_t CompSize, typename T>
 	struct vec_base<CompSize, T>::constants {

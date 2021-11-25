@@ -24,7 +24,7 @@
     <ClInclude Include="win32gdi\image.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="win32helper\windows_nominmax.h">
+    <ClInclude Include="win32helper\windows_with_macro.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="win32helper\win32helper.h">

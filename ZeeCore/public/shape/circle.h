@@ -1,6 +1,7 @@
 #pragma once
 #include "../math/vec/vec.h"
 #include "boundings.h"
+#include "circle_decl.h"
 
 namespace zee {
 namespace shape {
@@ -18,8 +19,11 @@ namespace impl {
 		illegal_circle(dummy) = delete;
 	};
 
-	template<typename ElemT, bool IsValidElemType = is_vec_element<ElemT>::value>
-	struct circle_base_impl;
+	//
+	// Declared in circle_decl.h.
+	//
+	//template<typename ElemT, bool IsValidElemType = is_vec_element<ElemT>::value>
+	//struct circle_base_impl;
 
 	template<typename ElemT>
 	struct circle_base_impl<ElemT, false> : illegal_circle {
@@ -60,7 +64,7 @@ namespace impl {
 		template<typename OtherElemT>
 		circle_base_impl& operator=(const circle_base_impl<OtherElemT, true>& other) noexcept {
 			origin = other.origin;
-			radius = other.radius;
+			radius = (element_type)other.radius;
 			return *this;
 		}
 

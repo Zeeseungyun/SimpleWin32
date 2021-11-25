@@ -175,7 +175,9 @@ namespace win32gdi {
 
 	public:
 		//~begin interfaces::clonable
-		virtual device_context_dynamic clone() override;
+		virtual device_context_dynamic clone() override {
+			return device_context_dynamic{};
+		}
 		//~end interfaces::clonable
 
 	public:

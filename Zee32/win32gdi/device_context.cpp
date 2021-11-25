@@ -2,7 +2,7 @@
 //#include "application/application.h"
 #include "core/core.h"
 #include "zlog/zlog.h"
-#include "../win32helper/windows_nominmax.h"
+#include "../win32helper/windows_with_macro.h"
 #include "../win32helper/win32helper.h"
 #include "../application/application.h"
 

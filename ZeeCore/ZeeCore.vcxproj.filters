@@ -98,6 +98,12 @@
     <ClInclude Include="public\util\helper_macros.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="public\shape\rect_decl.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="public\shape\circle_decl.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\core\random.cpp">

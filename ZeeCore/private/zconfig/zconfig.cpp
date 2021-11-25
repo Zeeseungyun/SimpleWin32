@@ -5,36 +5,48 @@
 #include <fstream>
 #include <vector>
 
-namespace zee {
-namespace config {
 #ifdef _DEBUG
-	static constexpr bool is_allow_exception = true;
-	static constexpr bool ignore_comments = false;
+static constexpr bool is_allow_exception = true;
+static constexpr bool ignore_comments = false;
 #else
-	static constexpr bool is_allow_exception = false;
-	static constexpr bool ignore_comments = true;
+static constexpr bool is_allow_exception = false;
+static constexpr bool ignore_comments = true;
 #endif
 
+namespace zee {
+namespace config {
 	namespace fs = std::filesystem;
-	ini_base::ini_base(const tstring& load_file_name) : file_name_(load_file_name) {
-		const tstring config_file_name = file::paths::config_dir() + file_name();
-		if (!fs::exists(config_file_name)) {
-			ZEE_LOG_DETAIL(warning, TEXT("config"), TEXT("file_name[%s] is not exists."), config_file_name.c_str());
-			return;
-		}
 
-		std::ifstream in(config_file_name);//, std::ios_base::in);
-		base_type::operator=(json::parse(in, nullptr, is_allow_exception, ignore_comments));
+namespace impl {
+	ini_base_impl::ini_base_impl(const tstring& ini_file_name, const tstring& config_dir, const tstring& config_name) noexcept
+		: ini_file_name_(ini_file_name)
+		, config_dir_(config_dir)
+		, config_name_(config_name) {
+
 	}
 
-	ini_base::~ini_base() {
-		if (!fs::exists(file::paths::config_dir())) {
-			fs::create_directories(file::paths::config_dir());
+	bool ini_base_impl::load() noexcept {
+		const tstring config_file_path = config_dir() + ini_file_name();
+		if (!fs::exists(config_file_path)) {
+			ZEE_LOG_DETAIL(warning, config_name().c_str() , TEXT("config file[%s] is not exists."), config_file_path.c_str());
+			return false;
 		}
-		const tstring config_file_name = file::paths::config_dir() + file_name();
-		std::ofstream out(config_file_name);//, std::ios_base::out);
-		out << *this;
+
+		std::ifstream in(config_file_path);
+		in >> json_;
+
+		return true;
 	}
 
+	void ini_base_impl::save() noexcept {
+		if (!fs::exists(config_dir() + ini_file_name())) {
+			fs::create_directories(file::paths::config_dir() + ini_file_name());
+		}
+
+		std::ofstream out(file::paths::config_dir() + ini_file_name());
+		out << json_;
+	}
+
+}//namespace zee::config::impl
 }//namespace zee::config
 }//namespace zee

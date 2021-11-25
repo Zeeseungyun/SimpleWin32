@@ -1,20 +1,28 @@
 #include "application.h"
 #include "application_delegates.h"
-#include "../win32helper/windows_nominmax.h"
+#include "../win32helper/windows_with_macro.h"
 using namespace zee;
 
 #ifdef UNICODE
-#define ZEE_ENTRY_NAME wWinMain
+	#define ZEE_WINMAIN_NAME wWinMain
 #else
-#define ZEE_ENTRY_NAME WinMain
+	#define ZEE_WINMAIN_NAME WinMain
 #endif
-
-int APIENTRY ZEE_ENTRY_NAME(HINSTANCE, HINSTANCE, LPSTR, int);
 
 class application_win32 : public application {
 	friend application& application::get() noexcept;
-	friend int APIENTRY ZEE_ENTRY_NAME(HINSTANCE, HINSTANCE, LPSTR, int);
-
+	friend int
+#if defined(_M_CEE_PURE)
+		__clrcall
+#else
+		WINAPI
+#endif
+		ZEE_WINMAIN_NAME(
+			_In_ HINSTANCE hInstance,
+			_In_opt_ HINSTANCE hPrevInstance,
+			_In_ TCHAR* lpCmdLine,
+			_In_ int nShowCmd
+		);
 public:
 	application_win32() {
 
@@ -35,15 +43,26 @@ application& application::get() noexcept {
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY ZEE_ENTRY_NAME(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
+int
+#if defined(_M_CEE_PURE)
+__clrcall
+#else
+WINAPI
+#endif
+ZEE_WINMAIN_NAME(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ TCHAR* lpCmdLine,
+	_In_ int nShowCmd
+)
 {
 	create_app_inst();
 	
 	app_inst->instance_handle_ = hInstance;
 	
 	math::vec2i window_size;
-	window_size.x = app_inst->config_["window_size"]["x"].get<int32>();
-	window_size.y = app_inst->config_["window_size"]["y"].get<int32>();
+	window_size.x = app_inst->config_["window_size"]["width"].get<int32>();
+	window_size.y = app_inst->config_["window_size"]["height"].get<int32>();
 	const tstring app_name = to_tstring((std::string)app_inst->config_["name"]);
 
 	WNDCLASS WndClass;
@@ -65,20 +84,34 @@ int APIENTRY ZEE_ENTRY_NAME(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR 
 		app_name.c_str(), 
 		app_name.c_str(), 
 		WS_OVERLAPPEDWINDOW,
-		0, 0, window_size.x, window_size.y,
+		0, 0, 100, 100,
 		NULL, (HMENU)NULL, app_inst->instance_handle<HINSTANCE>(), NULL
 	);
 	
-	if (!ShowWindow(app_inst->window_handle<HWND>(), nCmdShow)) {
+	SetWindowPos(app_inst->window_handle<HWND>(), HWND_TOPMOST, 100, 100, 200, 200, 
+		SWP_SHOWWINDOW
+	);
+	//ShowWindow(app_inst->window_handle<HWND>(), nShowCmd);
+	RECT rt;
+	WINDOWPLACEMENT pl;
+	memset(&pl, 0, sizeof(pl));
+	pl.showCmd = nShowCmd;
+	pl.rcNormalPosition.left   = 0;
+	pl.rcNormalPosition.top    = 0;
+	pl.rcNormalPosition.right  = 0;
+	pl.rcNormalPosition.bottom = 0;
 
-	}
-
+	GetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
+	GetClientRect(app_inst->window_handle<HWND>(), &rt);
+	
+	int d = 0;
 	MSG Message;
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
 	}
 
+	app_inst.reset();
 	return Message.wParam;
 }
 
@@ -105,4 +138,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
+}
+namespace zee {
+	application::application()
+	{
+	}
 }

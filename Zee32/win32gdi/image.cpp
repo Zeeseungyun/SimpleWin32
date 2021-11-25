@@ -1,7 +1,7 @@
 #include "image.h"
 #include "core/core.h"
 #include "../application/application.h"
-#include "../win32helper/windows_nominmax.h"
+#include "../win32helper/windows_with_macro.h"
 #include "../win32helper/win32helper.h"
 #include <zlog/zlog.h>
 #include <file/path.h>
