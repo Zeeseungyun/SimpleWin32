@@ -7,17 +7,18 @@
 namespace zee {
 namespace config {
 namespace impl {
-	class ini_base_impl {
+	class config_base_impl {
 	protected:
-		ini_base_impl(const tstring& ini_file_name, const tstring& config_dir, const tstring& config_name) noexcept;
+		config_base_impl(const tstring& ini_file_name, const tstring& config_dir, const tstring& config_name) noexcept;
 
 	public:
 		const tstring& ini_file_name() const noexcept { return ini_file_name_; }
 		const tstring& config_dir() const noexcept { return config_dir_; }
 		const tstring& config_name() const noexcept { return config_name_; }
 
-		virtual bool load() noexcept;
-		virtual void save() noexcept;
+	protected:
+		bool load_impl() noexcept;
+		void save_impl() const noexcept;
 
 	protected:
 		bool is_loaded_successfully_ = false;
@@ -30,13 +31,35 @@ namespace impl {
 	};
 
 	template<typename ConfigT>
-	struct has_config_file_path_func {
+	struct has_config_name_impl {
 	private:
 		typedef char yes[2];
 		typedef char no[1];
 
-		template<typename T, typename A = decltype(T::config_path_name())> static yes& check(T*);
-		template<typename T> static no& check(...);
+		template<typename T, 
+			typename A = decltype(T::config_name()), 
+			std::enable_if_t<std::is_same<A, const TCHAR*>::value, int> = 0> 
+		static yes& check(T*);
+		template<typename T> 
+		static no& check(...);
+
+	public:
+		static constexpr bool value = sizeof(check<ConfigT>(0)) == sizeof(yes);
+	};
+
+	template<typename ConfigT>
+	struct has_config_dir_impl {
+	private:
+		typedef char yes[2];
+		typedef char no[1];
+
+		template<typename T, 
+			typename A = decltype(T::config_dir()), 
+			std::enable_if_t<std::is_same<A, const TCHAR*>::value, int> = 0> 
+		static yes& check(T*);
+
+		template<typename T> 
+		static no& check(...);
 
 	public:
 		static constexpr bool value = sizeof(check<ConfigT>(0)) == sizeof(yes);
@@ -47,8 +70,16 @@ namespace impl {
 	template<typename ConfigT>
 	struct ini_traits {
 		typedef ConfigT config_type;
+	private:
+		template<typename T>
+		static std::enable_if_t<impl::has_config_name_impl<T>::value, tstring>
+			config_name_impl() noexcept {
+			return T::config_name();
+		}
 
-		static tstring config_name() noexcept {
+		template<typename T>
+		static std::enable_if_t<!impl::has_config_name_impl<T>::value, tstring>
+			config_name_impl() noexcept {
 			tstring ret = file::type_to_path<config_type>();
 			size_t off = ret.find_last_of(TEXT("/"));
 			if (off != tstring::npos) {
@@ -58,8 +89,16 @@ namespace impl {
 			return ret;
 		}
 
-		static tstring config_dir() noexcept {
-			tstring ret = file::type_to_path<config_type>();
+		template<typename T>
+		static std::enable_if_t<impl::has_config_dir_impl<T>::value, tstring>
+			config_dir_impl() noexcept {
+			return T::config_dir();
+		}
+
+		template<typename T>
+		static std::enable_if_t<!impl::has_config_dir_impl<T>::value, tstring>
+			config_dir_impl() noexcept {
+			tstring ret = file::type_to_path<T>();
 			size_t off = ret.find_last_of(TEXT("/"));
 			if (off != tstring::npos) {
 				ret.erase(off);
@@ -68,56 +107,52 @@ namespace impl {
 			return file::paths::config_dir() + ret;
 		}
 
-		template<typename T>
-		static std::enable_if_t<impl::has_config_file_path_func<T>::value, tstring>
-			config_file_path_impl() noexcept {
-			return to_tstring(T::config_path_name()) + TEXT(".ini");
+	public:
+		static tstring config_name() noexcept {
+			return config_name_impl<config_type>();
 		}
 
-		template<typename T>
-		static std::enable_if_t<!impl::has_config_file_path_func<T>::value, tstring>
-			config_file_path_impl() noexcept {
-			return to_tstring(config_name()) + TEXT(".ini");
+		static tstring config_dir() noexcept {
+			return config_dir_impl<config_type>();
 		}
 
-		static tstring
-			config_file_path() noexcept {
-			return config_file_path_impl<config_type>();
+		static tstring config_file_path() noexcept {
+			return config_dir() + config_name() + TEXT(".ini");
 		}
 	};
 
 	template<typename ConfigT>
-	class ini_base : public impl::ini_base_impl {
+	class config_base : public impl::config_base_impl {
 	private:
-		typedef impl::ini_base_impl base_type;
+		typedef impl::config_base_impl base_type;
 
 	public:
 		typedef ConfigT config_type;
 		typedef ini_traits<config_type> traits_type;
 
 	private:
-		ini_base() noexcept
+		config_base() noexcept
 			: base_type(traits_type::config_file_path(), traits_type::config_dir(), traits_type::config_name()) {
 			load();
 		}
 
-		static std::unique_ptr<ini_base<config_type>> config_inst;
+		static std::unique_ptr<config_base<config_type>> config_inst_;
 
 	public:
-		static ini_base<config_type>& get() noexcept {
-			if (!config_inst) {
-				config_inst = std::unique_ptr<ini_base<config_type>>(new ini_base<config_type>);
+		static config_base<config_type>& get() noexcept {
+			if (!config_inst_) {
+				config_inst_ = std::unique_ptr<config_base<config_type>>(new config_base<config_type>);
 			}
 
-			return *config_inst;
+			return *config_inst_;
 		}
 
 		config_type& config() noexcept { return config_; }
 		const config_type& config() const noexcept { return config_; }
 
 	public:
-		virtual bool load() noexcept override {
-			if (base_type::load()) {
+		bool load() noexcept {
+			if (base_type::load_impl()) {
 				config() = this->json_;
 			} else {
 				config() = config_type();
@@ -125,19 +160,19 @@ namespace impl {
 			return true;
 		}
 
-		virtual void save() noexcept override {
+		void save() const noexcept {
 			this->json_ = config();
-			base_type::save();
+			base_type::save_impl();
 		}
 
 	private:
 		config_type config_;
 	};
 
+	template<typename ConfigT> std::unique_ptr<config_base<ConfigT>> config_base<ConfigT>::config_inst_;
+	
 	template<typename ConfigT>
-	std::unique_ptr<ini_base<ConfigT>> ini_base<ConfigT>::config_inst;
+	using config = config_base<ConfigT>;
 
 }//namespace zee::config 
 }//namespace zee
-
-#define ZEE_GET_CONFIG(config_type) ::zee::config::ini_base<config_type>::get()

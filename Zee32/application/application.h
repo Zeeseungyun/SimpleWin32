@@ -11,11 +11,6 @@ namespace zee {
 		ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(application)
 
 	protected:
-		class application_config : public config::ini_base {
-		public:
-			application_config();//app.ini
-		};
-
 		application();
 		~application() { /*do nothing..*/ }
 
@@ -39,11 +34,11 @@ namespace zee {
 		bool is_started() const noexcept { return window_handle() != nullptr; }
 		
 	protected:
-		application_config config_;
-
 		handle_t window_handle_ = NULL;
 		handle_t instance_handle_ = NULL;
+
 		math::vec2i window_size_;
+		tstring app_name_;
 	};
 
 }//namespace zee
