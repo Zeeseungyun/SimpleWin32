@@ -36,6 +36,9 @@
     <ClInclude Include="application\application_delegates.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="application\win32\application_win32.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32gdi\color.cpp">

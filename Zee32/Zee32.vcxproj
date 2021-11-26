@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="application\application.h" />
     <ClInclude Include="application\application_delegates.h" />
+    <ClInclude Include="application\win32\application_win32.h" />
     <ClInclude Include="win32gdi\color.h" />
     <ClInclude Include="win32gdi\device_context.h" />
     <ClInclude Include="win32gdi\image.h" />
