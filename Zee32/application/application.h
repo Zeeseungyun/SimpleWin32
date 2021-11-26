@@ -1,44 +1,86 @@
 #pragma once
-#include "core/core.h"
-#include "math/vec/vec.h"
-#include "util/helper_macros.h"
-#include "zconfig/zconfig.h"
+#include <core/core.h>
+#include <math/vec/vec.h>
+#include <shape/shape.h>
+#include <util/helper_macros.h>
+#include <zconfig/zconfig.h>
 
 namespace zee {
 	class application;
-
 	class application {
 		ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(application)
+	public:
+		static application& get() noexcept;
+
+	public:
+		struct config_data {
+			static const TCHAR* config_dir() noexcept { return TEXT("app"); }
+			static const TCHAR* config_name() noexcept { return TEXT("app"); }
+
+			tstring app_name = TEXT("my app");
+			math::vec2i window_position = { 0, 0 };
+			math::vec2i window_size = { 1024, 1024 };
+			bool maximize = false;
+		};
 
 	protected:
-		application();
+		application() = default;
 		~application() { /*do nothing..*/ }
 
 		void clear() {
 			window_handle_ = NULL;
 			instance_handle_ = NULL;
-			window_size_ = math::vec2i::constants::zero;
 		}
 
 	public:
-		static application& get() noexcept;
+		const zee::basic_config<config_data>& app_config() const noexcept { return zee::basic_config<config_data>::get(); }
+		const config_data& config() const noexcept { return app_config().data(); }
+
+	protected:
+		zee::basic_config<config_data>& app_config_() noexcept { return zee::basic_config<config_data>::get(); }
+		config_data& config_() noexcept { return app_config_().data(); }
 
 	public:
-		const math::vec2i& window_size() const noexcept { return window_size_; }
-		template<typename HandleT = handle_t>
-		HandleT window_handle() const noexcept { return (HandleT)window_handle_; }
+		bool is_started() const noexcept { return is_started_; }
+		template<typename HandleT = handle_t> HandleT window_handle() const noexcept { return (HandleT)window_handle_; }
+		template<typename HandleT = handle_t> HandleT instance_handle() const noexcept { return (HandleT)instance_handle_; }
 
-		template<typename HandleT = handle_t>
-		HandleT instance_handle() const noexcept { return (HandleT)instance_handle_; }
-
-		bool is_started() const noexcept { return window_handle() != nullptr; }
+		void change_window_size(const math::vec2i& new_window_size) noexcept;
+		void change_window_position(const math::vec2i& new_window_position) noexcept;
 		
 	protected:
+		bool is_started_ = false;
 		handle_t window_handle_ = NULL;
 		handle_t instance_handle_ = NULL;
-
-		math::vec2i window_size_;
-		tstring app_name_;
 	};
 
 }//namespace zee
+
+template<>
+struct nlohmann::adl_serializer<zee::application::config_data> {
+	typedef zee::application::config_data data_type;
+
+	static void to_json(json& j, const data_type& c) {
+		j =
+		{
+			{"app_name", c.app_name},
+			{"window_position", c.window_position},
+			{"window_size", c.window_size},
+			{"maximize", c.maximize}
+		};
+	}
+
+	static void from_json(const json& j, data_type& c) {
+		using namespace zee;
+		bool is_valid = false;
+		auto list = json_helper::safety_get_members(is_valid, j, "app_name", "window_position", "window_size", "maximize");
+		if (is_valid) {
+			c.app_name			= to_tstring(list[0].value());
+			c.window_position	= list[1].value();
+			c.window_size		= list[2].value();
+			c.maximize			= list[3].value();
+		} else {
+			c = data_type{};
+		}
+	}
+};

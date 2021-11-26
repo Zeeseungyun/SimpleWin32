@@ -1,12 +1,50 @@
 #pragma once
 #include "json.hpp"
+#include "../core/string.h"
 #include "../math/vec/vec_decl.h"
 #include "../shape/rect_decl.h"
 #include "../shape/circle_decl.h"
 
 namespace zee {
 	typedef nlohmann::json json;
-	
+
+	template<typename TraitsT = std::char_traits<char>, typename AllocT = std::allocator<char>>
+	std::basic_string<char, TraitsT, AllocT> 
+		to_string(const json& j) {
+		std::string temp = j;
+		return zee::to_string<TraitsT, AllocT>(temp);
+	}
+
+	template<typename TraitsT = std::char_traits<wchar_t>, typename AllocT = std::allocator<wchar_t>>
+	std::basic_string<wchar_t, TraitsT, AllocT> 
+		to_wstring(const json& j) {
+		std::wstring temp = j;
+		return zee::to_wstring<TraitsT, AllocT>(temp);
+	}
+
+	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
+	std::basic_string<TCHAR, TraitsT, AllocT>
+		to_tstring(const json& j) {
+		std::string temp = j;
+		return zee::to_tstring<TraitsT, AllocT>(temp);
+	}
+
+}//namespace zee
+
+namespace nlohmann {
+	template<>
+	struct adl_serializer<zee::tstring> {
+		static void from_json(const json& j, zee::tstring& str) {
+			str = zee::to_tstring(j);
+		}
+
+		static void to_json(json& j, const zee::tstring& str) {
+			j = zee::to_string<std::char_traits<char>, std::allocator<char>>(str);
+		}
+	};
+}
+
+namespace zee {
 namespace json_helper {
 	template<typename PredT, typename... Args>
 	auto safety_get_members_with_pred(bool& is_valid, const json& j, const PredT& pred, Args&&... members) noexcept
@@ -175,12 +213,12 @@ namespace impl {
 }//namespace zee::math::impl
 
 	template<size_t CompSize, typename VecElemT>
-	void to_json(json& j, const vec_base<CompSize, VecElemT>& v) {
+	void to_json(json& j, const basic_vec<CompSize, VecElemT>& v) {
 		impl::to_json(j, v);
 	}
 	
 	template<size_t CompSize, typename VecElemT>
-	void from_json(const json& j, vec_base<CompSize, VecElemT>& v) {
+	void from_json(const json& j, basic_vec<CompSize, VecElemT>& v) {
 		impl::from_json(j, v);
 	}
 
@@ -189,7 +227,7 @@ namespace impl {
 namespace shape {
 namespace impl {
 	template<typename ElemT>
-	void to_json(json& j, const rect_base_impl<ElemT, true>& rc) {
+	void to_json(json& j, const basic_rect_impl<ElemT, true>& rc) {
 		j = json
 		{
 			{"left"  , rc.left	 },
@@ -200,7 +238,7 @@ namespace impl {
 	}
 
 	template<typename ElemT>
-	void from_json(const json& j, rect_base_impl<ElemT, true>& rc) {
+	void from_json(const json& j, basic_rect_impl<ElemT, true>& rc) {
 		bool is_valid = false;
 		const auto list = json_helper::safety_get_members_with_pred(is_valid, j, [](const json& v) { return v.is_number(); }, "left", "top", "right", "bottom");
 
@@ -210,12 +248,12 @@ namespace impl {
 			rc.right	= list[2].value();
 			rc.bottom	= list[3].value();
 		} else {
-			rc = rect_base_impl<ElemT, true>{};
+			rc = basic_rect_impl<ElemT, true>{};
 		}
 	}
 
 	template<typename ElemT>
-	void to_json(json& j, const circle_base_impl<ElemT, true>& cc) {
+	void to_json(json& j, const basic_circle_impl<ElemT, true>& cc) {
 		j = json 
 		{
 			{"origin", cc.origin},
@@ -224,7 +262,7 @@ namespace impl {
 	}
 
 	template<typename ElemT>
-	void from_json(const json& j, circle_base_impl<ElemT, true>& cc) {
+	void from_json(const json& j, basic_circle_impl<ElemT, true>& cc) {
 		bool is_valid = false;
 		const auto list = json_helper::safety_get_members(is_valid, j, "origin", "radius");
 
@@ -238,7 +276,7 @@ namespace impl {
 			cc.radius   = list[1].value();
 
 		} else {
-			cc = circle_base_impl<ElemT, true>{};
+			cc = basic_circle_impl<ElemT, true>{};
 		}
 	}
 

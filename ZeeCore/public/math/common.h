@@ -230,18 +230,19 @@ namespace impl {
 	//	&& std::is_floating_point<DeltaT>::value,
 	//	promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT>>
 	//	catmullrom(
-	//		const vec_base<CompSize, VecElem1T>& p1,
-	//		const vec_base<CompSize, VecElem2T>& p2,
-	//		const vec_base<CompSize, VecElem3T>& p3,
-	//		const vec_base<CompSize, VecElem4T>& p4,
+	//		const basic_vec<CompSize, VecElem1T>& p1,
+	//		const basic_vec<CompSize, VecElem2T>& p2,
+	//		const basic_vec<CompSize, VecElem3T>& p3,
+	//		const basic_vec<CompSize, VecElem4T>& p4,
 	//		DeltaT d) noexcept {
 	//	typedef promotion_t<VecElem1T, VecElem2T, VecElem3T, VecElem4T, DeltaT> promotion_t;
-	//	vec_base<CompSize, promotion_t> v1 = p2;
-	//	vec_base<CompSize, promotion_t> v2 = p3;
-	//	vec_base<CompSize, promotion_t> t1 = (p3 - p1) * (promotion_t)0.5;
-	//	vec_base<CompSize, promotion_t> t2 = (p4 - p2) * (promotion_t)0.5;
+	//	basic_vec<CompSize, promotion_t> v1 = p2;
+	//	basic_vec<CompSize, promotion_t> v2 = p3;
+	//	basic_vec<CompSize, promotion_t> t1 = (p3 - p1) * (promotion_t)0.5;
+	//	basic_vec<CompSize, promotion_t> t2 = (p4 - p2) * (promotion_t)0.5;
 	//	const promotion_t delta_cubic_mul_2 = 0;
 	//	return p2;
 	//}
+
 }//namespace zee::math
 }//namespace zee

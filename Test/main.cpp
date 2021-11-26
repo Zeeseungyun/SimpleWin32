@@ -283,7 +283,7 @@ int main() {
 	constexpr zee::shape::circlei cc = { v, 4.0f };
 	std::cout << to_string(cc) << std::endl;
 
-	constexpr zee::shape::impl::rect_base_impl<float> rt2 = { 10, 10, 0 , 0 };
+	constexpr zee::shape::impl::basic_rect_impl<float> rt2 = { 10, 10, 0 , 0 };
 	constexpr auto dd1  = rt.intersect_rect_area_with_normalize(rt2);
 	constexpr auto dd2  = dd1 == rt;
 	constexpr auto dd3  = rt + v;

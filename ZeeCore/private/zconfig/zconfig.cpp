@@ -14,43 +14,44 @@ static constexpr bool ignore_comments = true;
 #endif
 
 namespace zee {
-namespace config {
 	namespace fs = std::filesystem;
 
-namespace impl {
-	config_base_impl::config_base_impl(const tstring& ini_file_name, const tstring& config_dir, const tstring& config_name) noexcept
-		: ini_file_name_(ini_file_name)
+	config_base::config_base(const tstring& config_file_path, const tstring& config_dir, const tstring& config_name) noexcept
+		: config_file_path_(config_file_path)
 		, config_dir_(config_dir)
 		, config_name_(config_name) {
 
 	}
 
-	bool config_base_impl::load_impl() noexcept {
-		const tstring config_file_path = ini_file_name();
-		if (!fs::exists(config_file_path)) {
-			ZEE_LOG_DETAIL(warning, config_name().c_str() , TEXT("config file[%s] is not exists."), config_file_path.c_str());
+	bool config_base::load_impl() noexcept {
+		if (!fs::exists(config_file_path())) {
+			ZEE_LOG(warning, config_name().c_str() , TEXT("Config file does not exists.[%s]"), config_file_path().c_str());
 			return false;
 		}
 
-		std::ifstream in(config_file_path);
+		std::ifstream in(config_file_path());
 		if (in) {
 			in >> json_;
+			ZEE_LOG(warning, config_name().c_str(), TEXT("Config file loaded successfully.[%s]"), config_file_path().c_str());
+			return true;
 		}
 
-		return true;
+		ZEE_LOG(warning, config_name().c_str(), TEXT("An error occurred while loading the config file.[%s]"), config_file_path().c_str());
+		return false;
 	}
 
-	void config_base_impl::save_impl() noexcept {
-		if (!fs::exists(ini_file_name())) {
+	void config_base::save_impl() noexcept {
+		if (!fs::exists(config_file_path())) {
 			fs::create_directories(config_dir());
 		}
 
-		std::ofstream out(ini_file_name());
+		std::ofstream out(config_file_path());
 		if (out) {
-			out << json_;
+			out << raw_json();
+			ZEE_LOG(normal, config_name().c_str(), TEXT("Config file saved successfully.[%s]"), config_file_path().c_str());
+		} else {
+			ZEE_LOG(warning, config_name().c_str(), TEXT("There was an error creating the config file.[%s]"), config_file_path().c_str());
 		}
 	}
 
-}//namespace zee::config::impl
-}//namespace zee::config
 }//namespace zee

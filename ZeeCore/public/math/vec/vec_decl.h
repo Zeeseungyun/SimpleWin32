@@ -7,6 +7,6 @@ namespace impl {
 
 	template<size_t CompSize, typename T, bool IsValidArgs> struct vec_impl;
 }//namespace zee::math::impl
-	template<size_t CompSize, typename T> struct vec_base;
+	template<size_t CompSize, typename T> struct basic_vec;
 }//namespace zee::math  
 }//namespace zee 

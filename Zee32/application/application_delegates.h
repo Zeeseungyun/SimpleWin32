@@ -17,7 +17,7 @@ namespace zee {
 		static application_delegates& inst() noexcept;
 
 	public:
-		static multicast_delegate<void(const std::weak_ptr<application>&)>& on_started() noexcept {
+		static multicast_delegate<void(application&)>& on_started() noexcept {
 			return inst().on_started_;
 		}
 
@@ -38,7 +38,7 @@ namespace zee {
 		}
 
 	private:
-		multicast_delegate<void(const std::weak_ptr<application>&)> on_started_;
+		multicast_delegate<void(application&)> on_started_;
 		multicast_delegate<void(const math::vec2i&/*new_window_size*/)> on_window_size_changed_;
 		multicast_delegate<void(void)> on_minimized_;
 		multicast_delegate<void(const math::vec2i&/*new_window_size*/)> on_maximized_;

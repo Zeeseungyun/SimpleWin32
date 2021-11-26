@@ -10,7 +10,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
-		to_string(const circle_base_impl<T, true>& v) noexcept {
+		to_string(const basic_circle_impl<T, true>& v) noexcept {
 		return strmanip::sprintf("circle(origin(%f, %f), radius(%f))",
 			v.origin.x,
 			v.origin.y,
@@ -20,7 +20,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const circle_base_impl<T, true>& v) noexcept {
+		to_wstring(const basic_circle_impl<T, true>& v) noexcept {
 		return wstrmanip::sprintf(L"circle(origin(%f, %f), radius(%f))",
 			v.origin.x,
 			v.origin.y,
@@ -30,7 +30,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
-		to_string(const circle_base_impl<T, true>& v) noexcept {
+		to_string(const basic_circle_impl<T, true>& v) noexcept {
 		return strmanip::sprintf("circle(origin(%d, %d), radius(%d))",
 			v.origin.x,
 			v.origin.y,
@@ -40,7 +40,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const circle_base_impl<T, true>& v) noexcept {
+		to_wstring(const basic_circle_impl<T, true>& v) noexcept {
 		return wstrmanip::sprintf(L"circle(origin(%d, %d), radius(%d))",
 			v.origin.x,
 			v.origin.y,
@@ -50,7 +50,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::string>
-		to_string(const rect_base_impl<T, true>& v) noexcept {
+		to_string(const basic_rect_impl<T, true>& v) noexcept {
 		return strmanip::sprintf("rect(l(%f), t(%f), r(%f), b(%f))",
 			v.get_left(), 
 			v.get_top(), 
@@ -61,7 +61,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const rect_base_impl<T, true>& v) noexcept {
+		to_wstring(const basic_rect_impl<T, true>& v) noexcept {
 		return wstrmanip::sprintf(L"rect(l(%f), t(%f), r(%f), b(%f))",
 			v.get_left(),
 			v.get_top(),
@@ -72,7 +72,7 @@ namespace impl {
 	
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::string>
-		to_string(const rect_base_impl<T, true>& v) noexcept {
+		to_string(const basic_rect_impl<T, true>& v) noexcept {
 		return strmanip::sprintf("rect(l(%d), t(%d), r(%d), b(%d))",
 			v.get_left(),
 			v.get_top(),
@@ -83,7 +83,7 @@ namespace impl {
 
 	template<typename T>
 	std::enable_if_t<!std::is_floating_point<T>::value, std::wstring>
-		to_wstring(const rect_base_impl<T, true>& v) noexcept {
+		to_wstring(const basic_rect_impl<T, true>& v) noexcept {
 		return wstrmanip::sprintf(L"rect(l(%d), t(%d), r(%d), b(%d))",
 			v.get_left(),
 			v.get_top(),
@@ -93,7 +93,7 @@ namespace impl {
 	}
 
 	template<typename T>
-	tstring to_tstring(const rect_base_impl<T, true>& v) noexcept {
+	tstring to_tstring(const basic_rect_impl<T, true>& v) noexcept {
 #ifdef UNICODE
 		return to_wstring(v);
 #else 
@@ -102,7 +102,7 @@ namespace impl {
 	}
 
 	template<typename T>
-	tstring to_tstring(const circle_base_impl<T, true>& v) noexcept {
+	tstring to_tstring(const basic_circle_impl<T, true>& v) noexcept {
 #ifdef UNICODE
 		return to_wstring(v);
 #else 
@@ -112,32 +112,32 @@ namespace impl {
 }//namespace zee::shape::impl
 
 	template<typename T>
-	auto to_string(const rect_base<T>& v) noexcept {
+	auto to_string(const basic_rect<T>& v) noexcept {
 		return impl::to_string(v);
 	}
 
 	template<typename T> auto
-		to_wstring(const rect_base<T>& v) noexcept {
+		to_wstring(const basic_rect<T>& v) noexcept {
 		return impl::to_wstring(v);
 	}
 
 	template<typename T>
-	auto to_string(const circle_base<T>& v) noexcept {
+	auto to_string(const basic_circle<T>& v) noexcept {
 		return impl::to_string(v);
 	}
 
 	template<typename T>
-	auto to_wstring(const circle_base<T>& v) noexcept {
+	auto to_wstring(const basic_circle<T>& v) noexcept {
 		return impl::to_wstring(v);
 	}
 
 	template<typename T>
-	tstring to_tstring(const circle_base<T>& v) noexcept {
+	tstring to_tstring(const basic_circle<T>& v) noexcept {
 		return impl::to_tstring(v);
 	}
 
 	template<typename T>
-	tstring to_tstring(const rect_base<T>& v) noexcept {
+	tstring to_tstring(const basic_rect<T>& v) noexcept {
 		return impl::to_tstring(v);
 	}
 

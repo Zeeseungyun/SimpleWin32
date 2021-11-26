@@ -4,7 +4,10 @@ namespace zee {
 namespace shape {
 namespace impl {
 	template<typename ElemT, bool IsValidRect = is_vec_element<ElemT>::value>
-	struct rect_base_impl;
+	struct basic_rect_impl;
 }//namespace zee::shape::impl
+	
+	template<typename ElemT>
+	struct basic_rect;
 }//namespace zee::shape
 }//namespace zee

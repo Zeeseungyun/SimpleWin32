@@ -11,6 +11,11 @@ namespace zee {
 	template<> struct logical_xor<true , true > : std::false_type {};
 
 namespace impl {
+	struct yes_no_impl {
+		typedef char yes[2];
+		typedef char no[1];
+	};
+
 	template<typename BindType, BindType BindValue, template<BindType, typename> typename T>
 	struct bind_value_btu_param0 {
 		template<typename ParamT>
@@ -498,7 +503,7 @@ namespace impl {
 
 	public:
 		typedef std::conditional_t<
-			std::is_arithmetic<T>::value&& std::is_arithmetic<args_type>::value
+			std::is_arithmetic<T>::value && std::is_arithmetic<args_type>::value
 			, typename promotion_type_impl<T, args_type>::type
 			, void
 		> type;
@@ -538,16 +543,6 @@ namespace impl {
 
 	template<typename... Args>
 	using promotion_t = typename impl::promotion_type_impl<Args...>::type;
-
-	template<typename ClassT, typename T> struct is_member_function_specified { static constexpr bool value = false; };
-	template<typename ClassT, typename RetT, typename...Args> struct is_member_function_specified <ClassT, RetT(ClassT::*)(Args...)> { static constexpr bool value = true; };
-	template<typename ClassT, typename RetT, typename...Args> struct is_member_function_specified <const ClassT, RetT(ClassT::*)(Args...) const> { static constexpr bool value = true; };
-	template<typename ClassT, typename RetT, typename...Args> struct is_member_function_specified <const ClassT, RetT(ClassT::*)(Args...) const&> { static constexpr bool value = true; };
-	template<typename ClassT, typename RetT, typename...Args> struct is_member_function_specified <ClassT, RetT(ClassT::*)(Args...) const> { static constexpr bool value = true; };
-	
-	template<typename T> struct is_static_function_specified { static constexpr bool value = false; };
-	template<typename RetT, typename...Args> struct is_static_function_specified <RetT(*)(Args...)> { static constexpr bool value = true; };
-
 
 	template<typename ... Args>
 	struct are_all_arithemtic : advance::unary::are_all_A<std::is_arithmetic, Args...> { };
@@ -597,7 +592,7 @@ namespace impl {
 	struct is_vec : std::false_type { };
 	
 	template<size_t CompSize, typename VecElemT>
-	struct is_vec<math::vec_base<CompSize, VecElemT>> : 
+	struct is_vec<math::basic_vec<CompSize, VecElemT>> : 
 		std::conditional_t<
 		is_vec_argument<CompSize, VecElemT>::value,
 		std::true_type, 
@@ -620,7 +615,7 @@ namespace impl {
 	struct is_same_comp_vec : std::false_type {	};
 
 	template<size_t CompSize, typename T, typename U>
-	struct is_same_comp_vec<math::vec_base<CompSize, T>, math::vec_base<CompSize, U>> 
+	struct is_same_comp_vec<math::basic_vec<CompSize, T>, math::basic_vec<CompSize, U>> 
 		:  std::conditional_t<are_all_vec_element<T, U>::value && (CompSize > 0), std::true_type, std::false_type> {
 	};
 
@@ -631,28 +626,28 @@ namespace impl {
 	};
 
 	template<size_t CompSize, typename T, typename... Args>
-	struct vec_promotion_type_impl<math::vec_base<CompSize, T>, Args...> {
+	struct vec_promotion_type_impl<math::basic_vec<CompSize, T>, Args...> {
 	private:
-		typedef typename vec_promotion_type_impl<math::vec_base<CompSize, T>>::type vec1_type;
+		typedef typename vec_promotion_type_impl<math::basic_vec<CompSize, T>>::type vec1_type;
 		typedef typename vec_promotion_type_impl<Args...>::type vec2_type;
 	public:
 		typedef typename vec_promotion_type_impl<vec1_type, vec2_type>::type type;
 	};
 
 	template<size_t CompSize, typename T, typename U>
-	struct vec_promotion_type_impl<math::vec_base<CompSize, T>, math::vec_base<CompSize, U>> {
+	struct vec_promotion_type_impl<math::basic_vec<CompSize, T>, math::basic_vec<CompSize, U>> {
 	private:
 		typedef std::conditional_t<are_all_vec_element<T, U>::value && (CompSize > 0), promotion_t<T, U>, void> element_type;
 	public:
-		typedef std::conditional_t<is_vec_element<element_type>::value, math::vec_base<CompSize, element_type>, void> type;
+		typedef std::conditional_t<is_vec_element<element_type>::value, math::basic_vec<CompSize, element_type>, void> type;
 	};
 
 	template<size_t CompSize, typename T>
-	struct vec_promotion_type_impl<math::vec_base<CompSize, T>> {
+	struct vec_promotion_type_impl<math::basic_vec<CompSize, T>> {
 	private:
 		typedef std::conditional_t< is_vec_argument<CompSize, T>::value, T, void> element_type;
 	public:
-		typedef std::conditional_t<is_vec_element<element_type>::value, math::vec_base<CompSize, element_type>, void> type;
+		typedef std::conditional_t<is_vec_element<element_type>::value, math::basic_vec<CompSize, element_type>, void> type;
 	};
 }//namespace zee::impl 
 

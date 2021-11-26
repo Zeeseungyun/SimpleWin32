@@ -19,10 +19,10 @@
 namespace zee {
 namespace impl {
 	template<typename CharT /*= TCHAR */, typename TraitT /*= std::char_traits<CharT>*/>
-	struct strmanip_base_impl {	};
+	struct basic_strmanip_impl {	};
 
 	template<typename TraitT>
-	struct strmanip_base_impl<char, TraitT> : TraitT {
+	struct basic_strmanip_impl<char, TraitT> : TraitT {
 		using typename TraitT::char_type;
 		using typename TraitT::int_type;
 
@@ -58,7 +58,7 @@ namespace impl {
 	};
 
 	template<typename TraitT>
-	struct strmanip_base_impl<wchar_t, TraitT> : TraitT {
+	struct basic_strmanip_impl<wchar_t, TraitT> : TraitT {
 		using typename TraitT::int_type;
 		using typename TraitT::char_type;
 
@@ -97,9 +97,9 @@ namespace impl {
 }//namespace impl
 
 	template<typename CharT = TCHAR, typename TraitT = std::char_traits<CharT>>
-	struct strmanip_base : impl::strmanip_base_impl<CharT, TraitT> {
+	struct basic_strmanip : impl::basic_strmanip_impl<CharT, TraitT> {
 	private:
-		typedef impl::strmanip_base_impl<CharT, TraitT> base_type;
+		typedef impl::basic_strmanip_impl<CharT, TraitT> base_type;
 
 	public:
 		using typename base_type::int_type;
@@ -228,12 +228,12 @@ namespace impl {
 	typedef std::basic_string<TCHAR> tstring;
 
 	//template<typename CharT = TCHAR, typename TraitT = std::char_traits<CharT>>
-	template struct strmanip_base<char>;
-	template struct strmanip_base<wchar_t>;
+	template struct basic_strmanip<char>;
+	template struct basic_strmanip<wchar_t>;
 	
-	using strmanip = strmanip_base<char>;
-	using wstrmanip = strmanip_base<wchar_t>;
-	using tstrmanip = strmanip_base<TCHAR>;
+	using strmanip = basic_strmanip<char>;
+	using wstrmanip = basic_strmanip<wchar_t>;
+	using tstrmanip = basic_strmanip<TCHAR>;
 
 	using std::to_string;
 	using std::to_wstring;
@@ -279,78 +279,186 @@ namespace impl {
 		return buf;
 	}
 
+	template<typename ToCharT, typename FromCharT>
+	struct conversion_func_ {
+		
+	};
+	
+	template<>
+	struct conversion_func_<char, wchar_t> {
+		typedef char		to_char_type;
+		typedef wchar_t		from_char_type;
+		typedef errno_t(*std_func_t)(size_t*, to_char_type*, size_t, const from_char_type*, size_t);
+		static constexpr std_func_t conversion = ::wcstombs_s;
+	};
+
+	template<>
+	struct conversion_func_<wchar_t, char> {
+		typedef wchar_t		to_char_type;
+		typedef char		from_char_type;
+		typedef errno_t(*std_func_t)(size_t*, to_char_type*, size_t, const from_char_type*, size_t);
+		static constexpr std_func_t conversion = ::mbstowcs_s;
+	};
+
+	//primary template struct
+	template<typename ToCharT, typename FromCharT,
+		typename ToTraitsT   = std::char_traits<ToCharT>  , typename ToAllocT   = std::allocator<ToCharT>,
+		typename FromTraitsT = std::char_traits<FromCharT>, typename FromAllocT = std::allocator<FromCharT>
+	>
+	struct string_conversion_ {
+		typedef FromCharT from_char_type;
+		typedef ToCharT to_char_type;
+
+		typedef FromTraitsT from_traits_type;
+		typedef FromAllocT from_allocator_type;
+
+		typedef ToTraitsT to_traits_type;
+		typedef ToAllocT to_allocator_type;
+
+		typedef std::basic_string<from_char_type, from_traits_type, from_allocator_type> from_string_type;
+		typedef std::basic_string<to_char_type, to_traits_type, to_allocator_type> to_string_type;
+
+		static to_string_type convert_raw_with_len(const from_char_type* raw_str, size_t len) {
+			size_t buf_size = 0;
+			errno_t err = conversion_func_<to_char_type, from_char_type>::conversion(&buf_size, 0, 0, raw_str, len);
+			if (err != 0) {
+				return {};
+			}
+
+			to_string_type buf;
+			buf.resize(buf_size);//include null character.
+			err = conversion_func_<to_char_type, from_char_type>::conversion(&buf_size, &buf[0], buf.size(), raw_str, len);
+			if (err != 0) {
+				return {};
+			}
+
+			buf.resize(buf_size - 1);//remove null character.
+			return buf;
+		}
+
+		static to_string_type convert_raw(const from_char_type* raw_str) {
+			return convert_raw_with_len(raw_str, from_traits_type::length(raw_str));
+		}
+
+		static to_string_type convert_str(const from_string_type& str) {
+			return convert_raw_with_len(str.c_str(), str.length());
+		}
+	};
+
+	template< typename SameT,
+		typename FromTraitsT , typename FromAllocT ,
+		typename ToTraitsT , typename ToAllocT 
+	>
+	struct string_conversion_<SameT, SameT,
+		FromTraitsT, FromAllocT,
+		ToTraitsT, ToAllocT
+	> {
+		typedef SameT from_char_type;
+		typedef SameT to_char_type;
+
+		typedef FromTraitsT from_traits_type;
+		typedef FromAllocT from_allocator_type;
+
+		typedef ToTraitsT to_traits_type;
+		typedef ToAllocT to_allocator_type;
+
+		typedef std::basic_string<from_char_type, from_traits_type, from_allocator_type> from_string_type;
+		typedef std::basic_string<to_char_type, to_traits_type, to_allocator_type> to_string_type;
+
+		static to_string_type convert_raw(const from_char_type* raw_str) {
+			return raw_str;
+		}
+
+		static to_string_type convert_str(const from_string_type& str) {
+			return str;
+		}
+
+		static to_string_type convert_raw_with_len(const from_char_type* raw_str, size_t len) {
+			return to_string_type(raw_str, len);
+		}
+	};
+
 }//namespace zee::impl
 
-	template<typename TraitsT = std::char_traits<wchar_t>, typename AllocT = std::allocator<wchar_t>>
-	std::basic_string<wchar_t, TraitsT, AllocT>
-		to_wstring(const char* str) {
-		return impl::str_to_wstr_impl<TraitsT, AllocT>(str, std::char_traits<char>::length(str));
-	}
+	//
+	// raw string conversion ..
+	//
 
 	template<typename TraitsT = std::char_traits<char>, typename AllocT = std::allocator<char>>
 	std::basic_string<char, TraitsT, AllocT>
-		to_string(const wchar_t* str) {
-		return impl::wstr_to_str_impl<TraitsT, AllocT>(str, std::char_traits<wchar_t>::length(str));
+		to_string(const wchar_t* str) noexcept {
+		return impl::string_conversion_<char, wchar_t, TraitsT, AllocT>::convert_raw(str);
 	}
 
-	template<typename TraitsU, typename AllocU, typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
-#ifdef UNICODE
-		std::basic_string<TCHAR, TraitsT, AllocT>
-#else
-		const std::basic_string<TCHAR, TraitsT, AllocT>&
-#endif
-		to_tstring(const std::basic_string<char, TraitsU, AllocU>& str) {
-#ifdef UNICODE
-		return impl::str_to_wstr_impl<TraitsT, AllocT>(str.c_str(), str.size());
-#else
-		return str;
-#endif
-	}
-
-		template<typename TraitsU, typename AllocU, typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
-#ifdef UNICODE
-		const std::basic_string<TCHAR, TraitsT, AllocT>&
-#else
-		std::basic_string<TCHAR, TraitsT, AllocT>
-#endif
-		to_tstring(const std::basic_string<wchar_t, TraitsU, AllocU>& str) {
-#ifdef UNICODE
-		return str;
-#else
-		return impl::wstr_to_str_impl<TraitsT, AllocT>(str.c_str(), str.size());
-#endif
+	template<typename TraitsT = std::char_traits<wchar_t>, typename AllocT = std::allocator<wchar_t>>
+	std::basic_string<wchar_t, TraitsT, AllocT>
+		to_wstring(const char* str) noexcept {
+		return impl::string_conversion_<wchar_t, char, TraitsT, AllocT>::convert_raw(str);
 	}
 
 	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
-	std::basic_string<TCHAR, TraitsT, AllocT> to_tstring(const char* c_str) {
-#ifdef UNICODE
-		return impl::str_to_wstr_impl<TraitsT, AllocT>(c_str, strmanip::length(c_str));
-#else
-		return c_str;
-#endif
+	std::basic_string<TCHAR, TraitsT, AllocT>
+		to_tstring(const char* str) noexcept {
+		return impl::string_conversion_<TCHAR, char, TraitsT, AllocT>::convert_raw(str);
 	}
 
 	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
-	std::basic_string<TCHAR, TraitsT, AllocT> to_tstring(const wchar_t* c_str) {
-#ifdef UNICODE
-		return c_str;
-#else
-		return impl::wstr_to_str_impl<TraitsT, AllocT>(c_str, wstrmanip::length(c_str));
-#endif
+	std::basic_string<TCHAR, TraitsT, AllocT>
+		to_tstring(const wchar_t* str) noexcept {
+		return impl::string_conversion_<TCHAR, wchar_t, TraitsT, AllocT>::convert_raw(str);
 	}
 
-	template<typename T>
-	tstring to_tstring(const T& v) noexcept {
-#ifdef UNICODE
-		return std::to_wstring(v);
-#else
-		return std::to_string(v);
-#endif 
+	//
+	// basic string conversion. to string
+	//
+
+	template<typename FromTraitsT, typename FromAllocT>
+	std::basic_string<char, FromTraitsT, FromAllocT>
+		to_string(const std::basic_string<char, FromTraitsT, FromAllocT>& str) noexcept {
+		return impl::string_conversion_<char, char, FromTraitsT, FromAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+	}
+
+	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
+	std::basic_string<char, ToTraitsT, ToAllocT>
+		to_string(const std::basic_string<wchar_t, FromTraitsT, FromAllocT>& str) noexcept {
+		return impl::string_conversion_<char, wchar_t, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+	}
+
+	//
+	// basic string conversion. to wstring
+	//
+
+	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
+	std::basic_string<wchar_t, ToTraitsT, ToAllocT>
+		to_wstring(const std::basic_string<char, FromTraitsT, FromAllocT>& str) noexcept {
+		return impl::string_conversion_<wchar_t, char, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+	}
+
+	template<typename FromTraitsT, typename FromAllocT>
+	std::basic_string<wchar_t, FromTraitsT, FromAllocT>
+		to_wstring(const std::basic_string<wchar_t, FromTraitsT, FromAllocT>& str) noexcept {
+		return impl::string_conversion_<wchar_t, wchar_t, FromTraitsT, FromAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+	}
+
+
+	//
+	// basic string conversion. to tstring
+	//
+
+	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
+	std::basic_string<TCHAR, ToTraitsT, ToAllocT>
+		to_tstring(const std::basic_string<char, FromTraitsT, FromAllocT>& str) noexcept {
+		return impl::string_conversion_<TCHAR, char, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+	}
+
+	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
+	std::basic_string<TCHAR, ToTraitsT, ToAllocT>
+		to_tstring(const std::basic_string<wchar_t, FromTraitsT, FromAllocT>& str) noexcept {
+		return impl::string_conversion_<TCHAR, wchar_t, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 	inline tstring to_tstring(bool b) noexcept {
 		return b ? TEXT("true") : TEXT("false");
 	}
-
 }
 

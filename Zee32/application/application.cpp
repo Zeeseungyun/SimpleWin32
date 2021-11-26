@@ -1,6 +1,8 @@
 #include "application.h"
 #include "application_delegates.h"
 #include "../win32helper/windows_with_macro.h"
+#include "../win32gdi/device_context.h"
+
 using namespace zee;
 
 #ifdef UNICODE
@@ -23,23 +25,33 @@ class application_win32 : public application {
 			_In_ TCHAR* lpCmdLine,
 			_In_ int nShowCmd
 		);
+
+	friend LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+
 public:
+
+	using application::app_config_;
+	using application::config_;
+	using application::is_started_;
+
 	application_win32() {
 
 	}
 };
 
 static std::unique_ptr<application_win32> app_inst;
+
 static void create_app_inst() {
 	if (!app_inst) {
 		app_inst = std::unique_ptr<application_win32>(new application_win32);
 	}
-}
+	}
 
 application& application::get() noexcept {
 	create_app_inst();
 	return *app_inst;
 }
+
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -57,14 +69,9 @@ ZEE_WINMAIN_NAME(
 )
 {
 	create_app_inst();
+	const application::config_data& app_config_data = application::get().config();
 	
 	app_inst->instance_handle_ = hInstance;
-	
-	math::vec2i window_size;
-	window_size.x = app_inst->config_["window_size"]["width"].get<int32>();
-	window_size.y = app_inst->config_["window_size"]["height"].get<int32>();
-	const tstring app_name = to_tstring((std::string)app_inst->config_["name"]);
-
 	WNDCLASS WndClass;
 	WndClass.cbClsExtra = 0;
 	WndClass.cbWndExtra = 0;
@@ -73,37 +80,38 @@ ZEE_WINMAIN_NAME(
 	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	WndClass.hInstance = hInstance;
 	WndClass.lpfnWndProc = (WNDPROC)WndProc;
-	WndClass.lpszClassName = app_name.c_str();
+	WndClass.lpszClassName = app_config_data.app_name.c_str();
 	WndClass.lpszMenuName = NULL;
 	WndClass.style = CS_HREDRAW | CS_VREDRAW;
-
+	WNDCLASSEX dd;
 	RegisterClass(&WndClass);
 
 	app_inst->window_handle_ = 
-	CreateWindow(
-		app_name.c_str(), 
-		app_name.c_str(), 
-		WS_OVERLAPPEDWINDOW,
-		0, 0, 100, 100,
+	CreateWindowEx(
+		WS_EX_OVERLAPPEDWINDOW,
+		app_config_data.app_name.c_str(),
+		app_config_data.app_name.c_str(),
+		0 ,
+		0, 0, 0, 0,
 		NULL, (HMENU)NULL, app_inst->instance_handle<HINSTANCE>(), NULL
 	);
 	
-	SetWindowPos(app_inst->window_handle<HWND>(), HWND_TOPMOST, 100, 100, 200, 200, 
-		SWP_SHOWWINDOW
-	);
-	//ShowWindow(app_inst->window_handle<HWND>(), nShowCmd);
-	RECT rt;
 	WINDOWPLACEMENT pl;
 	memset(&pl, 0, sizeof(pl));
-	pl.showCmd = nShowCmd;
-	pl.rcNormalPosition.left   = 0;
-	pl.rcNormalPosition.top    = 0;
-	pl.rcNormalPosition.right  = 0;
-	pl.rcNormalPosition.bottom = 0;
 
-	GetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
-	GetClientRect(app_inst->window_handle<HWND>(), &rt);
-	
+	shape::recti rc;
+	rc.data[1] = app_config_data.window_size;
+	rc += app_config_data.window_position;
+
+	pl.length = sizeof(pl);
+	pl.showCmd = SW_NORMAL;
+	pl.rcNormalPosition.left   = rc.get_left  <LONG>();
+	pl.rcNormalPosition.top    = rc.get_top   <LONG>();
+	pl.rcNormalPosition.right  = rc.get_right <LONG>();
+	pl.rcNormalPosition.bottom = rc.get_bottom<LONG>();
+
+	SetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
+
 	int d = 0;
 	MSG Message;
 	while (GetMessage(&Message, 0, 0, 0)) {
@@ -111,36 +119,53 @@ ZEE_WINMAIN_NAME(
 		DispatchMessage(&Message);
 	}
 
+	app_inst->app_config_().save();
 	app_inst.reset();
 	return Message.wParam;
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
-{
-	HDC hdc;
-	PAINTSTRUCT ps;
-	//static TCHAR str[256];
-	//int len;
+LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	//https://docs.microsoft.com/en-us/windows/win32/winmsg/window-notifications
 	switch (iMessage) {
+	//https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-move
+	case WM_MOVE:
+	{
+		auto& position = app_inst->config_().window_position;
+		position.x = (int32)(short)LOWORD(lParam);   // horizontal position 
+		position.y = (int32)(short)HIWORD(lParam);   // vertical position
+		return 0;
+	}
+	case WM_CREATE:
+	{
+		app_inst->is_started_ = true;
+		application_delegates::on_started().broadcast(application::get());
+		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::temp);
+
+		return 0;
+	}
+	case WM_SIZE:
+	{
+		auto& app = application::get();
+		int d = 0;
+		return 0;
+	}
 	case WM_CHAR:
-		//len = strlen(str);
-		//str[len] = (TCHAR)wParam;
-		//str[len + 1] = 0;
+	{
 		InvalidateRect(hWnd, NULL, FALSE);
 		return 0;
+	}
 	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		//TextOut(hdc, 100, 100, str, strlen(str));
-		EndPaint(hWnd, &ps);
+	{
+		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
+		shape::recti rc;
+		rc.data[1] = { 100,200 };
+
+		temp_dc.rectangle(rc);
 		return 0;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
 	}
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
-}
-namespace zee {
-	application::application()
-	{
-	}
 }
