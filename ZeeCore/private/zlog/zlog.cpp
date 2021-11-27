@@ -221,7 +221,7 @@ namespace impl {
 		});
 
 		auto inserted_iter = logger_infos_.insert(upper_bound(begin(logger_infos_), end(logger_infos_), new_item), std::move(new_item));
-		tag_map_idx_[new_tag_name] = (size_t)distance(inserted_iter, begin(logger_infos_));
+		tag_map_idx_[new_tag_name] = (size_t)distance(begin(logger_infos_), inserted_iter);
 		new_logger->on_bind(*this);
 	}
 

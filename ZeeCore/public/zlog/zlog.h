@@ -81,7 +81,7 @@ namespace interfaces {
 		[&]() ->void { using namespace zee; get_log().printf_detail(log::verbose_type::##verbose, category_name, to_tstring(__FILE__).c_str() , __LINE__, log_content, __VA_ARGS__); \
 		}()
 
-#define ZEE_CLOG_DETAIL(condtion, verbose, category_name, log_content, ...) \
+#define ZEE_CLOG_DETAIL(condition, verbose, category_name, log_content, ...) \
 		[&]() ->void { using namespace zee; if((bool)(condition)) get_log().printf_detail(log::verbose_type::##verbose, category_name, to_tstring(__FILE__).c_str() , __LINE__, log_content, __VA_ARGS__); \
 		}()
 
@@ -89,7 +89,7 @@ namespace interfaces {
 		[&]() ->void { using namespace zee; get_log().printf(log::verbose_type::##verbose, category_name, log_content, __VA_ARGS__); \
 		}()
 
-#define ZEE_CLOG(condtion, verbose, category_name, log_content, ...) \
+#define ZEE_CLOG(condition, verbose, category_name, log_content, ...) \
 		[&]() ->void { using namespace zee; if((bool)(condition)) get_log().printf(log::verbose_type::##verbose, category_name, log_content, __VA_ARGS__); \
 		}()
 }//namespace zee
