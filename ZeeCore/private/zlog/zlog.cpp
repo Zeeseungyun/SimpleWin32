@@ -251,6 +251,8 @@ namespace impl {
 		auto found = tag_map_idx_.find(tag);
 		if (end(tag_map_idx_) != found) {
 			logger_info target_info = std::move(logger_infos_[found->second]);
+			auto iter = begin(logger_infos_);
+			std::advance(iter, found->second);
 			logger_infos_.erase(begin(logger_infos_) + found->second);
 			tag_map_idx_.erase(found);
 			add(target_info.tag, target_info.logger, target_info.priority);

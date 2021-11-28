@@ -22,9 +22,11 @@
     <ClInclude Include="application\application.h" />
     <ClInclude Include="application\application_delegates.h" />
     <ClInclude Include="application\win32\application_win32.h" />
+    <ClInclude Include="stat\simple_stat.h" />
     <ClInclude Include="win32gdi\color.h" />
     <ClInclude Include="win32gdi\device_context.h" />
     <ClInclude Include="win32gdi\image.h" />
+    <ClInclude Include="win32gdi\tick_manager.h" />
     <ClInclude Include="win32helper\win32helper.h" />
     <ClInclude Include="win32helper\windows_with_macro.h" />
   </ItemGroup>
@@ -32,9 +34,11 @@
     <ClCompile Include="application\application.cpp" />
     <ClCompile Include="application\application_delegates.cpp" />
     <ClCompile Include="application\output_debug.cpp" />
+    <ClCompile Include="stat\simple_stat.cpp" />
     <ClCompile Include="win32gdi\color.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />
     <ClCompile Include="win32gdi\image.cpp" />
+    <ClCompile Include="win32gdi\tick_manager.cpp" />
     <ClCompile Include="win32helper\win32helper.cpp" />
   </ItemGroup>
   <ItemGroup>

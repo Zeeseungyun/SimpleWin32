@@ -1,5 +1,4 @@
 #include "device_context.h"
-//#include "application/application.h"
 #include "core/core.h"
 #include "zlog/zlog.h"
 #include "../win32helper/windows_with_macro.h"
@@ -9,20 +8,28 @@
 namespace zee {
 namespace win32gdi {
 	
-	handle_t default_font_handle() {
-		return GetStockObject(DEFAULT_GUI_FONT);
+	void device_context_base::handle_pair::clear(handle_t handle_dc) {
+		if (handle_dc) {
+			if (new_handle) {
+				SelectObject((HDC)handle_dc, get_old<HGDIOBJ>());
+				DeleteObject(get_new<HGDIOBJ>());
+				new_handle = NULL;
+				old_handle = NULL;
+			}
+		}
 	}
 
-	handle_t default_brush_handle() {
-		return GetStockObject(WHITE_BRUSH);
-	}
-
-	handle_t default_pen_handle() {
-		return GetStockObject(BLACK_PEN);
+	void device_context_base::handle_pair::select(handle_t handle_dc, handle_t select_handle) {
+		if (handle_dc) {
+			if (select_handle) {
+				new_handle = select_handle;
+				old_handle = SelectObject((HDC)handle_dc, get_new<HGDIOBJ>());
+			}
+		} 
 	}
 
 	device_context_base::device_context_base() noexcept
-		: dc_handle_(NULL) {
+		: handle_dc_(NULL) {
 
 	}
 
@@ -31,15 +38,14 @@ namespace win32gdi {
 	}
 
 	bool device_context_base::is_valid() const noexcept {
-		return dc_handle() != nullptr;
+		return handle_dc() != nullptr;
 	}
 
-	const math::vec2i& device_context_base::get_bitmap_size() const noexcept {
-		return bitmap_size_;
-	}
-
-	const simple_bitmap_desc& device_context_base::get_bitmap_desc() const noexcept {
-		return bitmap_desc_;
+	math::vec2i device_context_base::get_bitmap_size() const noexcept {
+		if (handle_dc()) {
+			return calc_bitmap_size(GetCurrentObject(handle_dc<HDC>(), OBJ_BITMAP));
+		}
+		return {};
 	}
 
 	static DWORD type_to_raster_op(bitblt_raster_op_type type) {
@@ -75,21 +81,21 @@ namespace win32gdi {
 			return;
 		}
 
-		if (!dest_dc.dc_handle()) {
+		if (!dest_dc.handle_dc()) {
 			ZEE_LOG(warning, TEXT("device_context"), TEXT("dest dc is null handle."));
 			return;
 		}
 
-		if (!dc_handle()) {
+		if (!handle_dc()) {
 			ZEE_LOG(warning, TEXT("device_context"), TEXT("this dc is null handle."));
 			return;
 		}
 
 		if (!BitBlt(
-			dest_dc.dc_handle<HDC>(), 
+			dest_dc.handle_dc<HDC>(), 
 			(int)dest_pos.x, (int)dest_pos.y, 
 			(int)src_size.x, (int)src_size.y,
-			dc_handle<HDC>(), 
+			handle_dc<HDC>(), 
 			(int)src_pos.x, (int)src_pos.y,
 			type_to_raster_op(rop)
 		)) {
@@ -109,24 +115,24 @@ namespace win32gdi {
 			return;
 		}
 
-		if (!dest_dc.dc_handle()) {
+		if (!dest_dc.handle_dc()) {
 			ZEE_LOG(warning, TEXT("device_context"), TEXT("dest dc is null handle."));
 			return;
 		}
 
-		if (!dc_handle()) {
+		if (!handle_dc()) {
 			ZEE_LOG(warning, TEXT("device_context"), TEXT("this dc is null handle."));
 			return;
 		}
 
 		if (!GdiTransparentBlt(
-			dest_dc.dc_handle<HDC>(),
-			(int)dest_pos.x     , (int)dest_pos.y,
+			dest_dc.handle_dc<HDC>(),
+			(int)dest_pos.x, (int)dest_pos.y,
 			(int)dest_size.x, (int)dest_size.y,
-			dc_handle<HDC>(),
-			(int)src_pos.x      , (int)src_pos.y,
+			handle_dc<HDC>(),
+			(int)src_pos.x, (int)src_pos.y,
 			(int)src_size.x , (int)src_size.y,
-			(UINT)transparent_color.rgba)) {
+			(UINT)transparent_color)) {
 			ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_base::transparent_blt is failed. detail: [%s]"), 
 				win32helper::last_error_to_tstring().c_str()
 			);
@@ -152,21 +158,21 @@ namespace win32gdi {
 			return;
 		}
 
-		if (!dest_dc.dc_handle()) {
+		if (!dest_dc.handle_dc()) {
 			ZEE_LOG(warning, TEXT("device_context"), TEXT("dest dc is null handle."));
 			return;
 		}
 
-		if (!dc_handle()) {
+		if (!handle_dc()) {
 			ZEE_LOG(warning, TEXT("device_context"), TEXT("this dc is null handle."));
 			return;
 		}
 
 		if (!GdiAlphaBlend(
-			dest_dc.dc_handle<HDC>(),
+			dest_dc.handle_dc<HDC>(),
 			(int)dest_pos.x, (int)dest_pos.y,
 			(int)dest_size.x, (int)dest_size.y,
-			dc_handle<HDC>(),
+			handle_dc<HDC>(),
 			(int)src_pos.x, (int)src_pos.y,
 			(int)src_size.x, (int)src_size.y,
 			make_blend_func(alpha)
@@ -182,7 +188,7 @@ namespace win32gdi {
 	}
 
 	void device_context_base::print_text(const math::vec2& pos, const tstring& str) noexcept {
-		if (!TextOut(dc_handle<HDC>(), (int)pos.x, (int)pos.y, str.c_str(), (int)str.size())) {
+		if (!TextOut(handle_dc<HDC>(), (int)pos.x, (int)pos.y, str.c_str(), (int)str.size())) {
 			ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_base::print is failed. detail: [%s]"),
 				zee::win32helper::last_error_to_tstring().c_str()
 			);
@@ -194,7 +200,7 @@ namespace win32gdi {
 	}
 
 	void device_context_base::rectangle(const shape::recti& rt, const math::vec2i& pt) noexcept {
-		if (!Rectangle(dc_handle<HDC>(), (int)rt.left + pt.x, (int)rt.top + pt.y, (int)rt.right + pt.x, (int)rt.bottom + pt.y)) {
+		if (!Rectangle(handle_dc<HDC>(), (int)rt.left + pt.x, (int)rt.top + pt.y, (int)rt.right + pt.x, (int)rt.bottom + pt.y)) {
 			ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_base::rectangle is failed. detail: [%s]"),
 				zee::win32helper::last_error_to_tstring().c_str()
 			);
@@ -213,45 +219,40 @@ namespace win32gdi {
 	}
 
 	void device_context_base::ellipse(int32 left, int32 top, int32 right, int32 bottom) noexcept {
-		if (!Ellipse(dc_handle<HDC>(), (int)left, (int)top, (int)right, (int)bottom)) {
+		if (!Ellipse(handle_dc<HDC>(), (int)left, (int)top, (int)right, (int)bottom)) {
 			ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_base::ellipse is failed. detail: [%s]"),
 				zee::win32helper::last_error_to_tstring().c_str()
 			);
 		}
 	}
 
-#define RELEASE_HANDLE_DEFINE(handle_name) \
-	if (is_valid()) { \
-		if (handle_name##_handle_.new_handle) { \
-			SelectObject((HDC)dc_handle_, (HGDIOBJ)handle_name##_handle_.old_handle); \
-			DeleteObject((HGDIOBJ)handle_name##_handle_.new_handle); \
-		} \
+	void device_context_base::change_brush_color(const color new_color) noexcept {
+		assert(handle_dc());
+		SelectObject(handle_dc<HDC>(), GetStockObject(DC_BRUSH));
+		SetDCBrushColor(handle_dc<HDC>(), (COLORREF)new_color);
 	}
 
-	void device_context_base::release_image_handle() {
-		RELEASE_HANDLE_DEFINE(image);
+	void device_context_base::move_to(const math::vec2i& dot) noexcept {
+		assert(handle_dc());
+		MoveToEx(handle_dc<HDC>(), (int)dot.x, (int)dot.y, NULL);
 	}
 
-	void device_context_base::release_font_handle() {
-		RELEASE_HANDLE_DEFINE(font);
+	void device_context_base::line_to(const math::vec2i& line) noexcept {
+		assert(handle_dc());
+		LineTo(handle_dc<HDC>(), (int)line.x, (int)line.y);
 	}
 
-	void device_context_base::release_brush_handle() {
-		RELEASE_HANDLE_DEFINE(brush);
+	void device_context_base::change_pen_color(const color new_color) noexcept {
+		assert(handle_dc());
+		SelectObject(handle_dc<HDC>(), GetStockObject(DC_PEN));
+		SetDCPenColor(handle_dc<HDC>(), (COLORREF)new_color);
 	}
 
-	void device_context_base::release_pen_handle() {
-		RELEASE_HANDLE_DEFINE(pen);
-	}
-
-#undef RELEASE_HANDLE_DEFINE
-
-	math::vec2i device_context_base::calc_bitmap_size(handle_t bitmap_handle) {
+	math::vec2i device_context_base::calc_bitmap_size(handle_t handle_bitmap) {
 		math::vec2i ret;
-		if (GetObjectType(bitmap_handle) == OBJ_BITMAP){
-			SIZE size = {0, 0};
+		if (GetObjectType(handle_bitmap) == OBJ_BITMAP){
 			BITMAP bmp;
-			GetObject(bitmap_handle, sizeof(BITMAP), &bmp);
+			GetObject(handle_bitmap, sizeof(BITMAP), &bmp);
 			ret.x = (math::vec2i::element_type)bmp.bmWidth;
 			ret.y = (math::vec2i::element_type)bmp.bmHeight;
 		}
@@ -260,32 +261,28 @@ namespace win32gdi {
 	}
 
 	device_context_auto::device_context_auto(handle_t window_handle, device_context_auto_type new_type) noexcept 
-		: window_handle_(NULL), type_(device_context_auto_type::none) {
-		
-		type_ = new_type;
-		window_handle_ = window_handle;
-
+		: window_handle_(window_handle), type_(new_type) {
 		switch (get_type())
 		{
 		case device_context_auto_type::paint:
 		{
 			buf_.resize(sizeof(PAINTSTRUCT));
-			dc_handle_ = BeginPaint((HWND)window_handle, (LPPAINTSTRUCT)buf_.data());
+			handle_dc_ = BeginPaint((HWND)window_handle, (LPPAINTSTRUCT)buf_.data());
 		}
 		break;
 
 		case device_context_auto_type::temp:
 		{
-			dc_handle_ = GetDC((HWND)window_handle);
+			handle_dc_ = GetDC((HWND)window_handle);
 		}
 		break;
 
+		case device_context_auto_type::none:
 		default:
 			break;
 		}
 
-		bitmap_size_ = calc_bitmap_size(GetCurrentObject((HDC)dc_handle_, OBJ_BITMAP));
-		assert(dc_handle_ && window_handle_ && get_type() != device_context_auto_type::none);
+		assert(handle_dc_ && window_handle_ && get_type() != device_context_auto_type::none);
 	}
 
 	device_context_auto::~device_context_auto() noexcept {
@@ -293,16 +290,16 @@ namespace win32gdi {
 		{
 		case device_context_auto_type::paint:
 		{
-			BOOL success = EndPaint((HWND)window_handle_, (LPPAINTSTRUCT)buf_.data());
+			const BOOL success = EndPaint((HWND)window_handle_, (LPPAINTSTRUCT)buf_.data());
 			assert(success);
 			buf_.clear();
-			dc_handle_ = NULL;
+			handle_dc_ = NULL;
 		}
 		break;
 
 		case device_context_auto_type::temp:
 		{
-			int success = ReleaseDC((HWND)window_handle_, (HDC)dc_handle_);
+			const int success = ReleaseDC((HWND)window_handle_, (HDC)handle_dc_);
 			assert(success);
 		}
 		break;
@@ -312,38 +309,19 @@ namespace win32gdi {
 		}
 	}
 
+	bool device_context_dynamic::clone(device_context_dynamic& out_object) {
+		out_object.clear();
+		out_object.create_empty_image(out_object.get_bitmap_size());
+
+		return true;
+	}
+
 	device_context_dynamic::device_context_dynamic() {
 
-		//if (GetObjectType(dc_handle_) != OBJ_DC) {
-		//	dc_handle_ = NULL;
-		//}
-		//
-		//if (dc_handle_) {
-		//	handle_t current_handle = NULL;
-		//	current_handle = GetCurrentObject((HDC)dc_handle_, OBJ_BRUSH);
-		//	if (current_handle != default_brush_handle()) {
-		//		brush_handle_.old_handle = default_brush_handle();
-		//		brush_handle_.new_handle = current_handle;
-		//	}
-		//
-		//	current_handle = GetCurrentObject((HDC)dc_handle_, OBJ_FONT);
-		//	if (current_handle != default_font_handle()) {
-		//		font_handle_.old_handle = default_font_handle();
-		//		font_handle_.new_handle = current_handle;
-		//	}
-		//
-		//	current_handle = GetCurrentObject((HDC)dc_handle_, OBJ_PEN);
-		//	if (current_handle != default_pen_handle()) {
-		//		pen_handle_.old_handle = default_pen_handle();
-		//		pen_handle_.new_handle = current_handle;
-		//	}
-		//
-		//}
 	}
 
 	device_context_dynamic::device_context_dynamic(device_context_dynamic&& other) noexcept 
-		: device_context_dynamic()
-	{
+		: device_context_dynamic() {
 		move_from(std::move(other));
 	}
 
@@ -359,8 +337,8 @@ namespace win32gdi {
 	}
 
 #define ZEE_SELECT_GDIOBJ(handle_name, new_handle_object)  \
-		handle_name##_handle_.new_handle = new_handle_object; \
-		handle_name##_handle_.old_handle = SelectObject((HDC)dc_handle_, handle_name##_handle_.new_handle);  \
+		handle_##handle_name##_.new_handle = new_handle_object; \
+		handle_##handle_name##_.old_handle = SelectObject((HDC)handle_dc_, handle_##handle_name##_.new_handle);  \
 
 	bool device_context_dynamic::load_image(const tstring& str) {
 		if (!create_if_has_no_dc()) {
@@ -370,13 +348,12 @@ namespace win32gdi {
 		handle_t new_image_handle = NULL;
 		image_load_result ret = win32gdi::load_image(new_image_handle, str);
 		if (ret == image_load_result::success) {
-			release_image_handle();
-			bitmap_size_ = calc_bitmap_size(new_image_handle);
-			bitmap_desc_.size = bitmap_size_;
-			bitmap_desc_.load_type = image_load_type::buffer;
+			bitmap_desc_.size = calc_bitmap_size(new_image_handle);
+			bitmap_desc_.load_type = image_load_type::file;
 			bitmap_desc_.type = image_type::bmp;
 			bitmap_desc_.file_path = str;
-			ZEE_SELECT_GDIOBJ(image, new_image_handle);
+			handle_image_.clear(handle_dc());
+			handle_image_.select(handle_dc(), new_image_handle);
 			return true;
 		}
 
@@ -387,7 +364,7 @@ namespace win32gdi {
 		assert(new_size.x > 0 && new_size.y > 0);
 		if (application::get().is_started()) {
 			if (create_if_has_no_dc()) {
-				handle_t new_image_handle = CreateCompatibleBitmap((HDC)dc_handle_, (int)new_size.x, (int)new_size.y);
+				handle_t new_image_handle = CreateCompatibleBitmap(handle_dc<HDC>(), (int)new_size.x, (int)new_size.y);
 				if (!new_image_handle) {
 					ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_dynamic::create_empty_image is failed. detail: [%s]"),
 						zee::win32helper::last_error_to_tstring().c_str()
@@ -395,12 +372,11 @@ namespace win32gdi {
 					return false;
 				}
 
-				release_image_handle();
 				bitmap_desc_.size = new_size;
 				bitmap_desc_.load_type = image_load_type::buffer;
 				bitmap_desc_.type = image_type::bmp;
-				bitmap_size_ = new_size;
-				ZEE_SELECT_GDIOBJ(image, new_image_handle);
+				handle_image_.clear(handle_dc());
+				handle_image_.select(handle_dc(), new_image_handle);
 				return true;
 			}
 		}
@@ -409,36 +385,40 @@ namespace win32gdi {
 	}
 
 	void device_context_dynamic::clear() noexcept {
-		if (dc_handle_) {
-			release_image_handle();
-			release_font_handle();
-			release_brush_handle();
-			release_pen_handle();
-			DeleteObject(dc_handle_);
-			dc_handle_ = NULL;
+		if (handle_dc_) {
+			handle_image_.clear(handle_dc());
+			//handle_font_.clear(handle_dc());
+			//handle_brush_.clear(handle_dc());
+			//handle_pen_.clear(handle_dc());
+			DeleteObject(handle_dc_);
+			handle_dc_ = NULL;
 		}
 	}
 
 	void device_context_dynamic::move_from(device_context_dynamic&& other) noexcept {
 		if (this != &other) {
 			clear();
-			image_handle_ = std::move(other.image_handle_);
-			font_handle_ = std::move(other.font_handle_);
-			brush_handle_ = std::move(other.brush_handle_);
-			pen_handle_ = std::move(other.pen_handle_);
-			bitmap_desc_ = std::move(other.bitmap_desc_);
-			dc_handle_ = other.dc_handle_;
+			handle_image_ = other.handle_image_;
+			//handle_font_ = other.handle_font_;
+			//handle_brush_ = other.handle_brush_;
+			//handle_pen_ = other.handle_pen_;
+			bitmap_desc_ = other.bitmap_desc_;
+			handle_dc_ = other.handle_dc_;
+
+			//other.handle_brush_ = other.handle_pen_ = 
+			//other.handle_font_ = 
+			other.handle_image_ = handle_pair{};
 			other.bitmap_desc_.clear();
-			other.dc_handle_ = NULL;
+			other.handle_dc_ = NULL;
 		}
 	}
 
 	bool device_context_dynamic::create_if_has_no_dc() {
 		if (application::get().is_started()) {
-			if (!dc_handle()) {
+			if (!handle_dc()) {
 				device_context_auto temp_dc(application::get().window_handle(), device_context_auto_type::temp);
-				dc_handle_ = CreateCompatibleDC(temp_dc.dc_handle<HDC>());
-				if (!dc_handle()) {
+				handle_dc_ = CreateCompatibleDC(temp_dc.handle_dc<HDC>());
+				if (!handle_dc()) {
 					ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_dynamic::create_if_has_no_dc is failed. detail: [%s]"), 
 						zee::win32helper::last_error_to_tstring().c_str()
 					);
@@ -458,27 +438,12 @@ namespace win32gdi {
 		}
 	}
 
-	void device_context_dynamic::release_image_handle() { 
-		parent_class::release_image_handle();
-		bitmap_desc_.clear();
-	}
-
 	bool is_valid(const device_context_base& dc) {
 		return dc.is_valid();
 	}
 
-	device_context_base::handle_pair::handle_pair(handle_pair&& other) noexcept
-		: old_handle(other.old_handle), new_handle(other.new_handle) {
-		other.new_handle = other.old_handle = NULL;
+	void change_color(const color new_brush_color) noexcept	{
 	}
 
-	device_context_base::handle_pair& device_context_base::handle_pair::operator=(handle_pair&& other) noexcept {
-		if (this != &other) {
-			new_handle = other.new_handle; old_handle = other.old_handle;
-			other.new_handle = other.old_handle = NULL;
-		}
-
-		return *this;
-	}
 }//namespace zee::win32gdi
 }//namespace zee

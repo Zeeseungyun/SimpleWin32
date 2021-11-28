@@ -2,6 +2,7 @@
 #include "application_delegates.h"
 #include "../win32helper/windows_with_macro.h"
 #include "../win32gdi/device_context.h"
+#include "../stat/simple_stat.h"
 
 using namespace zee;
 
@@ -91,7 +92,7 @@ ZEE_WINMAIN_NAME(
 		WS_EX_OVERLAPPEDWINDOW,
 		app_config_data.app_name.c_str(),
 		app_config_data.app_name.c_str(),
-		0 ,
+		WS_OVERLAPPEDWINDOW,
 		0, 0, 0, 0,
 		NULL, (HMENU)NULL, app_inst->instance_handle<HINSTANCE>(), NULL
 	);
@@ -114,9 +115,11 @@ ZEE_WINMAIN_NAME(
 
 	int d = 0;
 	MSG Message;
+	zee::simple_stat stat;
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
+		stat.mili_sec();//TODO::TICK ±¸Çö.
 	}
 
 	app_inst->app_config_().save();
@@ -133,6 +136,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		auto& position = app_inst->config_().window_position;
 		position.x = (int32)(short)LOWORD(lParam);   // horizontal position 
 		position.y = (int32)(short)HIWORD(lParam);   // vertical position
+		return 0;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		win32gdi::device_context_auto temp_dc1(hWnd, win32gdi::device_context_auto_type::temp);
+		temp_dc1.change_brush_color(win32gdi::colors::Yellow);
+		temp_dc1.rectangle({ 100,100,400,400 });
+
+		win32gdi::device_context_auto temp_dc2(hWnd, win32gdi::device_context_auto_type::temp);
+		temp_dc2.change_brush_color(win32gdi::colors::Green);
+		temp_dc2.rectangle({ 10,10,200,200 });
+
+		temp_dc1.rectangle({ 100,500,400,400 });
 		return 0;
 	}
 	case WM_CREATE:
@@ -160,7 +176,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		shape::recti rc;
 		rc.data[1] = { 100,200 };
 
+		math::vec2i d = { 100,100 };
 		temp_dc.rectangle(rc);
+		temp_dc.move_to(d);
+		temp_dc.line_to(d += math::vec2i::constants::unit_x * 10);
+		temp_dc.line_to(d += math::vec2i::constants::unit_y * 10);
+		temp_dc.line_to(d += math::vec2i::constants::unit_x * 10 + math::vec2i::constants::unit_y * 10);
+		temp_dc.line_to(d -= math::vec2i::constants::unit_y * 10);
 		return 0;
 	}
 	case WM_DESTROY:
