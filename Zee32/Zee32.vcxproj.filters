@@ -71,8 +71,5 @@
     <ClCompile Include="win32gdi\tick_manager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="stat\simple_stat.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

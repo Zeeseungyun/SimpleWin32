@@ -34,7 +34,6 @@
     <ClCompile Include="application\application.cpp" />
     <ClCompile Include="application\application_delegates.cpp" />
     <ClCompile Include="application\output_debug.cpp" />
-    <ClCompile Include="stat\simple_stat.cpp" />
     <ClCompile Include="win32gdi\color.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />
     <ClCompile Include="win32gdi\image.cpp" />
