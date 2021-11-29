@@ -20,7 +20,7 @@ namespace zee {
 
 	void tick_manager::on_pre_tick(float delta_time) {
 
-		if (!rand(0, 1000000)) {
+		if (!rand(0, 100)) {
 			ZEE_LOG(normal, TEXT("tick"), TEXT("test sleep ocurrs!"));
 			Sleep(100);
 		}

@@ -120,16 +120,30 @@ ZEE_WINMAIN_NAME(
 
 	HWND h_wnd = app_inst->window_handle<HWND>();
 	
-	zee::simple_stat<> stat, stat2;
+	zee::simple_stat<> stat;
 	MSG msg = {};
 	{
+		float gDeltaTime = 0;
+		float gFramerate = 0;
+		int gFrameTick = 0;
+		float gFrameratePerFrameAccum = 0;
+		int gFrameratePerFrameIdx = 0;
+		float gFramerateSecPerFrame[60] = {};
+		float fixedFrame = 120.0f;
+		float perSecAccum = 0.0f;
+		float perSecond = 0.0f;
+		std::chrono::time_point<std::chrono::steady_clock> gPrevTime;
+
+		gPrevTime = std::chrono::steady_clock::now();
+
 		using namespace std::chrono;
 		using namespace std::chrono_literals;
 		std::vector<float> averages;
 		constexpr int frame_count = 60;
-		constexpr std::chrono::duration<float, simple_stat_base::milli_sec_ratio> fps = 1000ms / (float)frame_count;
+		constexpr std::chrono::duration<float, simple_stat_base::milli_sec_ratio> fps = 1s / (float)frame_count;
 		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
 		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time2 = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
+		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time3 = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
 		int count = 0;
 		while (true) {
 			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -141,42 +155,58 @@ ZEE_WINMAIN_NAME(
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-
+			else
 			{
-				elapsed_time += stat.duration();
+				//auto now = std::chrono::steady_clock::now();
+				//std::chrono::duration<float> diff = now - gPrevTime;
+				//gPrevTime = now;
+				//gDeltaTime = diff.count();
+				//
+				//gFrameratePerFrameAccum += gDeltaTime - gFramerateSecPerFrame[gFrameratePerFrameIdx];
+				//gFramerateSecPerFrame[gFrameratePerFrameIdx] = gDeltaTime;
+				//gFrameratePerFrameIdx = (gFrameratePerFrameIdx + 1) % 60;
+				//gFramerate = gFrameratePerFrameAccum > 0.0f ? 1.0f / (gFrameratePerFrameAccum / (float)60.0f) : FLT_MAX;
+				//perSecond += gDeltaTime;
+				//g_fps = gFramerate;
+				//
+				//if (perSecAccum < perSecond) {
+				//	perSecond -= perSecAccum;
+				//
+				//} else {
+				//	Sleep(1);
+				//}
+				//InvalidateRect(h_wnd, nullptr, FALSE);
+				//continue;
 
-				if (elapsed_time > fps) {
+				auto cur_dur = stat.duration();
+				elapsed_time += cur_dur;
+				elapsed_time2 += cur_dur;
+				stat.reset();
+
+				if (elapsed_time >= fps) {
 					count++;
-					if (count >= frame_count) {
+					if (elapsed_time2 >= 1s) {
+						ZEE_LOG(normal, TEXT("Sex"), TEXT("count : %d"), count);
 						count = 0;
-						averages.push_back(stat2.duration().count());
-						stat2.reset();
-						if (averages.size() > 60) {
-							averages.erase(averages.begin());
-						}
-
-						g_fps = 0.0f;
-						for (auto v : averages) {
-							g_fps += v;
-						}
-
-						g_fps /= averages.size();
+						elapsed_time2 = elapsed_time2.zero();
 					}
-
-					stat.reset();
 					auto temp_elapsed = elapsed_time;
+					elapsed_time = elapsed_time * 0.5f + elapsed_time3 * 0.5f;
+					elapsed_time3 = elapsed_time;
+					g_fps = 1000.0f / elapsed_time.count();
 					elapsed_time = elapsed_time.zero();
+
+					zee::simple_stat<> stat2;
 					tick_manager::get().pre_tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
-					temp_elapsed += stat.duration();
-					stat.reset();
+					temp_elapsed += stat2.duration();
+					stat2.reset();
 					tick_manager::get().tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
-					temp_elapsed += stat.duration();
-					stat.reset();
+					temp_elapsed += stat2.duration();
 					tick_manager::get().post_tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
+
+					//ZEE_LOG(normal, TEXT("tick"), TEXT("average inserted sec : [%f]"), count, stat2.duration().count());
 					InvalidateRect(h_wnd, nullptr, FALSE);
 				}
-
-
 			}
 		}
 	}
@@ -252,6 +282,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			}
 
 			if (temp_back_buffer->is_valid()) {
+				win32gdi::device_context_dynamic temp_image;
+				temp_image.load_image(TEXT("./assets/testyjj.bmp"));
+				temp_image.bit_blt(*temp_back_buffer, {});
 				temp_back_buffer->rectangle(rc);
 				temp_back_buffer->move_to(d);
 				temp_back_buffer->line_to(d += math::vec2i::constants::unit_x * 10);
