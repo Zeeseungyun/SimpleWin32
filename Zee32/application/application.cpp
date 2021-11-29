@@ -3,6 +3,8 @@
 #include "../win32helper/windows_with_macro.h"
 #include "../win32gdi/device_context.h"
 #include "../stat/simple_stat.h"
+#include "tick_manager.h"
+#include <zlog/zlog.h>
 
 using namespace zee;
 
@@ -53,6 +55,7 @@ application& application::get() noexcept {
 	return *app_inst;
 }
 
+float g_fps = 0.0f;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -73,33 +76,35 @@ ZEE_WINMAIN_NAME(
 	const application::config_data& app_config_data = application::get().config();
 	
 	app_inst->instance_handle_ = hInstance;
-	WNDCLASS WndClass;
-	WndClass.cbClsExtra = 0;
-	WndClass.cbWndExtra = 0;
-	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	WndClass.hInstance = hInstance;
-	WndClass.lpfnWndProc = (WNDPROC)WndProc;
-	WndClass.lpszClassName = app_config_data.app_name.c_str();
-	WndClass.lpszMenuName = NULL;
-	WndClass.style = CS_HREDRAW | CS_VREDRAW;
-	WNDCLASSEX dd;
-	RegisterClass(&WndClass);
+	const TCHAR* class_name = TEXT("my application");
+	{//Register window class.
+		WNDCLASS wnd_class;
+		wnd_class.cbClsExtra = 0;
+		wnd_class.cbWndExtra = 0;
+		wnd_class.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+		wnd_class.hInstance = hInstance;
+		wnd_class.lpfnWndProc = (WNDPROC)WndProc;
+		wnd_class.lpszClassName = class_name;
+		wnd_class.lpszMenuName = NULL;
+		wnd_class.style = CS_HREDRAW | CS_VREDRAW;
 
-	app_inst->window_handle_ = 
-	CreateWindowEx(
-		WS_EX_OVERLAPPEDWINDOW,
-		app_config_data.app_name.c_str(),
-		app_config_data.app_name.c_str(),
-		WS_OVERLAPPEDWINDOW,
-		0, 0, 0, 0,
-		NULL, (HMENU)NULL, app_inst->instance_handle<HINSTANCE>(), NULL
-	);
+		RegisterClass(&wnd_class);
+	}
+
+	{//Create window
+		app_inst->window_handle_ = CreateWindowEx(
+				WS_EX_OVERLAPPEDWINDOW,
+				class_name,
+				app_config_data.app_name.c_str(),
+				WS_OVERLAPPEDWINDOW,
+				0, 0, 0, 0,
+				NULL, (HMENU)NULL, app_inst->instance_handle<HINSTANCE>(), NULL
+		);
+	}
 	
-	WINDOWPLACEMENT pl;
-	memset(&pl, 0, sizeof(pl));
-
+	WINDOWPLACEMENT pl = {};
 	shape::recti rc;
 	rc.data[1] = app_config_data.window_size;
 	rc += app_config_data.window_position;
@@ -113,18 +118,72 @@ ZEE_WINMAIN_NAME(
 
 	SetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
 
-	int d = 0;
-	MSG Message;
-	zee::simple_stat stat;
-	while (GetMessage(&Message, 0, 0, 0)) {
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
-		stat.mili_sec();//TODO::TICK ±¸Çö.
+	HWND h_wnd = app_inst->window_handle<HWND>();
+	
+	zee::simple_stat<> stat, stat2;
+	MSG msg = {};
+	{
+		using namespace std::chrono;
+		using namespace std::chrono_literals;
+		std::vector<float> averages;
+		constexpr int frame_count = 60;
+		constexpr std::chrono::duration<float, simple_stat_base::milli_sec_ratio> fps = 1000ms / (float)frame_count;
+		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
+		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time2 = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
+		int count = 0;
+		while (true) {
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				
+				if (msg.message == WM_QUIT || msg.message == WM_DESTROY) {
+					break;
+				}
+
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			{
+				elapsed_time += stat.duration();
+
+				if (elapsed_time > fps) {
+					count++;
+					if (count >= frame_count) {
+						count = 0;
+						averages.push_back(stat2.duration().count());
+						stat2.reset();
+						if (averages.size() > 60) {
+							averages.erase(averages.begin());
+						}
+
+						g_fps = 0.0f;
+						for (auto v : averages) {
+							g_fps += v;
+						}
+
+						g_fps /= averages.size();
+					}
+
+					stat.reset();
+					auto temp_elapsed = elapsed_time;
+					elapsed_time = elapsed_time.zero();
+					tick_manager::get().pre_tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
+					temp_elapsed += stat.duration();
+					stat.reset();
+					tick_manager::get().tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
+					temp_elapsed += stat.duration();
+					stat.reset();
+					tick_manager::get().post_tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
+					InvalidateRect(h_wnd, nullptr, FALSE);
+				}
+
+
+			}
+		}
 	}
 
 	app_inst->app_config_().save();
 	app_inst.reset();
-	return Message.wParam;
+	return msg.wParam;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -173,16 +232,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 	{
 		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
+		static std::shared_ptr<win32gdi::device_context_dynamic> temp_back_buffer;
+		if (!temp_back_buffer) {
+			temp_back_buffer = std::make_shared< win32gdi::device_context_dynamic>();
+		}
+
 		shape::recti rc;
 		rc.data[1] = { 100,200 };
 
 		math::vec2i d = { 100,100 };
-		temp_dc.rectangle(rc);
-		temp_dc.move_to(d);
-		temp_dc.line_to(d += math::vec2i::constants::unit_x * 10);
-		temp_dc.line_to(d += math::vec2i::constants::unit_y * 10);
-		temp_dc.line_to(d += math::vec2i::constants::unit_x * 10 + math::vec2i::constants::unit_y * 10);
-		temp_dc.line_to(d -= math::vec2i::constants::unit_y * 10);
+
+		if (temp_back_buffer) {
+			if (temp_back_buffer->is_valid()) {
+				if (temp_back_buffer->get_bitmap_size() != temp_dc.get_bitmap_size()) {
+					temp_back_buffer->create_empty_image(temp_dc.get_bitmap_size());
+				}
+			} else {
+				temp_back_buffer->create_empty_image(temp_dc.get_bitmap_size());
+			}
+
+			if (temp_back_buffer->is_valid()) {
+				temp_back_buffer->rectangle(rc);
+				temp_back_buffer->move_to(d);
+				temp_back_buffer->line_to(d += math::vec2i::constants::unit_x * 10);
+				temp_back_buffer->line_to(d += math::vec2i::constants::unit_y * 10);
+				temp_back_buffer->line_to(d += math::vec2i::constants::unit_x * 10 + math::vec2i::constants::unit_y * 10);
+				temp_back_buffer->line_to(d -= math::vec2i::constants::unit_y * 10);
+				tstring fps_str = to_tstring(std::to_wstring(g_fps));
+				temp_back_buffer->print_text({}, fps_str);
+				temp_back_buffer->bit_blt(temp_dc, {});
+			}
+		}
+
 		return 0;
 	}
 	case WM_DESTROY:

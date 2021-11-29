@@ -39,7 +39,7 @@
     <ClInclude Include="application\win32\application_win32.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="win32gdi\tick_manager.h">
+    <ClInclude Include="application\tick_manager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="stat\simple_stat.h">
@@ -68,7 +68,7 @@
     <ClCompile Include="application\output_debug.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="win32gdi\tick_manager.cpp">
+    <ClCompile Include="application\tick_manager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

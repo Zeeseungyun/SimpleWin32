@@ -23,37 +23,34 @@ namespace impl {
 	template<typename RetT, typename ...Args>
 	struct delegate_invoker {
 		typedef std::function<RetT(Args...)> func_type;
+		typedef std::function<bool()> check_func_type;
 
 		void bind(RetT(*new_func)(Args...)) noexcept {
 			func_ = new_func;
-			check_func_ = std::function<bool(void)>{};
+			check_func_ = nullptr;
 		}
 
 		template<typename LambdaT>
 		void bind(LambdaT&& new_lambda) noexcept {
 			func_ = new_lambda;
-			check_func_ = std::function<bool(void)>{};
+			check_func_ = nullptr;
 		}
 
 		template<typename ClassT>
 		void bind(const std::shared_ptr<ClassT>& sp, RetT(ClassT::* new_func)(Args...)) noexcept {
 			std::weak_ptr<ClassT> wp = sp;
-			check_func_ = [wp]() ->bool {
+			check_func_ = [wp]() {
 				return !wp.expired();
 			};
 
 			func_ = [this, wp, new_func](Args... args) -> RetT {
-				if (!wp.expired()) {
-					(wp.lock().get()->*new_func)(std::forward<Args>(args)...);
-				} else {
-					reset();
-				}
+				return (wp.lock().get()->*new_func)(std::forward<Args>(args)...);
 			};
 		}
 
 		void reset() noexcept {
-			func_type temp;
-			func_.swap(temp);
+			func_type().swap(func_);
+			check_func_ = nullptr;
 		}
 
 		RetT invoke(Args&&...args) noexcept {
@@ -71,14 +68,9 @@ namespace impl {
 		}
 
 	private:
-		std::function<bool(void)> check_func_;
+		check_func_type check_func_;
 		func_type func_;
 	};
-
-	template<typename T> struct is_callable_type : std::false_type {	};
-	template<typename RetT, typename... Args> struct is_callable_type<RetT(Args...)> : std::true_type { };
-	template<typename RetT, typename... Args> struct is_callable_type<RetT(*)(Args...)> : std::true_type { };
-	template<typename RetT, typename... Args> struct is_callable_type<RetT(&&)(Args...)> : std::true_type { };
 
 	inline delegate_handle_t generate_handle_value() {
 		return rand(std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max());
@@ -142,7 +134,7 @@ namespace impl {
 		}
 
 		template<typename ClassT>
-		delegate_handle_t add_sp(const std::shared_ptr<ClassT>& sp, void(ClassT::* new_func)(Args...)) noexcept {
+		delegate_handle_t add_sp(std::shared_ptr<ClassT> sp, void(ClassT::* new_func)(Args...)) noexcept {
 			delegate_handle_t new_handle = make_new_handle();
 			invoker_list_[new_handle].bind(sp, new_func);
 			return new_handle;

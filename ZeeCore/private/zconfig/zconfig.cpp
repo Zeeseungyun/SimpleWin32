@@ -31,7 +31,7 @@ namespace zee {
 
 		std::ifstream in(config_file_path());
 		if (in) {
-			json_ = json::parse(in,0, is_allow_exception, ignore_comments);
+			json_ = json::parse(in, 0, is_allow_exception, ignore_comments);
 			ZEE_LOG(warning, config_name().c_str(), TEXT("Config file loaded successfully.[%s]"), config_file_path().c_str());
 			return true;
 		}
