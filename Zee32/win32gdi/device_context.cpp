@@ -364,7 +364,8 @@ namespace win32gdi {
 		assert(new_size.x > 0 && new_size.y > 0);
 		if (application::get().is_started()) {
 			if (create_if_has_no_dc()) {
-				handle_t new_image_handle = CreateCompatibleBitmap(handle_dc<HDC>(), (int)new_size.x, (int)new_size.y);
+				device_context_auto temp_dc(application::get().window_handle<HWND>(), device_context_auto_type::temp);
+				handle_t new_image_handle = CreateCompatibleBitmap(temp_dc.handle_dc<HDC>(), (int)new_size.x, (int)new_size.y);
 				if (!new_image_handle) {
 					ZEE_LOG_DETAIL(warning, TEXT("device_context"), TEXT("device_context_dynamic::create_empty_image is failed. detail: [%s]"),
 						zee::win32helper::last_error_to_tstring().c_str()

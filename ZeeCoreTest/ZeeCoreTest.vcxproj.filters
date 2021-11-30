@@ -27,9 +27,18 @@
     <ClCompile Include="test_main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="source1.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="asdfource2.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ini_test.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="inline_func.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

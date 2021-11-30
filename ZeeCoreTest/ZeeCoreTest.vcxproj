@@ -153,8 +153,10 @@
   <ItemGroup>
     <ClCompile Include="default_debug_ouput_logger.cpp" />
     <ClCompile Include="ini_test.cpp" />
+    <ClCompile Include="asdfource2.cpp" />
     <ClCompile Include="string_header.cpp" />
     <ClCompile Include="test_main.cpp" />
+    <ClCompile Include="source1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZeeCore\ZeeCore.vcxproj">
@@ -163,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ini_test.h" />
+    <ClInclude Include="inline_func.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

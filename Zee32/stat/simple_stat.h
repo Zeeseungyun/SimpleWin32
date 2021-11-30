@@ -11,13 +11,6 @@ namespace zee {
         typedef std::nano nano_sec_ratio;
 
     private:
-        void temp() {
-            using namespace std::chrono_literals;
-            auto temp3 = 10s;
-            std::chrono::seconds;
-            const float temp1 = from_to<float, sec_ratio, milli_sec_ratio>(10.0f);
-        }
-
         template<typename T, typename ToRatioT, typename FromRatioT>
         struct from_to_impl {
             static constexpr T op(T v) noexcept {
@@ -69,7 +62,7 @@ namespace zee {
 #undef ZEE_DEFINE_CONVERT_FROM_TO
     };
 
-    template<typename ClockT = std::chrono::high_resolution_clock>
+    template<typename ClockT = std::chrono::steady_clock>
     struct simple_stat : simple_stat_base {
         ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(simple_stat);
         typedef ClockT clock_type;

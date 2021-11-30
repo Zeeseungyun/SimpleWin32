@@ -36,20 +36,17 @@
     <ClInclude Include="application\application_delegates.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="application\win32\application_win32.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="application\tick_manager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="stat\simple_stat.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="application\key_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="win32gdi\color.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="win32gdi\device_context.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -69,6 +66,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="application\tick_manager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="application\key_state.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

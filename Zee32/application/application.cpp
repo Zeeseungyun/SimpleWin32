@@ -1,10 +1,13 @@
 #include "application.h"
 #include "application_delegates.h"
+#include <zlog/zlog.h>
 #include "../win32helper/windows_with_macro.h"
+#include "../win32helper/win32helper.h"
 #include "../win32gdi/device_context.h"
 #include "../stat/simple_stat.h"
 #include "tick_manager.h"
-#include <zlog/zlog.h>
+#include "key_state.h"
+
 
 using namespace zee;
 
@@ -59,6 +62,7 @@ float g_fps = 0.0f;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
+bool vsync_off = true;
 int
 #if defined(_M_CEE_PURE)
 __clrcall
@@ -120,31 +124,16 @@ ZEE_WINMAIN_NAME(
 
 	HWND h_wnd = app_inst->window_handle<HWND>();
 	
-	zee::simple_stat<> stat;
 	MSG msg = {};
 	{
-		float gDeltaTime = 0;
-		float gFramerate = 0;
-		int gFrameTick = 0;
-		float gFrameratePerFrameAccum = 0;
-		int gFrameratePerFrameIdx = 0;
-		float gFramerateSecPerFrame[60] = {};
-		float fixedFrame = 120.0f;
-		float perSecAccum = 0.0f;
-		float perSecond = 0.0f;
-		std::chrono::time_point<std::chrono::steady_clock> gPrevTime;
-
-		gPrevTime = std::chrono::steady_clock::now();
-
 		using namespace std::chrono;
 		using namespace std::chrono_literals;
-		std::vector<float> averages;
-		constexpr int frame_count = 60;
-		constexpr std::chrono::duration<float, simple_stat_base::milli_sec_ratio> fps = 1s / (float)frame_count;
-		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
-		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time2 = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
-		std::chrono::duration<float, simple_stat_base::milli_sec_ratio> elapsed_time3 = std::chrono::duration<float, simple_stat_base::milli_sec_ratio>::zero();
-		int count = 0;
+		const int frame_count = 60;
+		const std::chrono::duration<float, simple_stat_base::sec_ratio> fps = 1s / (float)frame_count;
+		std::chrono::duration<float, simple_stat_base::sec_ratio> cur_frame_time = std::chrono::duration<float, simple_stat_base::sec_ratio>::zero();
+		std::chrono::duration<float, simple_stat_base::sec_ratio> accumulated_frame_time = std::chrono::duration<float, simple_stat_base::sec_ratio>::zero();
+
+		zee::simple_stat<> stat;
 		while (true) {
 			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				
@@ -154,66 +143,43 @@ ZEE_WINMAIN_NAME(
 
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
-			}
-			else
-			{
-				//auto now = std::chrono::steady_clock::now();
-				//std::chrono::duration<float> diff = now - gPrevTime;
-				//gPrevTime = now;
-				//gDeltaTime = diff.count();
-				//
-				//gFrameratePerFrameAccum += gDeltaTime - gFramerateSecPerFrame[gFrameratePerFrameIdx];
-				//gFramerateSecPerFrame[gFrameratePerFrameIdx] = gDeltaTime;
-				//gFrameratePerFrameIdx = (gFrameratePerFrameIdx + 1) % 60;
-				//gFramerate = gFrameratePerFrameAccum > 0.0f ? 1.0f / (gFrameratePerFrameAccum / (float)60.0f) : FLT_MAX;
-				//perSecond += gDeltaTime;
-				//g_fps = gFramerate;
-				//
-				//if (perSecAccum < perSecond) {
-				//	perSecond -= perSecAccum;
-				//
-				//} else {
-				//	Sleep(1);
-				//}
-				//InvalidateRect(h_wnd, nullptr, FALSE);
-				//continue;
 
-				auto cur_dur = stat.duration();
-				elapsed_time += cur_dur;
-				elapsed_time2 += cur_dur;
+			} else {
+
+				cur_frame_time += stat.duration();
 				stat.reset();
 
-				if (elapsed_time >= fps) {
-					count++;
-					if (elapsed_time2 >= 1s) {
-						ZEE_LOG(normal, TEXT("Sex"), TEXT("count : %d"), count);
-						count = 0;
-						elapsed_time2 = elapsed_time2.zero();
-					}
-					auto temp_elapsed = elapsed_time;
-					elapsed_time = elapsed_time * 0.5f + elapsed_time3 * 0.5f;
-					elapsed_time3 = elapsed_time;
-					g_fps = 1000.0f / elapsed_time.count();
-					elapsed_time = elapsed_time.zero();
+				if (cur_frame_time >= fps || vsync_off) {
+					auto delta_time = cur_frame_time;
+					zee::simple_stat<> tick_stat;
 
-					zee::simple_stat<> stat2;
-					tick_manager::get().pre_tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
-					temp_elapsed += stat2.duration();
-					stat2.reset();
-					tick_manager::get().tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
-					temp_elapsed += stat2.duration();
-					tick_manager::get().post_tick.broadcast(simple_stat_base::milli_sec_to_sec(temp_elapsed.count()));
+					tick_manager::get().pre_tick.broadcast(delta_time.count());
+					delta_time += tick_stat.duration();
+					tick_stat.reset();
 
-					//ZEE_LOG(normal, TEXT("tick"), TEXT("average inserted sec : [%f]"), count, stat2.duration().count());
+					key_state::get().internal_use_update(delta_time.count());
+					delta_time += tick_stat.duration();
+					tick_stat.reset();
+
+					tick_manager::get().tick.broadcast(delta_time.count());
+					delta_time += tick_stat.duration();
+					tick_stat.reset();
+
+					tick_manager::get().post_tick.broadcast(delta_time.count());
+
+					accumulated_frame_time = cur_frame_time * 0.1f + accumulated_frame_time * 0.9f;
+					g_fps = math::reciprocal(accumulated_frame_time.count());
+					cur_frame_time = cur_frame_time.zero();
+
 					InvalidateRect(h_wnd, nullptr, FALSE);
-				}
+				} 
 			}
 		}
 	}
 
 	app_inst->app_config_().save();
 	app_inst.reset();
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -230,11 +196,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	{
 		win32gdi::device_context_auto temp_dc1(hWnd, win32gdi::device_context_auto_type::temp);
-		temp_dc1.change_brush_color(win32gdi::colors::Yellow);
+		temp_dc1.change_brush_color(win32gdi::colors::yellow);
 		temp_dc1.rectangle({ 100,100,400,400 });
 
 		win32gdi::device_context_auto temp_dc2(hWnd, win32gdi::device_context_auto_type::temp);
-		temp_dc2.change_brush_color(win32gdi::colors::Green);
+		temp_dc2.change_brush_color(win32gdi::colors::green);
 		temp_dc2.rectangle({ 10,10,200,200 });
 
 		temp_dc1.rectangle({ 100,500,400,400 });
@@ -248,10 +214,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		return 0;
 	}
+	case WM_MOVING:
+	{
+		return 0;
+	}
+	case WM_SIZING:
+	{
+		ZEE_LOG(normal, TEXT("wndproc"), TEXT("WM_SIZING"));
+		return 0;
+	}
 	case WM_SIZE:
 	{
-		auto& app = application::get();
-		int d = 0;
+		ZEE_LOG(normal, TEXT("wndproc"), TEXT("WM_SIZE"));
+		WINDOWPLACEMENT pl = {};
+		if (GetWindowPlacement(app_inst->window_handle<HWND>(), &pl)) {
+			const auto rc = to_zee(pl.rcNormalPosition);
+			const auto new_size = rc.size();
+			app_inst->config_().window_size = new_size;
+			application_delegates::on_window_size_changed().broadcast(new_size);
+		}
+		return 0;
+	}
+	case WM_KEYDOWN:
+	{
+		if (wParam == 'V') {
+			vsync_off = !vsync_off;
+			ZEE_LOG(normal, TEXT("tick"), TEXT("vsync_off changed [%s]"), to_tstring(vsync_off).c_str());
+		}
 		return 0;
 	}
 	case WM_CHAR:
@@ -281,6 +270,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				temp_back_buffer->create_empty_image(temp_dc.get_bitmap_size());
 			}
 
+			if (key_state::is_down(keys::escape)) {
+				PostQuitMessage(0);
+				return 0;
+			}
+
+			static simple_stat<> ssss;
+			if (ssss.sec() > 0.5f) {
+				ZEE_LOG(normal, TEXT("test key"), TEXT("%s"), to_tstring(key_state::is_toggle_on(keys::A)).c_str());
+				ssss.reset();
+			}
+
 			if (temp_back_buffer->is_valid()) {
 				win32gdi::device_context_dynamic temp_image;
 				temp_image.load_image(TEXT("./assets/testyjj.bmp"));
@@ -304,4 +304,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
+}
+
+void zee::application::change_window_size(const math::vec2i& new_window_size) noexcept {
+	WINDOWPLACEMENT pl = {};
+	if (GetWindowPlacement(window_handle<HWND>(), &pl)) {
+		shape::recti rc = to_zee(pl.rcNormalPosition);
+		rc.data[1] += new_window_size;
+
+		if (rc.width() <= 0 || rc.height() <= 0) {
+			ZEE_LOG_DETAIL(warning, TEXT("application"), TEXT("change_window_size failed. "));
+			return;
+		}
+
+		pl.rcNormalPosition = to_win32(rc);
+		SetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
+	} else {
+		ZEE_LOG_DETAIL(warning, TEXT("application"), TEXT("change_window_size failed. [%s]"), 
+			win32helper::last_error_to_tstring().c_str());
+	}
+}
+
+void zee::application::change_window_position(const math::vec2i& new_window_position) noexcept {
+	WINDOWPLACEMENT pl = {};
+	if (GetWindowPlacement(window_handle<HWND>(), &pl)) {
+		shape::recti rc = to_zee(pl.rcNormalPosition);
+		rc.data[0] += new_window_position;
+		rc.data[1] += new_window_position;
+
+		pl.rcNormalPosition = to_win32(rc);
+		SetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
+	} else {
+		ZEE_LOG_DETAIL(warning, TEXT("application"), TEXT("change_window_position failed. [%s]"), 
+			win32helper::last_error_to_tstring().c_str());
+	}
 }

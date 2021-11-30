@@ -109,9 +109,6 @@
     <ClCompile Include="private\core\random.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="private\core\string.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="private\zconfig\zconfig.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>

@@ -21,8 +21,8 @@ namespace zee {
 	void tick_manager::on_pre_tick(float delta_time) {
 
 		if (!rand(0, 100)) {
-			ZEE_LOG(normal, TEXT("tick"), TEXT("test sleep ocurrs!"));
-			Sleep(100);
+			//ZEE_LOG(normal, TEXT("tick"), TEXT("test sleep ocurrs!"));
+			//Sleep(100);
 		}
 		//ZEE_LOG(normal, TEXT("tick"), TEXT("on_pre_tick[%f]"), delta_time);
 		tick_impl(pre_tickables_, delta_time);
