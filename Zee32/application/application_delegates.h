@@ -33,13 +33,13 @@ namespace zee {
 			return inst().on_destroied_;
 		}
 
-		static multicast_delegate<void(const math::vec2i&)>& on_window_size_changed() noexcept {
-			return inst().on_window_size_changed_;
+		static multicast_delegate<void(const math::vec2i&)>& on_client_size_changed() noexcept {
+			return inst().on_client_size_changed_;
 		}
 
 	private:
 		multicast_delegate<void(application&)> on_started_;
-		multicast_delegate<void(const math::vec2i&/*new_window_size*/)> on_window_size_changed_;
+		multicast_delegate<void(const math::vec2i&/*new_window_size*/)> on_client_size_changed_;
 		multicast_delegate<void(void)> on_minimized_;
 		multicast_delegate<void(const math::vec2i&/*new_window_size*/)> on_maximized_;
 		multicast_delegate<void(void)> on_destroied_;

@@ -396,6 +396,10 @@ namespace win32gdi {
 		}
 	}
 
+	void device_context_dynamic::resize(const math::vec2i& new_size) {
+		(void)create_empty_image(new_size);
+	}
+
 	void device_context_dynamic::move_from(device_context_dynamic&& other) noexcept {
 		if (this != &other) {
 			clear();

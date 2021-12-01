@@ -178,6 +178,7 @@ namespace win32gdi {
 
 		bool create_empty_image(const math::vec2i& new_size);
 		void clear() noexcept;
+		void resize(const math::vec2i& new_size);
 
 	protected:
 		void move_from(device_context_dynamic&& other) noexcept;

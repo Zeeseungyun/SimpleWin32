@@ -20,7 +20,10 @@ namespace zee {
 			tstring app_name = TEXT("my app");
 			math::vec2i window_position = { 0, 0 };
 			math::vec2i window_size = { 1024, 1024 };
-			bool maximize = false;
+			math::vec2i client_size = { 1024, 1024 };
+			int frame_count = 60;
+			bool vsync = true;
+			bool maximize = true;
 		};
 
 	protected:
@@ -63,22 +66,37 @@ struct nlohmann::adl_serializer<zee::application::config_data> {
 	static void to_json(json& j, const data_type& c) {
 		j =
 		{
-			{"app_name", c.app_name},
-			{"window_position", c.window_position},
-			{"window_size", c.window_size},
-			{"maximize", c.maximize}
+			{"app_name"			, c.app_name},
+			{"window_position"	, c.window_position},
+			{"window_size"		, c.window_size},
+			{"client_size"		, c.client_size},
+			{"frame_count"		, c.frame_count},
+			{"vsync"			, c.vsync},
+			{"maximize"			, c.maximize}
 		};
 	}
 
 	static void from_json(const json& j, data_type& c) {
 		using namespace zee;
 		bool is_valid = false;
-		auto list = json_helper::safety_get_members(is_valid, j, "app_name", "window_position", "window_size", "maximize");
+		const auto list = json_helper::safety_get_members(is_valid, j
+			, "app_name"
+			, "window_position"
+			, "window_size"
+			, "client_size"
+			, "frame_count"
+			, "vsync"
+			, "maximize"
+		);
+
 		if (is_valid) {
 			c.app_name			= to_tstring(list[0].value());
 			c.window_position	= list[1].value();
 			c.window_size		= list[2].value();
-			c.maximize			= list[3].value();
+			c.client_size		= list[3].value();
+			c.frame_count		= list[4].value();
+			c.vsync				= list[5].value();
+			c.maximize			= list[6].value();
 		} else {
 			c = data_type{};
 		}

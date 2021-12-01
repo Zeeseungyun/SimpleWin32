@@ -821,7 +821,8 @@ namespace keys {
 
 	private:
 		ZEE_DEFINE_REMOVE_MOVE_AND_COPY_FUNCTION(key_state);
-	
+
+	private:
 		key_state() noexcept
 			: keys_{}, durations_{} {
 		}
@@ -837,11 +838,19 @@ namespace keys {
 		static bool is_down(const key& k) noexcept {
 			return get().keys_[k.value].value & 0xF0;
 		}
-	
+
 		static bool is_up(const key& k) noexcept {
 			return !is_down(k);
 		}
-	
+
+		static bool is_pressed(const key& k) {
+			return is_down(k) && key_duration(k) == 0.0f;
+		}
+
+		static bool is_released(const key& k) {
+			return is_up(k) && key_duration(k) == 0.0f;
+		}
+
 		static bool is_toggle_on(const key& k) noexcept {
 			return get().keys_[k.value].value & 0x0F;
 		}
@@ -855,11 +864,6 @@ namespace keys {
 		//ret == 0 ? (current key up or down) : (ret > 0 ? down duration : up duration)
 		static duration_type key_duration(const key& k) noexcept {
 			return get().durations_[k.value];
-		}
-	
-		//ret == 0 ? (current key up or down) : (ret > 0 ? down duration : up duration)
-		static duration_type key_status(const key& k) noexcept {
-			return get().keys_[k.value] & 0xF0;
 		}
 	
 		//Do not call this function directly.
