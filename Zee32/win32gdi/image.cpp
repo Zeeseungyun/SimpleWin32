@@ -46,8 +46,8 @@ namespace win32gdi {
 
 	image_load_result load_image(handle_t& out_handle, const tstring& file_path) noexcept {
 		out_handle = NULL;
-
-		if (!application::get().is_started()) {
+		auto& app = application::get();
+		if (!app.is_started()) {
 			return image_load_result::failed_application_not_started;
 		}
 		
@@ -55,21 +55,18 @@ namespace win32gdi {
 			return image_load_result::failed_not_exist_image;
 		}
 
-		handle_t window_handle = application::get().window_handle();
-		if (window_handle == NULL) {
+		if (!app.window_handle()) {
 			return image_load_result::failed_application_window_handle_invalid;
 		}
 
-		handle_t instance_handle = application::get().instance_handle();
-		HBITMAP loaded_bitmap = (HBITMAP)LoadImage((HINSTANCE)instance_handle, file_path.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		if (loaded_bitmap == NULL) {
+		out_handle = LoadImage(app.instance_handle<HINSTANCE>(), file_path.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		if (out_handle == NULL) {
 			ZEE_LOG_DETAIL(warning, TEXT("image"), TEXT("load_image is failed. detail: [%s]"), 
 				win32helper::last_error_to_tstring().c_str()
 			);
 			return image_load_result::failed_unknown_check_output_debug;
 		}
 
-		out_handle = loaded_bitmap;
 		return image_load_result::success;
 	}
 }//namespace zee::win32gdi 

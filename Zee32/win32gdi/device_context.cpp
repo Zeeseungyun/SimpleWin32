@@ -310,9 +310,15 @@ namespace win32gdi {
 	}
 
 	bool device_context_dynamic::clone(device_context_dynamic& out_object) {
+		assert(this != &out_object);
 		out_object.clear();
-		out_object.create_empty_image(out_object.get_bitmap_size());
-
+		if (is_valid()) {
+			const auto bitmap_size = get_bitmap_size();
+			if (!bitmap_size.is_zero()) {
+				out_object.create_empty_image(bitmap_size);
+				bit_blt(out_object, {});
+			}
+		}
 		return true;
 	}
 
@@ -335,10 +341,6 @@ namespace win32gdi {
 	device_context_dynamic::~device_context_dynamic() {
 		clear();
 	}
-
-#define ZEE_SELECT_GDIOBJ(handle_name, new_handle_object)  \
-		handle_##handle_name##_.new_handle = new_handle_object; \
-		handle_##handle_name##_.old_handle = SelectObject((HDC)handle_dc_, handle_##handle_name##_.new_handle);  \
 
 	bool device_context_dynamic::load_image(const tstring& str) {
 		if (!create_if_has_no_dc()) {
@@ -388,30 +390,26 @@ namespace win32gdi {
 	void device_context_dynamic::clear() noexcept {
 		if (handle_dc_) {
 			handle_image_.clear(handle_dc());
-			//handle_font_.clear(handle_dc());
-			//handle_brush_.clear(handle_dc());
-			//handle_pen_.clear(handle_dc());
 			DeleteObject(handle_dc_);
 			handle_dc_ = NULL;
 		}
 	}
 
 	void device_context_dynamic::resize(const math::vec2i& new_size) {
-		(void)create_empty_image(new_size);
+		if (new_size.x > 0 && new_size.y > 0) {
+			if (get_bitmap_size() != new_size) {
+				create_empty_image(new_size);
+			}
+		}
 	}
 
 	void device_context_dynamic::move_from(device_context_dynamic&& other) noexcept {
 		if (this != &other) {
 			clear();
 			handle_image_ = other.handle_image_;
-			//handle_font_ = other.handle_font_;
-			//handle_brush_ = other.handle_brush_;
-			//handle_pen_ = other.handle_pen_;
-			bitmap_desc_ = other.bitmap_desc_;
+			bitmap_desc_ = std::move(other.bitmap_desc_);
 			handle_dc_ = other.handle_dc_;
 
-			//other.handle_brush_ = other.handle_pen_ = 
-			//other.handle_font_ = 
 			other.handle_image_ = handle_pair{};
 			other.bitmap_desc_.clear();
 			other.handle_dc_ = NULL;

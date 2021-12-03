@@ -178,6 +178,7 @@ ZEE_WINMAIN_NAME(
 	}
 
 	app_inst->app_config_().save();
+	application_delegates::on_destroied().broadcast();
 	app_inst.reset();
 	return (int)msg.wParam;
 }
@@ -187,6 +188,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	if (!temp_back_buffer) {
 		temp_back_buffer = std::make_shared< win32gdi::device_context_dynamic>();
 		application_delegates::on_client_size_changed().add_sp(temp_back_buffer, &win32gdi::device_context_dynamic::resize);
+
+		application_delegates::on_destroied().add_sp(temp_back_buffer, &win32gdi::device_context_dynamic::clear);
 	}
 
 	//https://docs.microsoft.com/en-us/windows/win32/winmsg/window-notifications
@@ -225,9 +228,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 	{
-		app_inst->config_().maximize = wParam == SIZE_MAXIMIZED;
+		app_inst->config_().maximize = false;
+		switch (wParam)
+		{
+		case SIZE_MAXIMIZED:
+			app_inst->config_().maximize = true;
+			application_delegates::on_maximized().broadcast();
+			break;
+		case SIZE_MINIMIZED:
+			application_delegates::on_minimized().broadcast();
+			break;
+		default:
+			break;
+		}
+
 		return 0;
 	}//WM_SIZE
+
 	case WM_PAINT:
 	{
 		if (key_state::is_pressed(keys::A)) {

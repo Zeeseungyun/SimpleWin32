@@ -116,9 +116,6 @@ namespace win32gdi {
 	protected:
 		handle_t handle_dc_;
 		handle_pair handle_image_;
-		//handle_pair handle_font_;
-		//handle_pair handle_brush_;
-		//handle_pair handle_pen_;
 
 	};
 
@@ -159,7 +156,6 @@ namespace win32gdi {
 		public interfaces::cloneable<device_context_dynamic> {
 	private:
 		ZEE_DEFINE_REMOVE_COPY_FUNCTION(device_context_dynamic);
-		typedef device_context_base parent_class;
 
 	public:
 		//~begin interfaces::cloneable<device_context_dynamic>
@@ -175,7 +171,6 @@ namespace win32gdi {
 		const simple_bitmap_desc& get_bitmap_desc() const noexcept { return bitmap_desc_; }
 
 		bool load_image(const tstring& str);
-
 		bool create_empty_image(const math::vec2i& new_size);
 		void clear() noexcept;
 		void resize(const math::vec2i& new_size);

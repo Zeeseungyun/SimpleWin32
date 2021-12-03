@@ -45,6 +45,12 @@
     <ClInclude Include="application\key_state.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="world\world.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="world\toy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32gdi\device_context.cpp">
@@ -69,6 +75,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="application\key_state.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="world\world.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="world\toy.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
