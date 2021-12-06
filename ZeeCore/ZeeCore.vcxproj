@@ -178,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\core\random.cpp" />
+    <ClCompile Include="private\shape\intersect.cpp" />
     <ClCompile Include="private\zconfig\zconfig.cpp" />
     <ClCompile Include="private\file\path.cpp" />
     <ClCompile Include="private\zlog\zlog.cpp" />

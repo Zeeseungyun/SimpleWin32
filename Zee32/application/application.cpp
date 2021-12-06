@@ -7,114 +7,12 @@
 #include "../stat/simple_stat.h"
 #include "tick_manager.h"
 #include "key_state.h"
-#include <../public/shape/intersect.h>
+
+#include "../stage/monster.h"
+#include <shape/intersect.h>
 #pragma comment(lib, "winmm.lib")
 
 using namespace zee;
-
-
-//함수 원형
-void init_game();
-void set_timer(const HWND& hWnd, const int& num, const float& time_cycle);
-void kill_timer(const HWND& hWnd, const int& num);
-void change_var_ingame(const HWND& hWnd);
-void change_var_ending(const HWND& hWnd);
-//상수
-enum const_variable {
-	TIMER_CYCLE = 1000,	//시간 표시
-	TIME_LIMIT = 50,	//제한시간
-	KILL_REMAIN = 3,	//단계별 남은 처치 수
-	KILL_REMAIN_CLEAR = 36,	//클리어까지 남은 처치 수
-	SPAWN_MONSTER_MAX = 2,	//동시 스폰할 몬스터 수
-	SPAWN_CYCLE_1 = 1000,	//몬1 최초 스폰 주기
-	SPAWN_CYCLE_2 = 1500,	//몬2 최초 스폰 주기
-	DIG_NUM = 6		//두더지 구멍 개수
-};
-//좌표
-static bool pos[DIG_NUM];	//몬스터 이미 스폰된 자리에 다른 몬스터 스폰 안 하기 위함
-const enum e_coord {
-	lefttop_lt, lefttop_rb, middletop_lt, middletop_rb, righttop_lt, righttop_rb,
-	leftmiddle_lt, leftmiddle_rb, middlemiddle_lt, middlemiddle_rb, rightmiddle_lt, rightmiddle_rb,
-	DigMax,	//랜덤범위에 쓰임
-	//타이틀
-	title_st, title_st2, title_st3, title_st4, title_st5,
-	title_ending_box_lt, title_ending_box_rb,
-	//인게임
-	stagebox_lt, stagebox_rb,
-	time_st, score_st, stage_st, time_limit_st,
-	time_num, score_num, stage_num, time_limit_num,
-	kill_remain_clear_st, kill_remain_st, spawn_1_speed_st, spawn_2_speed_st,
-	kill_remain_clear_num, kill_remain_num, spawn_1_speed_num, spawn_2_speed_num,
-	//엔딩
-	ending_st, ending_st2, time_taken, time_taken_num, score_final, score_final_num,
-	Max
-};
-static const math::vec2i coord_list[Max] = {
-	{100, 100}, {200, 200},	{300, 100}, {400, 200},	{500, 100}, {600, 200},
-	{100, 300}, {200, 400},	{300, 300}, {400, 400},	{500, 300}, {600, 400},
-	{0, 0},
-	//타이틀
-	{240, 310}, {234, 290}, {234, 330}, {264, 360}, {294, 380},
-	{220, 250}, {480, 450},
-	//인게임
-	{230, 470}, {460, 650},
-	{240, 480}, {240, 500}, {240, 520}, {240, 540},
-	{296, 480}, {296, 500}, {326, 520}, {326, 540},
-	{240, 560}, {240, 580}, {240, 600}, {240, 620},
-	{410, 560}, {432, 580}, {370, 600}, {370, 620},
-	//엔딩
-	{300, 300}, {262, 400}, {290, 340}, {400, 340}, {290, 360}, {340, 360},
-};
-//게임 상태
-enum e_game_state {
-	TITLE,
-	INGAME,
-	ENDING,
-};
-//전역 변수(점수, 시간 등)
-static int game_state;
-static int timer;
-static int score;
-static int now_stage;
-static int time_limit;
-static int kill_remain;
-static int kill_remain_clear;
-static const float spawn_coef = 0.8f;	//단계별 더 빠른 스폰 위함. 현재 스폰 주기 * 계수
-//입력
-static math::vec2i mouse_position;
-//몬스터(뚜떠쥐)
-enum e_monster_state {
-	NONE,
-	SPAWN,
-	ALIVE,
-	DIE
-};
-class monster {
-public:
-	explicit monster() noexcept : state(NONE), rand_pos(0), rand_rect({ 2000,2000,2000,2000 }) {}	//mouse_position과 최초 안 겹치게 하기 위함
-	virtual ~monster() noexcept {}
-	void spawn();
-	void attacked(const HWND& hWnd);
-	void render_ani(const HWND& hWnd, win32gdi::device_context_auto& temp_dc, win32gdi::device_context_dynamic& temp_image,
-		std::shared_ptr<win32gdi::device_context_dynamic>& temp_back_buffer);
-	void spawn_ani(const HWND& hWnd, win32gdi::device_context_auto& temp_dc, win32gdi::device_context_dynamic& temp_image,
-		std::shared_ptr<win32gdi::device_context_dynamic>& temp_back_buffer) const;
-	void attacked_ani(const HWND& hWnd, win32gdi::device_context_auto& temp_dc, win32gdi::device_context_dynamic& temp_image,
-		std::shared_ptr<win32gdi::device_context_dynamic>& temp_back_buffer) const;
-	void set_state(const int& other_state);
-	void set_rand_pos(const int& other_rand_pos);
-	void set_rand_rect(const shape::recti& other_rand_rect);
-	const int& get_state() const;
-	const int& get_rand_pos() const;
-	const shape::recti& get_rand_rect() const;
-private:
-	int state;
-	int rand_pos;	//랜덤 번째
-	shape::recti rand_rect;		//랜덤 번째로 생성한 클릭 범위 (히트박스)
-};
-//몬스터 전역 객체와 변수
-static std::vector<monster> monsters(SPAWN_MONSTER_MAX);
-static float spawn_cycle[SPAWN_MONSTER_MAX] = { SPAWN_CYCLE_1, SPAWN_CYCLE_2 };
 
 //-------------------------------------------------------------------------------------------
 //win main
@@ -149,7 +47,7 @@ public:
 	using application::is_started_;
 
 	application_win32() {
-
+		
 	}
 };
 
@@ -367,6 +265,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		case 1:
 			if (timer >= TIME_LIMIT) {
 				change_var_ending(hWnd);
+				change_monster_ending();
 			}
 			else {
 				timer++;
@@ -387,7 +286,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		mouse_position.y = (int32)(short)HIWORD(lParam);
 
 		for (monster& mon : monsters) {
-			if (intersect(mon.get_rand_rect(), mouse_position) != shape::collide_type::none) {
+			if (shape::intersect(mon.get_rand_rect(), mouse_position) != shape::collide_type::none) {
 				mon.attacked(hWnd);
 			}
 		}
@@ -398,6 +297,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	{
 		if (game_state == TITLE) {
 			init_game();
+			init_monster();
 			set_timer(hWnd, 1, TIMER_CYCLE);	//게임 시간 표시
 			for (int i = 0; i != SPAWN_MONSTER_MAX; i++) {	//몬스터 스폰 타이머
 				set_timer(hWnd, i + 2, spawn_cycle[i]);
@@ -465,7 +365,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				temp_back_buffer->print_text(coord_list[time_num], to_tstring(to_wstring(timer)));
 				temp_back_buffer->print_text(coord_list[score_num], to_tstring(to_wstring(score)));
 
-				//초당 두더쥐 1,2 수 정보를 "다른 위치"에 표시하기 위해 함수로 안 뺌. 1000 / 주기
+				//초당 두더쥐 1,2 수 정보를 다른 위치에 표시하기 위해 함수로 안 뺌. 1000 / 주기
 				temp_back_buffer->print_text(coord_list[spawn_1_speed_num], to_tstring(to_wstring(1000 / spawn_cycle[0])));
 				temp_back_buffer->print_text(coord_list[spawn_2_speed_num], to_tstring(to_wstring(1000 / spawn_cycle[1])));
 
@@ -532,131 +432,5 @@ void zee::application::change_window_size(const math::vec2i& new_window_size) no
 void zee::application::change_window_position(const math::vec2i& new_window_position) noexcept {
 	if (is_started()) {
 		MoveWindow(window_handle<HWND>(), new_window_position.x, new_window_position.y, config().window_size.x, config().window_size.y, FALSE);
-	}
-}
-
-
-//----------------------------------------------------------------------------------------------
-//함수 정의
-//----------------------------------------------------------------------------------------------
-//타이머
-void set_timer(const HWND& hWnd, const int& num, const float& time_cycle) {
-	SetTimer(hWnd, num, static_cast<int>(time_cycle), nullptr);
-}
-void kill_timer(const HWND& hWnd, const int& num) {
-	KillTimer(hWnd, num);
-}
-//타이틀에서 게임 초기화
-void init_game() {
-	game_state = TITLE;
-	now_stage = 1;
-	timer = 0;
-	score = 0;
-	mouse_position = { 0, 0 };
-	kill_remain = KILL_REMAIN;
-	kill_remain_clear = KILL_REMAIN_CLEAR;
-	spawn_cycle[0] = SPAWN_CYCLE_1;
-	spawn_cycle[1] = SPAWN_CYCLE_2;
-	time_limit = TIME_LIMIT;
-	for (monster& mon : monsters) {
-		monsters.pop_back();
-	}
-	monsters.resize(SPAWN_MONSTER_MAX);
-}
-//몬스터 함수
-inline const int& monster::get_state() const {
-	return state;
-}
-inline const int& monster::get_rand_pos() const {
-	return rand_pos;
-}
-inline const shape::recti& monster::get_rand_rect() const {
-	return rand_rect;
-}
-inline void monster::set_state(const int& other_state) {
-	state = other_state;
-}
-inline void monster::set_rand_pos(const int& other_rand_pos) {
-	rand_pos = other_rand_pos;
-}
-inline void monster::set_rand_rect(const shape::recti& other_rand_rect) {
-	rand_rect.left = other_rand_rect.left;
-	rand_rect.top = other_rand_rect.top;
-	rand_rect.right = other_rand_rect.right;
-	rand_rect.bottom = other_rand_rect.bottom;
-}
-inline void monster::spawn() {
-	rand_pos = rand(0, DigMax / 2 - 1);
-	pos[rand_pos] = true;
-	rand_rect = { coord_list[rand_pos * 2], coord_list[rand_pos * 2 + 1] }; //터치 영역 (마우스 포인터 점과 사각형 충돌)
-	state = ALIVE;
-}
-inline void monster::attacked(const HWND& hWnd) {
-	if (state == ALIVE) {
-		state = DIE;
-		pos[rand_pos] = false;
-		PlaySound(TEXT("./assets/Hit_Hurt14.wav"), nullptr, SND_ASYNC);
-		change_var_ingame(hWnd);
-	}
-}
-//스폰, 어택 애니 호출
-inline void monster::render_ani(const HWND& hWnd, win32gdi::device_context_auto& temp_dc, win32gdi::device_context_dynamic& temp_image,
-	std::shared_ptr<win32gdi::device_context_dynamic>& temp_back_buffer) {
-	if (state == ALIVE) {
-		spawn_ani(hWnd, temp_dc, temp_image, temp_back_buffer);
-	}
-	else if (state == DIE) {
-		attacked_ani(hWnd, temp_dc, temp_image, temp_back_buffer);
-	}
-}
-inline void monster::spawn_ani(const HWND& hWnd, win32gdi::device_context_auto& temp_dc, win32gdi::device_context_dynamic& temp_image,
-	std::shared_ptr<win32gdi::device_context_dynamic>& temp_back_buffer) const {
-	temp_image.load_image(TEXT("./assets/monster_spawn.bmp"));
-	temp_image.transparent_blt(*temp_back_buffer, coord_list[rand_pos * 2], RGB(195, 195, 195));
-	temp_image.clear();
-}
-inline void monster::attacked_ani(const HWND& hWnd, win32gdi::device_context_auto& temp_dc, win32gdi::device_context_dynamic& temp_image,
-	std::shared_ptr<win32gdi::device_context_dynamic>& temp_back_buffer) const {
-	temp_image.load_image(TEXT("./assets/monster_die.bmp"));
-	temp_image.transparent_blt(*temp_back_buffer, coord_list[rand_pos * 2], RGB(195, 195, 195));
-	temp_image.clear();
-}
-//두더쥐 사망 시 스테이지 변수 변동
-void change_var_ingame(const HWND& hWnd) {
-	score++;
-	kill_remain--;
-	kill_remain_clear--;
-	if (kill_remain_clear <= 0) {
-		change_var_ending(hWnd);
-	}
-	else if (kill_remain <= 0) {
-		now_stage++;
-		kill_remain = KILL_REMAIN * now_stage;
-		//스테이지 상승 시 : 현재 사이클 * 계수
-		for (int i = 0; i != SPAWN_MONSTER_MAX; i++) {
-			if (spawn_cycle[i] * spawn_coef > 0) {
-				spawn_cycle[i] *= spawn_coef;
-			}
-		}
-
-		//몬스터 스폰 시간 가속해서 갱신
-		for (int i = 0; i != SPAWN_MONSTER_MAX; i++) {
-			kill_timer(hWnd, i + 2);
-			set_timer(hWnd, i + 2, spawn_cycle[i]);
-		}
-	}
-}
-//게임 종료 시 (제한시간 종료, 두더쥐 처치수 만족)
-void change_var_ending(const HWND& hWnd) {
-
-	game_state = ENDING;
-
-	for (monster& mon : monsters) {
-		mon.set_rand_rect({ 2000, 2000, 2000, 2000 });
-	}
-
-	kill_timer(hWnd, 1);
-	for (int i = 0; i != SPAWN_MONSTER_MAX; i++) {
-		kill_timer(hWnd, i + 2);
 	}
 }
