@@ -2,12 +2,11 @@
 #include <math/vec/vec.h>
 #include <interfaces/tickable.h>
 #include <memory>
-namespace zee {
-	class world;
+#include "world.h"
 
+namespace zee {
 	class toy : public std::enable_shared_from_this<toy>, public interfaces::tickable {
 	public:
-
 		const math::vec2f& get_position() const {
 			return position;
 		}
@@ -24,8 +23,11 @@ namespace zee {
 	};
 
 	template<typename ToyT>
-	static std::shared_ptr<ToyT> make_toy() {
-
+	std::enable_if_t<std::is_base_of<toy, ToyT>::value, std::shared_ptr<ToyT>> 
+		spawn_toy() {
+		if (auto current_world = world::current_world().lock()) {
+			current_world->
+		}
 	}
 
 }//namespace zee

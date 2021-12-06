@@ -23,26 +23,5 @@ namespace file {
 
 	bool exists(const tstring& file_path) noexcept;
 
-	template<typename T>
-	tstring type_to_path() noexcept {
-		const tstring class_names[] = { TEXT("struct"), TEXT("class"), TEXT(" ") };
-
-		tstring ret = to_tstring(typeid(T).name());
-
-		size_t found_offset = tstring::npos;
-		for (const auto& elem : class_names) {
-			found_offset = ret.find(elem);
-			if (found_offset != tstring::npos) {
-				ret.erase(found_offset, elem.size());
-			}
-		}
-
-		while ((found_offset = ret.find(TEXT("::"))) != tstring::npos) {
-			ret.replace(found_offset, 2, TEXT("/"));
-		}
-
-		return ret;
-	}
-
 }//namespace zee::file
 }//namespace zee 

@@ -13,9 +13,23 @@
 #include <thread>
 #include "inline_func.h"
 #include <iostream>
+#include <functional>
+
+struct A {
+	A() {
+		std::cout << "sibla";
+	}
+};
+
+struct B : A {
+
+};
 
 int main()
 {
-	int arr[] = { 1,2.0f, 3 };
+	std::function<void(A*&)> ff = [](A*& p){
+		new (p)B();
+	};
+
 	return 0;
 }
