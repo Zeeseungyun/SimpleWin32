@@ -116,7 +116,7 @@ namespace impl {
 				math::max(get_left(), get_right()), math::max(get_top(), get_bottom())
 			};
 		}
-
+		/*
 		template<typename OtherElemT>
 		constexpr std::enable_if_t<is_vec_element<OtherElemT>::value, bool>
 			intersect_rect(const basic_rect_impl<OtherElemT>& other) const noexcept {
@@ -176,7 +176,7 @@ namespace impl {
 			}
 
 			return basic_rect_impl<promotion_t>{};
-		}
+		}*/
 
 	};
 

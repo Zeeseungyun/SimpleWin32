@@ -22,6 +22,7 @@
     <ClInclude Include="application\application.h" />
     <ClInclude Include="application\application_delegates.h" />
     <ClInclude Include="application\key_state.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="world\world.h" />
     <ClInclude Include="stat\simple_stat.h" />
     <ClInclude Include="win32gdi\color.h" />
@@ -48,6 +49,19 @@
     <ProjectReference Include="..\ZeeCore\ZeeCore.vcxproj">
       <Project>{478bde6e-8546-4369-aad5-1dff0d6904d8}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Zee32.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\back.bmp" />
+    <Image Include="assets\click.bmp" />
+    <Image Include="assets\dig.bmp" />
+    <Image Include="assets\monster_die.bmp" />
+    <Image Include="assets\monster_spawn.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\Hit_Hurt14.wav" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -103,19 +117,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\ZeeCore\public</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

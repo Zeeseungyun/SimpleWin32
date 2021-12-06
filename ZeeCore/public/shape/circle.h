@@ -67,12 +67,12 @@ namespace impl {
 			radius = (element_type)other.radius;
 			return *this;
 		}
-
+		/*
 		template<typename OtherElemT>
 		constexpr bool intersect(const basic_circle_impl<OtherElemT, true>& other) const noexcept {
 			const promotion_t<element_type, OtherElemT> rad = radius + other.radius;
 			return origin.distance_sq(other.origin) <= rad * rad;
-		}
+		}*/
 	};
 
 }//namespace zee::shape::impl 
