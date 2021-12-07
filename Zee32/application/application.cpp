@@ -9,6 +9,8 @@
 #include "key_state.h"
 
 #include "../stage/monster.h"
+#include "../stage/stage.h"
+#include "../stage/image_data.h"
 #include <shape/intersect.h>
 #pragma comment(lib, "winmm.lib")
 
@@ -190,8 +192,8 @@ ZEE_WINMAIN_NAME(
 	return (int)msg.wParam;
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
+LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	//temp_back_buffer
 	static std::shared_ptr<win32gdi::device_context_dynamic> temp_back_buffer;
@@ -202,12 +204,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		application_delegates::on_destroied().add_sp(temp_back_buffer, &win32gdi::device_context_dynamic::clear);
 	}
 
+
 	//https://docs.microsoft.com/en-us/windows/win32/winmsg/window-notifications
 	switch (iMessage) {
 	case WM_CREATE:
 	{
 		app_inst->is_started_ = true;
 		application_delegates::on_started().broadcast(application::get());
+
+
 		return 0;
 	}//WM_CREATE
 
@@ -263,7 +268,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case 1:
-			if (timer >= TIME_LIMIT) {
+			if (timer >= timer_limit) {
 				change_var_ending(hWnd);
 				change_monster_ending();
 			}
@@ -295,17 +300,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 	{
-		if (game_state == TITLE) {
+		if (game_state == title) {
 			init_game();
 			init_monster();
-			set_timer(hWnd, 1, TIMER_CYCLE);	//게임 시간 표시
-			for (int i = 0; i != SPAWN_MONSTER_MAX; i++) {	//몬스터 스폰 타이머
+			set_timer(hWnd, 1, timer_cycle);	//게임 시간 표시
+			for (int i = 0; i != spawn_monster_max; i++) {	//몬스터 스폰 타이머
 				set_timer(hWnd, i + 2, spawn_cycle[i]);
 			}
-			game_state = INGAME;
+			game_state = ingame;
 		}
-		else if (game_state == ENDING) {
-			game_state = TITLE;
+		else if (game_state == ending) {
+			game_state = title;
 		}
 		return 0;
 	}
@@ -314,14 +319,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
 
 		if (temp_back_buffer && temp_back_buffer->is_valid()) {
-			//공통배경
-			win32gdi::device_context_dynamic temp_image;
-			temp_image.load_image(TEXT("./assets/back.bmp"));
-			temp_image.bit_blt(*temp_back_buffer, {});
-			temp_image.clear();
+
+			//이미지 세팅
+			images.init_load_images();
+			//공통 배경
+			images.back.bit_blt(*temp_back_buffer, {});
 
 			//타이틀
-			if (game_state == TITLE) {
+			if (game_state == title) {
 				temp_back_buffer->rectangle({ coord_list[title_ending_box_lt], coord_list[title_ending_box_rb] });
 				temp_back_buffer->print_text(coord_list[title_st], TEXT("| 버그 두더쥐 잡기 게이임 >_< |"));
 				temp_back_buffer->print_text(coord_list[title_st2], TEXT("┎-------------------------------------------------┒"));
@@ -330,7 +335,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				temp_back_buffer->print_text(coord_list[title_st5], TEXT("만든 이: 유재준"));
 			}
 			//엔딩
-			else if (game_state == ENDING) {
+			else if (game_state == ending) {
 				temp_back_buffer->rectangle({ coord_list[title_ending_box_lt], coord_list[title_ending_box_rb] });
 				temp_back_buffer->print_text(coord_list[ending_st], TEXT("참 잘했어요!"));
 				temp_back_buffer->print_text(coord_list[time_taken], TEXT("걸린 시간(초): "));
@@ -341,7 +346,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				temp_back_buffer->bit_blt(temp_dc, {});
 			}
 			//인게임
-			else if (game_state == INGAME) {
+			else if (game_state == ingame) {
 				temp_back_buffer->rectangle({ coord_list[stagebox_lt], coord_list[stagebox_rb] });
 				temp_back_buffer->print_text(coord_list[stage_st], TEXT("스테이지 : "));
 				temp_back_buffer->print_text(coord_list[time_limit_st], TEXT("제한시간 : "));
@@ -352,16 +357,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				temp_back_buffer->print_text(coord_list[spawn_1_speed_st], TEXT("초당 두더쥐1 수 : "));
 				temp_back_buffer->print_text(coord_list[spawn_2_speed_st], TEXT("초당 두더쥐2 수 : "));
 
-				temp_image.load_image(TEXT("./assets/dig.bmp"));
-				for (int i = 0; i != DIG_NUM; i++) {
-					temp_image.transparent_blt(*temp_back_buffer, coord_list[i * 2], RGB(195, 195, 195));
+				for (int i = 0; i != dig_num; i++) {
+					images.dig.transparent_blt(*temp_back_buffer, coord_list[i * 2], RGB(195, 195, 195));
 				}
-				temp_image.clear();
 
-				temp_back_buffer->print_text(coord_list[stage_num], to_tstring(to_wstring(to_wstring(now_stage))));
+				temp_back_buffer->print_text(coord_list[stage_num], to_tstring(to_wstring(to_wstring(stage_now))));
 				temp_back_buffer->print_text(coord_list[time_limit_num], to_tstring(to_wstring(time_limit)));
-				temp_back_buffer->print_text(coord_list[kill_remain_num], to_tstring(to_wstring(kill_remain)));
-				temp_back_buffer->print_text(coord_list[kill_remain_clear_num], to_tstring(to_wstring(kill_remain_clear)));
+				temp_back_buffer->print_text(coord_list[kill_remain_num], to_tstring(to_wstring(kill_remain_now)));
+				temp_back_buffer->print_text(coord_list[kill_remain_clear_num], to_tstring(to_wstring(kill_remain_clear_now)));
 				temp_back_buffer->print_text(coord_list[time_num], to_tstring(to_wstring(timer)));
 				temp_back_buffer->print_text(coord_list[score_num], to_tstring(to_wstring(score)));
 
@@ -371,9 +374,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 				//생성 및 히트 애니
 				for (monster& mon : monsters) {
-					mon.render_ani(hWnd, temp_dc, temp_image, temp_back_buffer);
+					mon.render_ani(hWnd, temp_dc, temp_back_buffer);
 				}
 			}
+			//fps
+			tstring fps_str = to_tstring(std::to_wstring(g_fps));
+			temp_back_buffer->print_text({}, fps_str);
 
 			//그리기
 			temp_back_buffer->bit_blt(temp_dc, {});

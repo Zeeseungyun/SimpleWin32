@@ -1,29 +1,30 @@
 #pragma once
 #include "../win32gdi/device_context.h"
 #include "../win32helper/win32helper.h"
+#include "image_data.h"
 
 namespace zee {
 	//상수 (enum hack)
-	const enum const_var_stage {
-		TIMER_CYCLE = 1000,	//시간 표시
-		TIME_LIMIT = 50,	//제한시간
-		KILL_REMAIN = 3,	//단계별 남은 처치 수
-		KILL_REMAIN_CLEAR = 36,	//클리어까지 남은 처치 수
-		SPAWN_MONSTER_MAX = 2,	//동시 스폰할 몬스터 수
-		SPAWN_CYCLE_1 = 1000,	//몬1 최초 스폰 주기
-		SPAWN_CYCLE_2 = 1500,	//몬2 최초 스폰 주기
-		DIG_NUM = 6		//두더지 구멍 개수
+	enum const_var_stage {
+		timer_cycle = 1000,	//시간 표시
+		timer_limit = 50,	//제한시간
+		kill_remain = 3,	//단계별 남은 처치 수
+		kill_remain_clear = 36,	//클리어까지 남은 처치 수
+		spawn_monster_max = 2,	//동시 스폰할 몬스터 수
+		spawn_cycle_1 = 1000,	//몬1 최초 스폰 주기
+		spawn_cycle_2 = 1500,	//몬2 최초 스폰 주기
+		dig_num = 6		//두더지 구멍 개수
 	};
 
 	//게임 상태
-	const enum e_game_state {
-		TITLE,
-		INGAME,
-		ENDING,
+	enum e_game_state {
+		title,
+		ingame,
+		ending,
 	};
 
 	//좌표
-	const enum e_coord {
+	enum e_coord {
 		//구덩이
 		lefttop_lt, lefttop_rb, middletop_lt, middletop_rb, righttop_lt, righttop_rb,
 		leftmiddle_lt, leftmiddle_rb, middlemiddle_lt, middlemiddle_rb, rightmiddle_lt, rightmiddle_rb,
@@ -47,13 +48,15 @@ namespace zee {
 	extern int game_state;
 	extern int timer;
 	extern int score;
-	extern int now_stage;
+	extern int stage_now;
 	extern int time_limit;
-	extern int kill_remain;
-	extern int kill_remain_clear;
+	extern int kill_remain_now;
+	extern int kill_remain_clear_now;
 	extern float spawn_coef;	//단계별 더 빠른 스폰 위함. 현재 스폰 주기 * 계수
 	extern float spawn_cycle[];
 	extern math::vec2i mouse_position;
+
+	extern image_data images;
 
 	//함수
 	void init_game();

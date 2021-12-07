@@ -51,7 +51,7 @@ namespace impl {
 		template<typename T>
 		static std::enable_if_t<!impl::has_config_name_impl<T>::value, tstring>
 			config_name_impl() noexcept {
-			tstring ret = type_to_naming_string<data_type>();
+			tstring ret = file::type_to_path<data_type>();
 			size_t off = ret.find_last_of(TEXT('/'));
 			if (off != tstring::npos) {
 				ret.erase(begin(ret), begin(ret) + off + 1);
@@ -69,7 +69,7 @@ namespace impl {
 		template<typename T>
 		static std::enable_if_t<!impl::has_config_dir_impl<T>::value, tstring>
 			config_dir_impl() noexcept {
-			tstring ret = type_to_naming_string<T>();
+			tstring ret = file::type_to_path<T>();
 			size_t off = ret.find_last_of(TEXT('/'));
 			if (off != tstring::npos) {
 				ret.erase(off);
