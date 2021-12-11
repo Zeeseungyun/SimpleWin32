@@ -6,7 +6,7 @@ namespace zee {
 
 	void image_data::init_load_images() {
 		if (!back.is_valid()) { 
-			back.load_image(TEXT("./assets/back.bmp")); 
+			back.load_image(TEXT("./assets/back.bmp"));
 		}
 		if (!dig.is_valid()) { 
 			dig.load_image(TEXT("./assets/dig.bmp")); 

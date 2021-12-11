@@ -8,9 +8,7 @@
 #include "tick_manager.h"
 #include "key_state.h"
 
-#include "../stage/monster.h"
 #include "../stage/stage.h"
-#include "../stage/image_data.h"
 #include <shape/intersect.h>
 #pragma comment(lib, "winmm.lib")
 
@@ -146,8 +144,7 @@ ZEE_WINMAIN_NAME(
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 
-			}
-			else {
+			} else {
 				cur_frame_time += stat.duration();
 				stat.reset();
 
@@ -204,6 +201,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		application_delegates::on_destroied().add_sp(temp_back_buffer, &win32gdi::device_context_dynamic::clear);
 	}
 
+	image_data images;
 
 	//https://docs.microsoft.com/en-us/windows/win32/winmsg/window-notifications
 	switch (iMessage) {
@@ -270,19 +268,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		case 1:
 			if (timer >= timer_limit) {
 				change_var_ending(hWnd);
-				change_monster_ending();
 			}
 			else {
 				timer++;
 			}
 			break;
 		case 2:
-			monsters[0].spawn();
+			spawn_stage();
 			break;
 		case 3:
-			monsters[1].spawn();
+			spawn_stage(); 
 			break;
 		}
+	}
+
+	case WM_KEYDOWN:
+	{
+		switch (wParam) {
+
+		}
+			if (game_state == title) {
+				init_ingame();
+				init_monster();
+				set_timer(hWnd, 1, timer_cycle);	//게임 시간 표시
+				for (int i = 0; i != dig_num; i++) {	//몬스터 스폰 타이머
+					set_timer(hWnd, i + 2, spawn_cycle[i]);
+				}
+				game_state = ingame;
+			}
+			else if (game_state == ending) {
+				game_state = title;
+			}
+		return 0;
 	}
 
 	case WM_LBUTTONDOWN:
@@ -291,29 +308,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		mouse_position.y = (int32)(short)HIWORD(lParam);
 
 		for (monster& mon : monsters) {
-			if (shape::intersect(mon.get_rand_rect(), mouse_position) != shape::collide_type::none) {
-				mon.attacked(hWnd);
+			if (shape::intersect(mon.get_hitbox(), mouse_position) != shape::collide_type::none) {
+				if (mon.get_state() == alive) {
+					mon.attacked(hWnd);
+					change_var_ingame(hWnd);
+				}
 			}
 		}
 		return 0;
 	}
 
-	case WM_KEYDOWN:
-	{
-		if (game_state == title) {
-			init_game();
-			init_monster();
-			set_timer(hWnd, 1, timer_cycle);	//게임 시간 표시
-			for (int i = 0; i != spawn_monster_max; i++) {	//몬스터 스폰 타이머
-				set_timer(hWnd, i + 2, spawn_cycle[i]);
-			}
-			game_state = ingame;
-		}
-		else if (game_state == ending) {
-			game_state = title;
-		}
-		return 0;
-	}
 	case WM_PAINT:
 	{
 		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
@@ -324,6 +328,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			images.init_load_images();
 			//공통 배경
 			images.back.bit_blt(*temp_back_buffer, {});
+
 
 			//타이틀
 			if (game_state == title) {
@@ -368,13 +373,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				temp_back_buffer->print_text(coord_list[time_num], to_tstring(to_wstring(timer)));
 				temp_back_buffer->print_text(coord_list[score_num], to_tstring(to_wstring(score)));
 
-				//초당 두더쥐 1,2 수 정보를 다른 위치에 표시하기 위해 함수로 안 뺌. 1000 / 주기
+				//초당 두더쥐 1,2 수 정보를 다른 위치에 표시하기 위해 함수나 반복문으로 안 뺌. 1000 / 주기
 				temp_back_buffer->print_text(coord_list[spawn_1_speed_num], to_tstring(to_wstring(1000 / spawn_cycle[0])));
 				temp_back_buffer->print_text(coord_list[spawn_2_speed_num], to_tstring(to_wstring(1000 / spawn_cycle[1])));
 
 				//생성 및 히트 애니
 				for (monster& mon : monsters) {
-					mon.render_ani(hWnd, temp_dc, temp_back_buffer);
+					if (mon.get_state() == alive) {
+						mon.spawn_ani(hWnd, temp_dc, temp_back_buffer, images.monster_spawn);
+					}
+					if (mon.get_state() == die) {
+						mon.attacked_ani(hWnd, temp_dc, temp_back_buffer, images.monster_die);
+					}
 				}
 			}
 			//fps

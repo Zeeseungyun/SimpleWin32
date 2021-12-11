@@ -14,5 +14,4 @@ namespace zee {
 		win32gdi::device_context_dynamic monster_spawn;
 		win32gdi::device_context_dynamic monster_die;
 	};
-
 }
