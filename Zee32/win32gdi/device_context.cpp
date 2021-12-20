@@ -146,7 +146,7 @@ namespace win32gdi {
 	static BLENDFUNCTION make_blend_func(float alpha) noexcept {
 		BLENDFUNCTION ret;
 		ret.BlendOp = AC_SRC_OVER;
-		ret.AlphaFormat = AC_SRC_ALPHA;
+		ret.AlphaFormat = 0;	//0이면 알파 채널 무시. AC_SRC_ALPHA면 알파 소스 사용.
 		ret.BlendFlags = 0;
 		ret.SourceConstantAlpha = (BYTE)(math::clamp(alpha, 0.0f, 1.0f) * 255);
 		return ret;

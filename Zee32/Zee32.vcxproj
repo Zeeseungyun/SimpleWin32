@@ -22,10 +22,11 @@
     <ClInclude Include="application\application.h" />
     <ClInclude Include="application\application_delegates.h" />
     <ClInclude Include="application\key_state.h" />
-    <ClInclude Include="stage\image_data.h" />
-    <ClInclude Include="stage\monster.h" />
+    <ClInclude Include="stage\background_image.h" />
+    <ClInclude Include="stage\frame_image.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stage\stage.h" />
+    <ClInclude Include="stage\unit.h" />
     <ClInclude Include="world\world.h" />
     <ClInclude Include="stat\simple_stat.h" />
     <ClInclude Include="win32gdi\color.h" />
@@ -41,9 +42,10 @@
     <ClCompile Include="application\application_delegates.cpp" />
     <ClCompile Include="application\key_state.cpp" />
     <ClCompile Include="application\output_debug.cpp" />
-    <ClCompile Include="stage\image_data.cpp" />
-    <ClCompile Include="stage\monster.cpp" />
+    <ClCompile Include="stage\background_image.cpp" />
+    <ClCompile Include="stage\frame_image.cpp" />
     <ClCompile Include="stage\stage.cpp" />
+    <ClCompile Include="stage\unit.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />
     <ClCompile Include="win32gdi\image.cpp" />
     <ClCompile Include="application\tick_manager.cpp" />
@@ -60,14 +62,12 @@
     <ResourceCompile Include="Zee32.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\back.bmp" />
-    <Image Include="assets\click.bmp" />
-    <Image Include="assets\dig.bmp" />
-    <Image Include="assets\monster_die.bmp" />
-    <Image Include="assets\monster_spawn.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="assets\Hit_Hurt14.wav" />
+    <Image Include="assets\game_background_loop.bmp" />
+    <Image Include="assets\game_background_loop2.bmp" />
+    <Image Include="assets\game_background_loop_horizon.bmp" />
+    <Image Include="assets\game_background_loop_vertical.bmp" />
+    <Image Include="assets\game_background_stop.bmp" />
+    <Image Include="assets\walk.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

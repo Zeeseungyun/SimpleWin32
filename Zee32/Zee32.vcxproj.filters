@@ -57,10 +57,13 @@
     <ClInclude Include="stage\stage.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="stage\monster.h">
+    <ClInclude Include="stage\frame_image.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="stage\image_data.h">
+    <ClInclude Include="stage\background_image.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\unit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,13 +98,16 @@
     <ClCompile Include="world\toy.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="stage\frame_image.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\background_image.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="stage\stage.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="stage\monster.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="stage\image_data.cpp">
+    <ClCompile Include="stage\unit.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -111,25 +117,23 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\back.bmp">
+    <Image Include="assets\walk.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\click.bmp">
+    <Image Include="assets\game_background_loop.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\dig.bmp">
+    <Image Include="assets\game_background_loop2.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\monster_die.bmp">
+    <Image Include="assets\game_background_stop.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\monster_spawn.bmp">
+    <Image Include="assets\game_background_loop_horizon.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="assets\Hit_Hurt14.wav">
+    <Image Include="assets\game_background_loop_vertical.bmp">
       <Filter>리소스 파일</Filter>
-    </Media>
+    </Image>
   </ItemGroup>
 </Project>

@@ -5,14 +5,8 @@
 #include "../win32helper/win32helper.h"
 #include "../win32gdi/device_context.h"
 #include "../stat/simple_stat.h"
-#include "tick_manager.h"
-#include "key_state.h"
-
-#include "../stage/monster.h"
-#include "../stage/stage.h"
-#include "../stage/image_data.h"
 #include <shape/intersect.h>
-#pragma comment(lib, "winmm.lib")
+#include "../stage/stage.h"
 
 using namespace zee;
 
@@ -67,6 +61,9 @@ application& application::get() noexcept {
 }
 
 float g_fps = 0.0f;
+static math::vec2i mouse_position = { 0, 0 };
+
+std::shared_ptr<stage> stage_;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -126,6 +123,11 @@ ZEE_WINMAIN_NAME(
 
 	SetWindowPlacement(app_inst->window_handle<HWND>(), &pl);
 
+	app_inst->is_started_ = true;
+	application_delegates::on_started().broadcast(application::get());
+	stage_ = std::make_shared<stage>();// std::shared_ptr<yjj_stage>(new yjj_stage);
+	stage_->on_app_started();
+
 	MSG msg = {};
 	{
 		using namespace std::chrono;
@@ -134,7 +136,6 @@ ZEE_WINMAIN_NAME(
 		const std::chrono::duration<float, simple_stat_base::sec_ratio> fps = 1s / (float)frame_count;
 		std::chrono::duration<float, simple_stat_base::sec_ratio> cur_frame_time = std::chrono::duration<float, simple_stat_base::sec_ratio>::zero();
 		std::chrono::duration<float, simple_stat_base::sec_ratio> accumulated_frame_time = std::chrono::duration<float, simple_stat_base::sec_ratio>::zero();
-
 		zee::simple_stat<> stat;
 		while (true) {
 			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -185,7 +186,7 @@ ZEE_WINMAIN_NAME(
 			}
 		}
 	}
-
+	stage_.reset();
 	app_inst->app_config_().save();
 	application_delegates::on_destroied().broadcast();
 	app_inst.reset();
@@ -209,18 +210,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage) {
 	case WM_CREATE:
 	{
-		app_inst->is_started_ = true;
-		application_delegates::on_started().broadcast(application::get());
-
 
 		return 0;
 	}//WM_CREATE
 
 	case WM_DESTROY:
 	{
-		kill_timer(hWnd, 1);
-		kill_timer(hWnd, 2);
-		kill_timer(hWnd, 3);
 		PostQuitMessage(0);
 		return 0;
 	}//WM_DESTORY
@@ -263,165 +258,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}//WM_SIZE
 
-	case WM_TIMER:
-	{
-		switch (wParam)
-		{
-		case 1:
-			if (timer >= timer_limit) {
-				change_var_ending(hWnd);
-				change_monster_ending();
-			}
-			else {
-				timer++;
-			}
-			break;
-		case 2:
-			monsters[0].spawn();
-			break;
-		case 3:
-			monsters[1].spawn();
-			break;
-		}
-	}
-
 	case WM_LBUTTONDOWN:
 	{
 		mouse_position.x = (int32)(short)LOWORD(lParam);
 		mouse_position.y = (int32)(short)HIWORD(lParam);
 
-		for (monster& mon : monsters) {
-			if (shape::intersect(mon.get_rand_rect(), mouse_position) != shape::collide_type::none) {
-				mon.attacked(hWnd);
-			}
-		}
 		return 0;
 	}
 
 	case WM_KEYDOWN:
 	{
-		if (game_state == title) {
-			init_game();
-			init_monster();
-			set_timer(hWnd, 1, timer_cycle);	//게임 시간 표시
-			for (int i = 0; i != spawn_monster_max; i++) {	//몬스터 스폰 타이머
-				set_timer(hWnd, i + 2, spawn_cycle[i]);
-			}
-			game_state = ingame;
-		}
-		else if (game_state == ending) {
-			game_state = title;
-		}
 		return 0;
 	}
 	case WM_PAINT:
 	{
 		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
-
-		if (temp_back_buffer && temp_back_buffer->is_valid()) {
-
-			//이미지 세팅
-			images.init_load_images();
-			//공통 배경
-			images.back.bit_blt(*temp_back_buffer, {});
-
-			//타이틀
-			if (game_state == title) {
-				temp_back_buffer->rectangle({ coord_list[title_ending_box_lt], coord_list[title_ending_box_rb] });
-				temp_back_buffer->print_text(coord_list[title_st], TEXT("| 버그 두더쥐 잡기 게이임 >_< |"));
-				temp_back_buffer->print_text(coord_list[title_st2], TEXT("┎-------------------------------------------------┒"));
-				temp_back_buffer->print_text(coord_list[title_st3], TEXT("┖-------------------------------------------------┚"));
-				temp_back_buffer->print_text(coord_list[title_st4], TEXT("---아무 키나 눌러 시작---"));
-				temp_back_buffer->print_text(coord_list[title_st5], TEXT("만든 이: 유재준"));
-			}
-			//엔딩
-			else if (game_state == ending) {
-				temp_back_buffer->rectangle({ coord_list[title_ending_box_lt], coord_list[title_ending_box_rb] });
-				temp_back_buffer->print_text(coord_list[ending_st], TEXT("참 잘했어요!"));
-				temp_back_buffer->print_text(coord_list[time_taken], TEXT("걸린 시간(초): "));
-				temp_back_buffer->print_text(coord_list[score_final], TEXT("점수: "));
-				temp_back_buffer->print_text(coord_list[ending_st2], TEXT("---아무 키나 눌러 재시작---"));
-				temp_back_buffer->print_text(coord_list[time_taken_num], to_tstring(to_wstring(timer)));
-				temp_back_buffer->print_text(coord_list[score_final_num], to_tstring(to_wstring(score)));
-				temp_back_buffer->bit_blt(temp_dc, {});
-			}
-			//인게임
-			else if (game_state == ingame) {
-				temp_back_buffer->rectangle({ coord_list[stagebox_lt], coord_list[stagebox_rb] });
-				temp_back_buffer->print_text(coord_list[stage_st], TEXT("스테이지 : "));
-				temp_back_buffer->print_text(coord_list[time_limit_st], TEXT("제한시간 : "));
-				temp_back_buffer->print_text(coord_list[kill_remain_clear_st], TEXT("클리어까지 남은 처치 : "));
-				temp_back_buffer->print_text(coord_list[kill_remain_st], TEXT("다음 단계까지 남은 처치 : "));
-				temp_back_buffer->print_text(coord_list[time_st], TEXT("시간 : "));
-				temp_back_buffer->print_text(coord_list[score_st], TEXT("점수 : "));
-				temp_back_buffer->print_text(coord_list[spawn_1_speed_st], TEXT("초당 두더쥐1 수 : "));
-				temp_back_buffer->print_text(coord_list[spawn_2_speed_st], TEXT("초당 두더쥐2 수 : "));
-
-				for (int i = 0; i != dig_num; i++) {
-					images.dig.transparent_blt(*temp_back_buffer, coord_list[i * 2], RGB(195, 195, 195));
-				}
-
-				temp_back_buffer->print_text(coord_list[stage_num], to_tstring(to_wstring(to_wstring(stage_now))));
-				temp_back_buffer->print_text(coord_list[time_limit_num], to_tstring(to_wstring(time_limit)));
-				temp_back_buffer->print_text(coord_list[kill_remain_num], to_tstring(to_wstring(kill_remain_now)));
-				temp_back_buffer->print_text(coord_list[kill_remain_clear_num], to_tstring(to_wstring(kill_remain_clear_now)));
-				temp_back_buffer->print_text(coord_list[time_num], to_tstring(to_wstring(timer)));
-				temp_back_buffer->print_text(coord_list[score_num], to_tstring(to_wstring(score)));
-
-				//초당 두더쥐 1,2 수 정보를 다른 위치에 표시하기 위해 함수로 안 뺌. 1000 / 주기
-				temp_back_buffer->print_text(coord_list[spawn_1_speed_num], to_tstring(to_wstring(1000 / spawn_cycle[0])));
-				temp_back_buffer->print_text(coord_list[spawn_2_speed_num], to_tstring(to_wstring(1000 / spawn_cycle[1])));
-
-				//생성 및 히트 애니
-				for (monster& mon : monsters) {
-					mon.render_ani(hWnd, temp_dc, temp_back_buffer);
-				}
-			}
-			//fps
-			tstring fps_str = to_tstring(std::to_wstring(g_fps));
-			temp_back_buffer->print_text({}, fps_str);
-
-			//그리기
-			temp_back_buffer->bit_blt(temp_dc, {});
+		if (stage_) {
+			stage_->render(temp_dc);
 		}
-
-		//사용법
-		/*
-		if (key_state::is_pressed(keys::A)) {
-			app_inst->change_window_size({ 110, 110 });
-		}
-		else if (key_state::is_pressed(keys::S)) {
-			app_inst->change_window_size({ 220, 220 });
-		}
-
-		if (temp_back_buffer) {
-			static simple_stat<> ssss;
-			if (ssss.sec() > 0.5f) {
-				//ZEE_LOG(normal, TEXT("test key"), TEXT("%s"), to_tstring(key_state::is_toggle_on(keys::A)).c_str());
-				ssss.reset();
-			}
-
-			if (temp_back_buffer->is_valid()) {
-				shape::recti rc;
-				rc.data[1] = { 100,200 };
-
-				math::vec2i d = { 100,100 };
-
-				win32gdi::device_context_dynamic temp_image;
-				temp_image.load_image(TEXT("./assets/back.bmp"));
-				temp_image.bit_blt(*temp_back_buffer, {});
-				temp_back_buffer->rectangle(rc);
-				temp_back_buffer->move_to(d);
-				temp_back_buffer->line_to(d += math::vec2i::constants::unit_x * 10);
-				temp_back_buffer->line_to(d += math::vec2i::constants::unit_y * 10);
-				temp_back_buffer->line_to(d += math::vec2i::constants::unit_x * 10 + math::vec2i::constants::unit_y * 10);
-				temp_back_buffer->line_to(d -= math::vec2i::constants::unit_y * 10);
-				tstring fps_str = to_tstring(std::to_wstring(g_fps));
-				temp_back_buffer->print_text({}, fps_str);
-				temp_back_buffer->bit_blt(temp_dc, {});
-			}
-		}*/
-
 		return 0;
 	}//WM_PAINT
 	}//switch(iMessage)

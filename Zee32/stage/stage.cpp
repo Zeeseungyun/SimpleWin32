@@ -1,95 +1,104 @@
 #include "stage.h"
 
 namespace zee {
-	//좌표
-	math::vec2i coord_list[Max] = {
-		//구덩이
-		{100, 100}, {200, 200},	{300, 100}, {400, 200},	{500, 100}, {600, 200},
-		{100, 300}, {200, 400},	{300, 300}, {400, 400},	{500, 300}, {600, 400},
-		{0, 0},
-		//타이틀
-		{240, 310}, {234, 290}, {234, 330}, {264, 360}, {294, 380},
-		{220, 250}, {480, 450},
-		//인게임
-		{230, 470}, {460, 650},
-		{240, 480}, {240, 500}, {240, 520}, {240, 540},
-		{296, 480}, {296, 500}, {326, 520}, {326, 540},
-		{240, 560}, {240, 580}, {240, 600}, {240, 620},
-		{410, 560}, {432, 580}, {370, 600}, {370, 620},
-		//엔딩
-		{300, 300}, {262, 400}, {290, 340}, {400, 340}, {290, 360}, {340, 360},
-	};
+	stage::stage() noexcept : background_src_pos({ 0, 0 }) {}
+	stage::~stage() noexcept {}
 
-	//전역 변수 정의
-	int game_state = title;
-	int timer = 0;
-	int score = 0;
-	int stage_now = 1;
-	int time_limit = timer_limit;
-	int kill_remain_now = kill_remain;
-	int kill_remain_clear_now = kill_remain_clear;
-	float spawn_coef = 0.8f;
-	float spawn_cycle[spawn_monster_max] = { spawn_cycle_1, spawn_cycle_2 };
-	math::vec2i mouse_position = { 0, 0 };
+	void stage::on_app_started() {
+		application_delegates::on_client_size_changed().add_sp(shared_from_this(), &stage::on_resize);
+		tick_manager::get().add(shared_from_this());
+		on_resize(application::get().config().client_size);
+		application::get().window_handle<HWND>();	//윈도우 핸들 가져오기
 
-	image_data images;
-
-
-	//타이틀에서 게임 초기화
-	void init_game() {
-		game_state = title;
-		stage_now = 1;
-		timer = 0;
-		score = 0;
-		mouse_position = { 0, 0 };
-		kill_remain_now = kill_remain;
-		kill_remain_clear_now = kill_remain_clear;
-		spawn_cycle[0] = spawn_cycle_1;
-		spawn_cycle[1] = spawn_cycle_2;
-		time_limit = timer_limit;
+		game_init();
 	}
-
-
-	//타이머
-	void set_timer(const HWND& hWnd, const int& num, const float& time_cycle) {
-		SetTimer(hWnd, num, static_cast<int>(time_cycle), nullptr);
-	}
-	void kill_timer(const HWND& hWnd, const int& num) {
-		KillTimer(hWnd, num);
-	}
-
-	//두더쥐 사망 시 스테이지 변수 변동
-	void change_var_ingame(const HWND& hWnd) {
-		score++;
-		kill_remain_now--;
-		kill_remain_clear_now--;
-		if (kill_remain_clear_now <= 0) {
-			change_var_ending(hWnd);
+	void stage::game_init() {
+		switch (kind_of_background)
+		{
+		case loop:
+			background_image::get().load_background_image({ 800, 1200 }, TEXT("assets/game_background_loop_vertical.bmp"));
+			break;
+		case stop:
+			background_image::get().load_background_image({ 1152, 2048 }, TEXT("assets/game_background_stop.bmp"));
+			break;
 		}
-		else if (kill_remain_now <= 0) {
-			stage_now++;
-			kill_remain_now = kill_remain * stage_now;
-			//스테이지 상승 시 : 현재 사이클 * 계수
-			for (int i = 0; i != spawn_monster_max; i++) {
-				if (spawn_cycle[i] * spawn_coef > 0) {
-					spawn_cycle[i] *= spawn_coef;
+		//프레임 이미지
+		frame_image::get().load_frame_image({ 1152, 2048 }, { 64, 64 }, TEXT("assets/walk.bmp"));
+		//유닛 세팅
+		unit_.set_size({ 64, 64 });
+		unit_.set_max_move_size({ 705, 770 });
+		unit_.set_now_pos({ 350, 650 });
+	}
+
+	void stage::on_resize(const math::vec2i& client_size) {
+		if (back_buffer.is_valid()) {
+			back_buffer.resize(client_size);
+		}
+		else {
+			back_buffer.create_empty_image(client_size);
+		}
+	}
+
+	void stage::tick(float delta_time) {
+		switch (kind_of_background)
+		{
+		case loop:
+			//배경 루프 이미지
+			background_image::get().show_loop(delta_time, background_src_pos, 2);
+			//유닛 이동
+			unit_.set_frame_direction(delta_time);
+			unit_.move(delta_time);
+			break;
+
+		case stop:
+			//배경 정지 이미지
+			static const int background_speed = 10;
+			unit_.set_frame_direction(delta_time);
+			if (unit_.get_is_pressed()) {
+				switch (unit_.get_direction()) {
+				case 0:
+					if (unit_.get_now_pos().y > 0 && background_src_pos.y > 0) {
+						background_src_pos.y -= background_speed;
+					}
+					break;
+				case 1:
+					if (unit_.get_now_pos().x > 0 && background_src_pos.x > 0) {
+						background_src_pos.x -= background_speed;
+					}
+					break;
+				case 2:
+					if (unit_.get_now_pos().y < 770 && background_src_pos.y < 1152) {
+						background_src_pos.y += background_speed;
+					}
+					break;
+				case 3:
+					if (unit_.get_now_pos().x < 705 && background_src_pos.x < 390) {
+						background_src_pos.x += background_speed;
+					}
+					break;
 				}
 			}
-
-			//몬스터 스폰 시간 가속해서 갱신
-			for (int i = 0; i != spawn_monster_max; i++) {
-				kill_timer(hWnd, i + 2);
-				set_timer(hWnd, i + 2, spawn_cycle[i]);
-			}
+			break;
 		}
 	}
-	//게임 종료 시 (제한시간 종료, 두더쥐 처치수 만족)
-	void change_var_ending(const HWND& hWnd) {
-		game_state = ending;
-		//킬 타이머
-		kill_timer(hWnd, 1);
-		for (int i = 0; i != spawn_monster_max; i++) {
-			kill_timer(hWnd, i + 2);
+
+	void stage::render(win32gdi::device_context_base& dest_dc) {
+		if (back_buffer.is_valid()) {
+			switch (kind_of_background)
+			{
+			case loop:
+				background_image::get().render_loop(back_buffer, background_src_pos, 2);
+				break;
+
+			case stop:
+				background_image::get().render(back_buffer, background_src_pos);
+				break;
+			}
+
+			//frame_image::get().render(back_buffer, unit_.get_now_pos(), unit_.get_frame_x(), unit_.get_frame_y());
+			frame_image::get().render_alphablend(back_buffer, unit_.get_now_pos(), unit_.get_frame_x(), unit_.get_frame_y());
+
+			back_buffer.bit_blt(dest_dc, {});
 		}
 	}
 }

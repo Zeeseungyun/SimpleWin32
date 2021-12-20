@@ -2,12 +2,6 @@
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
 // Zee32.rc에서 사용되고 있습니다.
 //
-#define IDB_BITMAP1                     101
-#define IDB_BITMAP2                     102
-#define IDB_BITMAP3                     103
-#define IDB_BITMAP4                     104
-#define IDB_BITMAP5                     105
-#define IDR_WAVE1                       106
 
 // Next default values for new objects
 // 
