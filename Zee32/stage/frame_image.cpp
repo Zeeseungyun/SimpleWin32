@@ -11,29 +11,35 @@ namespace zee {
 		return *inst;
 	}
 
-	void frame_image::load_frame_image(const math::vec2i& max_frame_size, const math::vec2i& frame_size, const wchar_t* filename) {
+	void frame_image::load_frame_image(const math::vec2i& max_frame_size, const math::vec2i& frame_size, const TCHAR* filename) {
 		if (!frame_image_.is_valid()) {
 			frame_image_.load_image(filename);
+			max_frame_size_ = max_frame_size;
+			frame_size_ = frame_size;
+			alpha_buffer.create_empty_image(max_frame_size_);
 		}
-		max_frame_size_ = max_frame_size;
-		frame_size_ = frame_size;
 	}
 
-	void frame_image::render(device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y) {
+	void frame_image::render(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y) {
 		if (frame_image_.is_valid()) {
 			frame_image_.transparent_blt(dest_dc, dest_pos, frame_size_, frame_x + frame_y, frame_size_, RGB(255, 255, 255));
 		}
 	}
 
-	void frame_image::render_alphablend(device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y) {
+	void frame_image::render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y) {
 		if (frame_image_.is_valid()) {
-			device_context_dynamic temp_dc;
 
-			temp_dc.create_empty_image(max_frame_size_);
-			dest_dc.bit_blt(temp_dc, {});
-			frame_image_.transparent_blt(temp_dc, dest_pos, frame_size_, frame_x + frame_y, frame_size_, RGB(255, 255, 255));
+			dest_dc.bit_blt(alpha_buffer, {});
+			frame_image_.transparent_blt(alpha_buffer, dest_pos, frame_size_, frame_x + frame_y, frame_size_, RGB(255, 255, 255));
 
-			temp_dc.alphablend(dest_dc, {}, 0.4f);
+			alpha_buffer.alphablend(dest_dc, {}, 0.5f);
 		}
+	}
+
+	void frame_image::render_rotate(win32gdi::device_context_dynamic& dest_dc, const math::vec2f& point, const float& angle) {
+
+		dest_dc.bit_blt(alpha_buffer, {});
+		frame_image_.plg_blt(alpha_buffer, point, angle, frame_size_);
+		alpha_buffer.transparent_blt(dest_dc, {}, RGB(255, 255, 255));
 	}
 }

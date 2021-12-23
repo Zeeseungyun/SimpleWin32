@@ -66,6 +66,9 @@
     <ClInclude Include="stage\unit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="stage\monster.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32gdi\device_context.cpp">
@@ -108,6 +111,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="stage\unit.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\monster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

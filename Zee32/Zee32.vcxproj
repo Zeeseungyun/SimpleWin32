@@ -25,6 +25,7 @@
     <ClInclude Include="stage\background_image.h" />
     <ClInclude Include="stage\frame_image.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="stage\monster.h" />
     <ClInclude Include="stage\stage.h" />
     <ClInclude Include="stage\unit.h" />
     <ClInclude Include="world\world.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="application\output_debug.cpp" />
     <ClCompile Include="stage\background_image.cpp" />
     <ClCompile Include="stage\frame_image.cpp" />
+    <ClCompile Include="stage\monster.cpp" />
     <ClCompile Include="stage\stage.cpp" />
     <ClCompile Include="stage\unit.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />

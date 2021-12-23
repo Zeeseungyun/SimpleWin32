@@ -9,12 +9,11 @@
 #include "frame_image.h"
 #include "background_image.h"
 #include "unit.h"
+#include "monster.h"
 
 namespace zee {
-	using namespace win32gdi;
-
 	enum e_kind_of_background {
-		loop, stop
+		loop, scroll
 	};
 	//@param kind_of_background ==> background 종류 변경하려면 여기서 조정
 	static const int kind_of_background = loop;
@@ -28,12 +27,12 @@ namespace zee {
 		void game_init();
 		void on_resize(const math::vec2i& client_size);
 		void tick(float delta_time) override;
-		void render(device_context_base& dest_dc);
+		void render(win32gdi::device_context_base& dest_dc);
 
 	private:
-		device_context_dynamic back_buffer;
-		unit unit_;
-		math::vec2i background_src_pos;
+		win32gdi::device_context_dynamic back_buffer_;
+		std::vector<std::shared_ptr<unit>> units_;
+		std::vector<std::shared_ptr<monster>> monsters_;
 	};
 }
 
