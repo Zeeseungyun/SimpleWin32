@@ -37,17 +37,12 @@ namespace math {
 		const matrix& operator*=(const matrix& m);
 
 		//연산
-		vec2f& add(const vec2f& m);
-		vec3f& add(const vec3f& m);
-		matrix& add(const matrix& m);
+		void add(const matrix& m);
+		void sub(const matrix& m);
 
-		vec2f& sub(const vec2f& m);
-		vec3f& sub(const vec3f& m);
-		matrix& sub(const matrix& m);
-
-		vec2f& mul(const vec2f& m);
-		vec3f& mul(const vec3f& m);
-		matrix& mul(const matrix& m);
+		void mul(const vec2f& v);
+		void mul(const vec3f& v);
+		void mul(const matrix& m);
 
 
 		//행렬식: 2x2는 넓이, 3x3은 부피
@@ -61,11 +56,11 @@ namespace math {
 
 		//get, set
 		const std::vector<std::vector<float>>& get_mf() const;
-		const size_t& get_row_size() const;
-		const size_t& get_column_size() const;
+		const size_t get_row_size() const;
+		const size_t get_column_size() const;
 
-		void set_mf(const std::vector<vec2f>& vv);
-		void set_mf(const std::vector<vec3f>& vv);
+		void set_m2f(const std::vector<vec2f>& vv);
+		void set_m3f(const std::vector<vec3f>& vv);
 		void set_mf(const matrix& m);
 
 

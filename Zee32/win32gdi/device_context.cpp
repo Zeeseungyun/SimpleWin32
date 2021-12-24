@@ -202,41 +202,28 @@ namespace zee {
 				return;
 			}
 
-			static math::vec2f t = { 200, 200 };
-			static float x_scale = 1.0f;
-			static float y_scale = 1.0f;
-			math::vec2f m0 = { cos(angle) * x_scale, -sin(angle) * x_scale };
-			math::vec2f m1 = { sin(angle) * y_scale, cos(angle) * y_scale };
-			math::vec2f m2 = { t.x, t.y };
+			static std::vector<math::matrix> vm(3);
 
-
-			math::vec2f v0 = { point.x - src_size.x / 2, point.y - src_size.y / 2 };
-			math::vec2f v1 = { point.x + src_size.x / 2, point.y - src_size.y / 2 };
-			math::vec2f v2 = { point.x - src_size.x / 2, point.y + src_size.y / 2 };
-
-			auto m_mul_v = [](const math::vec2f& v, const math::vec2f& m0, const math::vec2f& m1, const math::vec2f& m2)
-			{
-				math::vec2f ret;
-				ret.x =
-					m0.x * v.x +
-					m1.x * v.y +
-					m2.x * 1.0f;
-				ret.y =
-					m0.y * v.x +
-					m1.y * v.y +
-					m2.y * 1.0f;
-				return ret;
+			static const std::vector<math::vec2f> vv = {
+				{point.x - src_size.x / 2, point.y - src_size.y / 2}
+				, {point.x + src_size.x / 2, point.y - src_size.y / 2}
+				, {point.x - src_size.x / 2, point.y + src_size.y / 2}
 			};
-			v0 = m_mul_v(v0, m0, m1, m2);
-			v1 = m_mul_v(v1, m0, m1, m2);
-			v2 = m_mul_v(v2, m0, m1, m2);
+
+			//Çà·Ä°ö
+			for (int i = 0; i != 3; i++) {
+				vm[i].set_m2f({
+					{ cos(angle), -sin(angle) }
+					, { sin(angle), cos(angle) }
+					, { point.x, point.y }
+				});
+				vm[i].mul(vv[i]);
+			}
 
 			std::vector<POINT> v_point;
-			v_point.push_back({ (int)v0.x, (int)v0.y });
-			v_point.push_back({ (int)v1.x, (int)v1.y });
-			v_point.push_back({ (int)v2.x, (int)v2.y });
-
-			math::matrix m;
+			for (int i = 0; i != 3; i++) {
+				v_point.push_back({ (int)vm[i].get_mf()[0][0], (int)vm[i].get_mf()[0][1]});
+			}
 
 			if (!PlgBlt(
 				dest_dc.handle_dc<HDC>(),

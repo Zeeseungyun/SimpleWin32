@@ -21,7 +21,7 @@ namespace zee {
 		const math::vec2i& get_frame_x() const;
 		const math::vec2i& get_frame_y() const;
 		const int& get_direction() const;
-		const math::vec2i& get_now_pos() const;
+		const math::vec2f& get_now_pos() const;
 		const bool get_is_pressed() const;
 		const math::vec2f& get_background_src_pos() const;
 		void set_size(const math::vec2i& size);

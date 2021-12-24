@@ -24,12 +24,12 @@ namespace zee {
 			case 0:
 			case 1:
 				background_src_pos_.x += delta_time * show_loop_time;
-				background_src_pos_.x = math::fmod(background_src_pos_.x, background_src_size_.x);
+				background_src_pos_.x = (float)math::fmod(background_src_pos_.x, background_src_size_.x);
 				break;
 			case 2:
 			case 3:
 				background_src_pos_.y += delta_time * show_loop_time;
-				background_src_pos_.y = math::fmod(background_src_pos_.y, background_src_size_.y);
+				background_src_pos_.y = (float)math::fmod(background_src_pos_.y, background_src_size_.y);
 				break;
 			}
 			//¿Ø¥÷ ¿Ãµø
@@ -147,7 +147,7 @@ namespace zee {
 	const int& unit::get_direction() const {
 		return direction_;
 	}
-	const math::vec2i& unit::get_now_pos() const {
+	const math::vec2f& unit::get_now_pos() const {
 		return now_pos_;
 	}
 	const bool unit::get_is_pressed() const {

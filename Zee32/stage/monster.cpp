@@ -18,10 +18,24 @@ namespace zee {
 	}
 
 	void monster::render(win32gdi::device_context_dynamic& dest_dc) {
-		frame_image::get().render_rotate(dest_dc
-			, rotate_point_
-			, angle_
-		);
+		//회전 테스트
+		frame_image::get().render_rotate(dest_dc, rotate_point_, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 100, rotate_point_.y }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 300, rotate_point_.y }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 500, rotate_point_.y }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 700, rotate_point_.y }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 100, rotate_point_.y + 200}, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 300, rotate_point_.y + 200 }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 500, rotate_point_.y + 200 }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 700, rotate_point_.y + 200 }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 100, rotate_point_.y + 400 }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 300, rotate_point_.y + 400 }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 500, rotate_point_.y + 400 }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 700, rotate_point_.y + 400 }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 100, rotate_point_.y + 600 }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 300, rotate_point_.y + 600 }, -angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 500, rotate_point_.y + 600 }, angle_);
+		frame_image::get().render_rotate(dest_dc, { rotate_point_.x + 700, rotate_point_.y + 600 }, -angle_);
 	}
 
 	const math::vec2f& monster::get_rotate_point() const {
