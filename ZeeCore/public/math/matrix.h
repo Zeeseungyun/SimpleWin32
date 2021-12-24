@@ -44,15 +44,18 @@ namespace math {
 		void mul(const vec3f& v);
 		void mul(const matrix& m);
 
-
-		//행렬식: 2x2는 넓이, 3x3은 부피
-		void determinant(const vec2f& v);
-		//역행렬 (1, 0; 0, 1) 단위행렬 만드는 행렬
-		void inverse(const vec2f& v);
-		//전치행렬
-		void transpose(const vec2f& v);
-		//?
-		void is_identity(const vec2f& v);
+		
+		//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
+		const float determinant(const std::vector<vec2f>& vv);
+		const float determinant(const std::vector<vec3f>& vv);
+		const float determinant(const matrix& m);
+		//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a). 없으면 로그 띄우고 초기 행렬 반환.
+		const std::vector<vec2f> inverse(const std::vector<vec2f>& vv);
+		const std::vector<vec2f> inverse(const matrix& m);
+		//항등행렬 여부
+		const bool is_identity(const std::vector<vec2f>& vv);
+		const bool is_identity(const std::vector<vec3f>& vv);
+		const bool is_identity(const matrix& m);
 
 		//get, set
 		const std::vector<std::vector<float>>& get_mf() const;

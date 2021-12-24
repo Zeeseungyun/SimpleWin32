@@ -131,6 +131,7 @@ namespace zee {
 		}
 	}
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
+		frame_image::get().render_background_to_backbuffer(dest_dc);
 		frame_image::get().render_alphablend(dest_dc
 			, now_pos_
 			, frame_x_

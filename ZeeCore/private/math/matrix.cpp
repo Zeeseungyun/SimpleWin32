@@ -220,6 +220,106 @@ namespace math {
 		}
 	}
 
+	//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
+	const float matrix::determinant(const std::vector<vec2f>& vv) {
+		if (vv.size() == 2 && vv[0].size() == 2) {
+			return vv[0][0] * vv[1][1] - vv[0][1] * vv[1][0];
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
+		}
+	}
+	const float matrix::determinant(const std::vector<vec3f>& vv) {
+		if (vv.size() == 3 && vv[0].size() == 3) {
+			float a = vv[0][0], b = vv[0][1], c = vv[0][2];
+			float d = vv[1][0], e = vv[1][1], f = vv[1][2];
+			float g = vv[2][0], h = vv[2][1], i = vv[2][2];
+			return d * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
+		}
+	}
+	const float matrix::determinant(const matrix& m) {
+		if (m.get_row_size() == 2 && m.get_column_size() == 2) {
+			return m.get_mf()[0][0] * m.get_mf()[1][1] - m.get_mf()[0][1] * m.get_mf()[1][0];
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
+		}
+		if (m.get_row_size() == 3 && m.get_column_size() == 3) {
+			float a = m.get_mf()[0][0], b = m.get_mf()[0][1], c = m.get_mf()[0][2];
+			float d = m.get_mf()[1][0], e = m.get_mf()[1][1], f = m.get_mf()[1][2];
+			float g = m.get_mf()[2][0], h = m.get_mf()[2][1], i = m.get_mf()[2][2];
+			return d * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
+		}
+	}
+
+
+	//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a). 없으면 로그 띄우고 초기 행렬 반환.
+	const std::vector<vec2f> matrix::inverse(const std::vector<vec2f>& vv) {
+		matrix m;
+		m.set_m2f(vv);
+		return inverse(m);
+	}
+	const std::vector<vec2f> matrix::inverse(const matrix& m) {
+		std::vector<vec2f> ret;
+		if (m.get_row_size() == 2 && m.get_column_size() == 2) {
+			if (m.get_mf()[0][0] * m.get_mf()[1][1] - m.get_mf()[0][1] * m.get_mf()[1][0]) {
+				float a = m.get_mf()[0][0], b = m.get_mf()[0][1];
+				float c = m.get_mf()[1][0], d = m.get_mf()[1][1];
+				ret = {
+					{ 1 / (a * d - b * c) * d, 1 / (a * d - b * c) * -b },
+					{ 1 / (a * d - b * c) * -c, 1 / (a * d - b * c) * a }
+				};
+				return ret;
+			}
+			else {
+				ZEE_LOG(warning, TEXT("matrix"), TEXT("ad - bc가 0이면 역행렬을 만들 수 없습니다."));
+			}
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("현재 지원하지 않는 사이즈 역행렬입니다."));
+		}
+		return ret;
+	}
+
+	//항등행렬 여부
+	const bool matrix::is_identity(const std::vector<vec2f>& vv) {
+		matrix m;
+		m.set_m2f(vv);
+		return is_identity(m);
+	}
+	const bool matrix::is_identity(const std::vector<vec3f>& vv) {
+		matrix m;
+		m.set_m3f(vv);
+		return is_identity(m);
+	}
+	const bool matrix::is_identity(const matrix& m) {
+		bool is_identity = false;
+		if (is_same_size(m)) {
+			for (int i = 0; i != m.get_row_size(); i++) {
+				for (int j = 0; j != m.get_column_size(); j++) {
+					if (m.get_mf()[i][i] == 1 && (i != j && m.get_mf()[i][j] == 0)) {
+						is_identity = true;
+					}
+					else {
+						is_identity = false;
+						break;
+					}
+				}
+				if (!is_identity) {
+					break;
+				}
+			}
+		}
+		return is_identity;
+	}
+
+
 	//get, set
 	const std::vector<std::vector<float>>& matrix::get_mf() const {
 		return mf_;

@@ -1,5 +1,6 @@
 #pragma once
 #include "unit.h"
+#include "frame_image.h"
 
 namespace zee {
 	class monster : public interfaces::tickable {
@@ -8,7 +9,7 @@ namespace zee {
 		virtual ~monster() noexcept;
 
 		virtual void tick(float delta_time) override;
-		void move(const float& delta_time);
+		void rotate(const float& delta_time);
 		void render(win32gdi::device_context_dynamic& dest_dc);
 
 		const math::vec2f& get_rotate_point() const;
@@ -20,5 +21,8 @@ namespace zee {
 		math::vec2f rotate_point_;
 		math::vec2f rotate_origin_;
 		float angle_;
+		math::vec2i frame_x_;
+		math::vec2i frame_y_;
+		math::vec2f now_pos_;
 	};
 }
