@@ -13,6 +13,18 @@ namespace zee {
 		application::get().window_handle<HWND>();	//윈도우 핸들 가져오기
 		
 		game_init();
+
+		//테스트용
+		matrix m{ {1,0,0},{0,1,0},{0,0,1} };
+		if (m.is_identity()) {
+			ZEE_LOG(warning, TEXT("항등행렬임"), TEXT("-"));
+		}
+		else {
+			ZEE_LOG(warning, TEXT("항등행렬 아니니니니"), TEXT("-"));
+		}
+		m = { {2, 3}, {4,5} };
+		ZEE_LOG_DETAIL(warning, TEXT("역행렬임"), TEXT("-%s"), m.get_mf()[0][0]);
+
 	}
 	void stage::game_init() {
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();

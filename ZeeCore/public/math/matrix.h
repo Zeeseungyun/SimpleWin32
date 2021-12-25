@@ -7,8 +7,11 @@ namespace zee{
 namespace math {
 	class matrix {
 	public:
+		static constexpr float npos = -1.0f;
 		//기본
 		matrix() noexcept;
+		explicit matrix(const std::vector<vec2f>& vv) noexcept;
+		explicit matrix(const std::vector<vec3f>& vv) noexcept;
 		explicit matrix(const matrix& m) noexcept;
 		//2x2
 		explicit matrix(const vec2f v0, const vec2f v1) noexcept;
@@ -30,10 +33,19 @@ namespace math {
 		const bool is_same_column_vs_row_size(const std::vector<vec3f>& vv) const;
 		const bool is_same_column_vs_row_size(const matrix& m) const;
 
+		//matrix <-> vec
+		//const matrix& 
+
 		//연산자
 		const matrix& operator=(const matrix& m);
+		const matrix& operator+=(const std::vector<vec2f>& vv);
+		const matrix& operator+=(const std::vector<vec3f>& vv);
 		const matrix& operator+=(const matrix& m);
+		const matrix& operator-=(const std::vector<vec2f>& vv);
+		const matrix& operator-=(const std::vector<vec3f>& vv);
 		const matrix& operator-=(const matrix& m);
+		const matrix& operator*=(const std::vector<vec2f>& vv);
+		const matrix& operator*=(const std::vector<vec3f>& vv);
 		const matrix& operator*=(const matrix& m);
 
 		//연산
@@ -50,12 +62,10 @@ namespace math {
 		const float determinant(const std::vector<vec3f>& vv);
 		const float determinant(const matrix& m);
 		//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a). 없으면 로그 띄우고 초기 행렬 반환.
-		const std::vector<vec2f> inverse(const std::vector<vec2f>& vv);
-		const std::vector<vec2f> inverse(const matrix& m);
+		const matrix& inverse(const std::vector<vec2f>& vv);
+		const matrix& inverse(const matrix& m);
 		//항등행렬 여부
-		const bool is_identity(const std::vector<vec2f>& vv);
-		const bool is_identity(const std::vector<vec3f>& vv);
-		const bool is_identity(const matrix& m);
+		const bool is_identity();
 
 		//get, set
 		const std::vector<std::vector<float>>& get_mf() const;

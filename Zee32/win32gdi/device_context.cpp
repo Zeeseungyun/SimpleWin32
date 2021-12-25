@@ -209,15 +209,16 @@ namespace zee {
 				, {src_size.x / 2, -src_size.y / 2}
 				, {-src_size.x / 2, src_size.y / 2}
 			};
+			
+			const std::vector<math::vec2f> vv_rotate{
+				{ cos(angle), -sin(angle) }
+				, { sin(angle), cos(angle) }
+				, { point.x, point.y }
+			};
 
-			//Çà·Ä°ö
 			for (int i = 0; i != 3; i++) {
-				vm[i].set_m2f({
-					{ cos(angle), -sin(angle) }
-					, { sin(angle), cos(angle) }
-					, { point.x, point.y }
-				});
-				vm[i].mul(vv[i]);
+				vm[i].set_m2f(vv_rotate);
+				vm[i].mul(vv[i]);	//Çà·Ä°ö
 			}
 
 			std::vector<POINT> v_point;

@@ -29,7 +29,7 @@ namespace zee {
 			}
 		}
 
-		frame_image::get().render_rotate(dest_dc);
+		frame_image::get().render_transparent(dest_dc);
 	}
 
 	const math::vec2f& monster::get_rotate_point() const {

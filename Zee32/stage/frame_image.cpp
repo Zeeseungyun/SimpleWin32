@@ -40,7 +40,7 @@ namespace zee {
 		}
 	}
 
-	void frame_image::render_rotate(win32gdi::device_context_dynamic& dest_dc) {
+	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc) {
 		if (frame_image_.is_valid()) {
 			back_buffer_.transparent_blt(dest_dc, {}, RGB(255, 255, 255));
 		}
