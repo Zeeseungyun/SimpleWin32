@@ -15,16 +15,22 @@ namespace zee {
 		game_init();
 
 		//테스트용
-		matrix m{ {1,0,0},{0,1,0},{0,0,1} };
+		matrix m;
+		//행렬식
+		m.set_m2f({ {2,3}, {4,6} });
+		m.determinant();
+		//항등행렬
+		m.set_m3f({ {1, 0, 0}, {0,1,0}, {0,0,1} });
 		if (m.is_identity()) {
-			ZEE_LOG(warning, TEXT("항등행렬임"), TEXT("-"));
+			ZEE_LOG(warning, TEXT("항등행렬 임"), TEXT("-"));
 		}
 		else {
 			ZEE_LOG(warning, TEXT("항등행렬 아니니니니"), TEXT("-"));
 		}
-		m = { {2, 3}, {4,5} };
-		ZEE_LOG_DETAIL(warning, TEXT("역행렬임"), TEXT("-%s"), m.get_mf()[0][0]);
-
+		//역행렬
+		std::vector<math::vec2f> vv = { {2,3}, {4,5} };
+		m.inverse(vv);
+		ZEE_LOG(warning, TEXT("중단점 찍는곳"), TEXT("-"));
 	}
 	void stage::game_init() {
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();

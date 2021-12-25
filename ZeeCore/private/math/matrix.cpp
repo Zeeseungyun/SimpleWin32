@@ -39,7 +39,7 @@ namespace math {
 			return true;
 		}
 		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("row size != matrix member row size"));
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 사이즈 != 열 사이즈"));
 		}
 		return false;
 	}
@@ -48,7 +48,7 @@ namespace math {
 			return true;
 		}
 		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("row size != matrix member row size"));
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 사이즈 != 열 사이즈"));
 		}
 		return false;
 	}
@@ -57,68 +57,28 @@ namespace math {
 			return true;
 		}
 		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("row size != matrix member row size"));
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 사이즈 != 열 사이즈"));
 		}
 		return false;
 	}
 
 	//곱셈에서 앞행렬의 열과 뒷행렬의 행이 같아야 함 (+ 3x2 1x2 연산 위해 1 차이만큼을 인정함)
-	const bool matrix::is_same_column_vs_row_size(const std::vector<vec2f>& vv) const {
-		if (column == vv.size() || column == vv.size() + 1) {
-			return true;
-		}
-		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("first matrix column size != second matrix row size"));
-		}
-		return false;
-	}
-	const bool matrix::is_same_column_vs_row_size(const std::vector<vec3f>& vv) const {
-		if (column == vv.size() || column == vv.size() + 1) {
-			return true;
-		}
-		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("first matrix column size != second matrix row size"));
-		}
-		return false;
-	}
 	const bool matrix::is_same_column_vs_row_size(const matrix& m) const {
 		if (row == m.get_column_size() || row == m.get_column_size() + 1) {
 			return true;
 		}
 		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("first matrix column size != second matrix row size"));
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("첫 행렬의 열 사이즈 != 두번째 행렬의 행 사이즈"));
 		}
 		return false;
 	}
 
 	//연산자
-	const matrix& matrix::operator=(const std::vector<vec2f> vv) {
-		set_m2f(vv);
-		return *this;
-	}
-	const matrix& matrix::operator=(const std::vector<vec3f> vv) {
-		set_m3f(vv);
-		return *this;
-	}
 	const matrix& matrix::operator=(const matrix& m) {
 		set_mf(m);
 		return *this;
 	}
 
-	const matrix& matrix::operator+=(const std::vector<vec2f>& vv) {
-		if (is_same_size(vv)) {
-			matrix m{ vv };
-			add(m);
-		}
-		return *this;
-	}
-	const matrix& matrix::operator+=(const std::vector<vec3f>& vv) {
-		if (is_same_size(vv)) {
-			matrix m{ vv };
-			add(m);
-		}
-		return *this;
-	}
 	const matrix& matrix::operator+=(const matrix& m) {
 		if (is_same_size(m)) {
 			add(m);
@@ -126,20 +86,6 @@ namespace math {
 		return *this;
 	}
 
-	const matrix& matrix::operator-=(const std::vector<vec2f>& vv) {
-		if (is_same_size(vv)) {
-			matrix m{ vv };
-			sub(m);
-		}
-		return *this;
-	}
-	const matrix& matrix::operator-=(const std::vector<vec3f>& vv) {
-		if (is_same_size(vv)) {
-			matrix m{ vv };
-			sub(m);
-		}
-		return *this;
-	}
 	const matrix& matrix::operator-=(const matrix& m) {
 		if (is_same_size(m)) {
 			sub(m);
@@ -147,20 +93,6 @@ namespace math {
 		return *this;
 	}
 
-	const matrix& matrix::operator*=(const std::vector<vec2f>& vv) {
-		if (is_same_size(vv)) {
-			matrix m{ vv };
-			mul(m);
-		}
-		return *this;
-	}
-	const matrix& matrix::operator*=(const std::vector<vec3f>& vv) {
-		if (is_same_size(vv)) {
-			matrix m{ vv };
-			mul(m);
-		}
-		return *this;
-	}
 	const matrix& matrix::operator*=(const matrix& m) {
 		if (is_same_size(m)) {
 			mul(m);
@@ -241,32 +173,20 @@ namespace math {
 	}
 
 	//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
-	const float matrix::determinant(const std::vector<vec2f>& vv) {
-		if (vv.size() == 2 && vv[0].size() == 2) {
-			*this = vv;
+	const float matrix::determinant() {
+		if (row == 2 && column == 2) {
+			return mf_[0][0] * mf_[1][1] - mf_[0][1] * mf_[1][0];
 		}
-		return determinant(*this);
-	}
-	const float matrix::determinant(const std::vector<vec3f>& vv) {
-		if (vv.size() == 3 && vv[0].size() == 3) {
-			*this = vv;
-		}
-		return determinant(*this);
-	}
-	const float matrix::determinant(const matrix& m) {
-		if (m.get_row_size() == 2 && m.get_column_size() == 2) {
-			return m.get_mf()[0][0] * m.get_mf()[1][1] - m.get_mf()[0][1] * m.get_mf()[1][0];
-		}
-		else if (m.get_row_size() == 3 && m.get_column_size() == 3) {
-			float a = m.get_mf()[0][0], b = m.get_mf()[0][1], c = m.get_mf()[0][2];
-			float d = m.get_mf()[1][0], e = m.get_mf()[1][1], f = m.get_mf()[1][2];
-			float g = m.get_mf()[2][0], h = m.get_mf()[2][1], i = m.get_mf()[2][2];
+		else if (row == 3 && column == 3) {
+			float a = mf_[0][0], b = mf_[0][1], c = mf_[0][2];
+			float d = mf_[1][0], e = mf_[1][1], f = mf_[1][2];
+			float g = mf_[2][0], h = mf_[2][1], i = mf_[2][2];
 			return d * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
 		}
 		else {
 			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
+			return npos;
 		}
-		return npos;
 	}
 
 
@@ -280,14 +200,13 @@ namespace math {
 	const matrix& matrix::inverse(const matrix& m) {
 		matrix ret;
 		if (m.get_row_size() == 2 && m.get_column_size() == 2) {
-			*this = m;
 			if (m.get_mf()[0][0] * m.get_mf()[1][1] - m.get_mf()[0][1] * m.get_mf()[1][0]) {
 				float a = m.get_mf()[0][0], b = m.get_mf()[0][1];
 				float c = m.get_mf()[1][0], d = m.get_mf()[1][1];
-				ret = {
+				ret.set_m2f({
 					{ 1 / (a * d - b * c) * d, 1 / (a * d - b * c) * -b },
 					{ 1 / (a * d - b * c) * -c, 1 / (a * d - b * c) * a }
-				};
+				});
 			}
 			else {
 				ZEE_LOG(warning, TEXT("matrix"), TEXT("ad - bc가 0이면 역행렬을 만들 수 없습니다."));
@@ -342,7 +261,10 @@ namespace math {
 	void matrix::set_m2f(const std::vector<vec2f>& vv) {
 		row = vv.size();
 		column = vv[0].size();
-		mf_.resize(vv.size(), std::vector<float>(vv[0].size(), npos));
+		mf_.resize(vv.size());
+		for (int i = 0; i != row; i++) {
+			mf_[i].resize(vv[i].size());
+		}
 		//1x2, 2x2, 3x2
 		for (int i = 0; i != row; i++) {
 			for (int j = 0; j != column; j++) {
@@ -353,7 +275,10 @@ namespace math {
 	void matrix::set_m3f(const std::vector<vec3f>& vv) {
 		row = vv.size();
 		column = vv[0].size();
-		mf_.resize(vv.size(), std::vector<float>(vv[0].size(), npos));
+		mf_.resize(vv.size());
+		for (int i = 0; i != row; i++) {
+			mf_[i].resize(vv[i].size());
+		}
 		//1x3, 3x3, 4x3
 		for (int i = 0; i != row; i++) {
 			for (int j = 0; j != column; j++) {

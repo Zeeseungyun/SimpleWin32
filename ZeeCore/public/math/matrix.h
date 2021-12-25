@@ -29,23 +29,12 @@ namespace math {
 		const bool is_same_size(const matrix& m) const;
 
 		//곱셈에서 앞행렬의 열과 뒷행렬의 행이 같아야 함
-		const bool is_same_column_vs_row_size(const std::vector<vec2f>& vv) const;
-		const bool is_same_column_vs_row_size(const std::vector<vec3f>& vv) const;
 		const bool is_same_column_vs_row_size(const matrix& m) const;
-
-		//matrix <-> vec
-		//const matrix& 
 
 		//연산자
 		const matrix& operator=(const matrix& m);
-		const matrix& operator+=(const std::vector<vec2f>& vv);
-		const matrix& operator+=(const std::vector<vec3f>& vv);
 		const matrix& operator+=(const matrix& m);
-		const matrix& operator-=(const std::vector<vec2f>& vv);
-		const matrix& operator-=(const std::vector<vec3f>& vv);
 		const matrix& operator-=(const matrix& m);
-		const matrix& operator*=(const std::vector<vec2f>& vv);
-		const matrix& operator*=(const std::vector<vec3f>& vv);
 		const matrix& operator*=(const matrix& m);
 
 		//연산
@@ -58,9 +47,7 @@ namespace math {
 
 		
 		//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
-		const float determinant(const std::vector<vec2f>& vv);
-		const float determinant(const std::vector<vec3f>& vv);
-		const float determinant(const matrix& m);
+		const float determinant();
 		//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a). 없으면 로그 띄우고 초기 행렬 반환.
 		const matrix& inverse(const std::vector<vec2f>& vv);
 		const matrix& inverse(const matrix& m);
@@ -75,7 +62,6 @@ namespace math {
 		void set_m2f(const std::vector<vec2f>& vv);
 		void set_m3f(const std::vector<vec3f>& vv);
 		void set_mf(const matrix& m);
-
 
 
 	private:
