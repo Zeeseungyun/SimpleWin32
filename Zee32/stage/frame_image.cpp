@@ -40,9 +40,9 @@ namespace zee {
 		}
 	}
 
-	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc) {
+	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos) {
 		if (frame_image_.is_valid()) {
-			back_buffer_.transparent_blt(dest_dc, {}, RGB(255, 255, 255));
+			back_buffer_.transparent_blt(dest_dc, dest_pos, RGB(255, 255, 255));
 		}
 	}
 

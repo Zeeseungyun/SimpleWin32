@@ -10,14 +10,17 @@
 #include "background_image.h"
 #include "unit.h"
 #include "monster.h"
+#include "bullet.h"
 #include "../../ZeeCore/public/math/matrix.h"//테스트용
 
 namespace zee {
 	enum e_kind_of_background {
 		loop, scroll
 	};
-	//@param kind_of_background ==> background 종류 변경하려면 여기서 조정
+	//@param kind_of_background ==> background 종류 변경
 	static const int kind_of_background = loop;
+	//@param background_direction_ ==> background loop 방향 조정 0~3
+	static const int background_direction_ = 2;
 
 	class stage : public interfaces::tickable, public std::enable_shared_from_this<stage> {
 	public:
@@ -30,10 +33,17 @@ namespace zee {
 		void tick(float delta_time) override;
 		void render(win32gdi::device_context_base& dest_dc);
 
+		const math::vec2f& get_background_src_pos() const;
+		const math::vec2f& get_background_src_size() const;
+		void set_background_src_pos(const math::vec2f& src_pos);
+		void set_background_src_size(const math::vec2f& size);
+
 	private:
 		win32gdi::device_context_dynamic back_buffer_;
 		std::vector<std::shared_ptr<unit>> units_;
 		std::vector<std::shared_ptr<monster>> monsters_;
+		math::vec2f background_src_pos_;
+		math::vec2i background_src_size_;
 	};
 }
 

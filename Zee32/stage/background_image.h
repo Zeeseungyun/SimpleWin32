@@ -8,7 +8,6 @@ namespace zee {
 
 		void load_background_image(const math::vec2i& background_size, const TCHAR* filename);
 		void render(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& src_pos);
-		void render_loop(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& src_pos, const int& direction);
 
 
 	private:
@@ -18,6 +17,5 @@ namespace zee {
 
 		win32gdi::device_context_dynamic background_image_;
 		math::vec2i size_;
-		math::vec2i max_size_;
 	};
 }

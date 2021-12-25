@@ -1,8 +1,12 @@
 #include "monster.h"
 
 namespace zee {
-	monster::monster() noexcept : rotate_origin_({ 0, 0 }), angle_(0.0f), rotate_point_({ 0, 0 })
-		, frame_x_({ 0, 0 }), frame_y_({ 0, 0 }), now_pos_({ 0, 0 }) {
+	monster::monster() noexcept :
+		frame_x_({ 0, 0 })
+		, frame_y_({ 0, 0 })
+		, now_pos_({ 0, 0 })
+		, rotate_point_({ 0, 0 })
+		, angle_(0.0f) {
 	}
 	monster::~monster() noexcept {
 	}
@@ -29,7 +33,7 @@ namespace zee {
 			}
 		}
 
-		frame_image::get().render_transparent(dest_dc);
+		frame_image::get().render_transparent(dest_dc, {});
 	}
 
 	const math::vec2f& monster::get_rotate_point() const {
@@ -40,8 +44,5 @@ namespace zee {
 	}
 	void monster::set_rotate_point(const math::vec2f& point) {
 		rotate_point_ = point;
-	}
-	void monster::set_rotate_origin(const math::vec2f& point) {
-		rotate_origin_ = point;
 	}
 }

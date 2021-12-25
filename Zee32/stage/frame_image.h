@@ -13,8 +13,9 @@ namespace zee {
 		void render(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y);
 		void render_background_to_backbuffer(win32gdi::device_context_dynamic& dest_dc);
 		void render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y);
-		void render_transparent(win32gdi::device_context_dynamic& dest_dc);
+		void render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos);
 		void render_plg(win32gdi::device_context_dynamic& dest_dc, const math::vec2f& point, const float& angle);
+	
 	private:
 		frame_image() noexcept;
 		frame_image(const frame_image&) = delete;
