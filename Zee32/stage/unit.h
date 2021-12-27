@@ -7,12 +7,6 @@
 #include "bullet.h"
 
 namespace zee {
-	enum e_unit_state {
-		spawn,
-		idle,
-		shooting,
-		die
-	};
 	class unit : public interfaces::tickable {
 	public:
 		unit() noexcept;
@@ -26,6 +20,7 @@ namespace zee {
 		const math::vec2f& get_now_pos() const;
 		const int& get_direction_() const;
 		const bool get_is_pressed() const;
+		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
 		void set_size(const math::vec2i& size);
 		void set_max_move_size(const math::vec2i& size);
 		void set_now_pos(const math::vec2f& now_pos);
@@ -39,7 +34,7 @@ namespace zee {
 		int direction_;
 		bool is_dir_key_pressed;
 		float frame_per_time_;
+		
 		std::vector<std::shared_ptr<bullet>> bullets_;
-		int state_;
 	};
 }

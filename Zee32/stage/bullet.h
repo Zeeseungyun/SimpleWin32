@@ -16,6 +16,7 @@ namespace zee {
 
 		const math::vec2i& get_frame_x() const;
 		const math::vec2i& get_frame_y() const;
+		const shape::rectf& get_rect() const;
 		const math::vec2f& get_now_pos() const;
 		const int& get_direction() const;
 		void set_size(const math::vec2i& size);
@@ -28,6 +29,7 @@ namespace zee {
 		math::vec2i max_move_size_;
 		math::vec2i frame_x_;
 		math::vec2i frame_y_;
+		shape::rectf rect;
 		math::vec2f now_pos_;
 		int direction_;
 		float frame_per_time_;

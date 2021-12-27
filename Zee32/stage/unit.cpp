@@ -11,8 +11,9 @@ namespace zee {
 		, now_pos_({ 0, 0 })
 		, direction_(0)
 		, is_dir_key_pressed(false)
-		, frame_per_time_(0.0f)
-		, state_(idle)	{
+		, frame_per_time_(0.0f) {
+		
+		frame_image::get().load_frame_image({ 1152, 2048 }, { 64, 64 }, TEXT("assets/walk.bmp"), (int)frame_image_index::player);
 	}
 	unit::~unit() noexcept {
 	}
@@ -40,21 +41,29 @@ namespace zee {
 			is_dir_key_pressed = true;
 			direction_ = 3;
 		}
-		else if (key_state::is_down(keys::space)) {
+		if (key_state::is_down(keys::space)) {
+			static float delay = 0.3f;
+			delay += delta_time;
+			if (delay >= 0.3f) {
+				std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
 
-			std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+				spawned_bullet->set_max_move_size({ 1152, 2048 });
+				spawned_bullet->set_size({ 14, 14 });
+				spawned_bullet->set_now_pos(now_pos_ + size_ / 2);
+				spawned_bullet->set_direction(0);
+				bullets_.push_back(spawned_bullet);
+				
+				static const int max_bullet_num = 20;
+				if (bullets_.size() >= max_bullet_num) {
+					bullets_.erase(bullets_.begin());
+				}
 
-			spawned_bullet->set_max_move_size({ 800, 900 });
-			spawned_bullet->set_now_pos(now_pos_);
-			spawned_bullet->set_size({ 64, 64 });
-			spawned_bullet->set_direction(0);
-
-			bullets_.push_back(spawned_bullet);
-
-			for (auto& bullet_obj : bullets_) {
-				bullet_obj->move(delta_time);
+				delay = 0.0f;
 			}
-			state_ = shooting;
+		}
+		
+		for (auto& bullet_obj : bullets_) {
+			bullet_obj->tick(delta_time);
 		}
 
 
@@ -98,20 +107,19 @@ namespace zee {
 			}
 		}
 	}
+
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
-		frame_image::get().render_background_to_backbuffer(dest_dc);
+		frame_image::get().render_destdc_to_backbuffer(dest_dc);
 		frame_image::get().render_alphablend(
 			dest_dc
 			, now_pos_
 			, frame_x_
 			, frame_y_
+			, 0
 		);
 
-		if (state_ == shooting) {
-			for (auto& bullet_obj : bullets_) {
-				bullet_obj->render(dest_dc);
-			}
-			state_ = idle;
+		for (auto& bullet_obj : bullets_) {
+			bullet_obj->render(dest_dc);
 		}
 	}
 
@@ -129,6 +137,9 @@ namespace zee {
 	}
 	const bool unit::get_is_pressed() const {
 		return is_dir_key_pressed;
+	}
+	const std::vector<std::shared_ptr<bullet>> unit::get_bullets() const {
+		return bullets_;
 	}
 	void unit::set_size(const math::vec2i& size) {
 		size_ = size;

@@ -132,12 +132,6 @@
     <Image Include="assets\walk.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\game_background_loop.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="assets\game_background_loop2.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
     <Image Include="assets\game_background_stop.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
@@ -145,6 +139,12 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="assets\game_background_loop_vertical.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\bullet.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_1.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

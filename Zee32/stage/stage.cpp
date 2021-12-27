@@ -19,27 +19,24 @@ namespace zee {
 		game_init();
 
 		//테스트용
-		matrix m;
+		/*matrix m;
 		//행렬식
 		m.set_m2f({ {2,3}, {4,6} });
 		m.determinant();
 		//항등행렬
 		m.set_m3f({ {1, 0, 0}, {0,1,0}, {0,0,1} });
 		if (m.is_identity()) {
-			ZEE_LOG(warning, TEXT("항등행렬 임"), TEXT("-"));
+			ZEE_LOG(normal, TEXT("항등행렬 임"), TEXT("-"));
 		}
 		else {
 			ZEE_LOG(warning, TEXT("항등행렬 아니니니니"), TEXT("-"));
 		}
 		//역행렬
 		std::vector<math::vec2f> vv = { {2,3}, {4,5} };
-		m.inverse(vv);
+		m.inverse(vv);*/
 	}
 
 	void stage::game_init() {
-		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
-		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
-
 		switch (kind_of_background)	{
 		case loop:
 			background_image::get().load_background_image({ 800, 1200 }, TEXT("assets/game_background_loop_vertical.bmp"));
@@ -51,17 +48,18 @@ namespace zee {
 			background_src_pos_ = { 0.0f, 1100.0f};	//y축 시작위치 설정
 			break;
 		}
-		//프레임 이미지
-		frame_image::get().load_frame_image({ 1152, 2048 }, { 64, 64 }, TEXT("assets/walk.bmp"));
-
-
+		
 		//유닛 세팅
+		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
 		spawned_unit->set_size({ 64, 64 });
 		spawned_unit->set_max_move_size({ 705, 770 });
 		spawned_unit->set_now_pos({ 350, 650 });
 		units_.push_back(spawned_unit);
+
 		//몬스터 세팅
-		spawned_monster->set_rotate_point({ 0.0f, 0.0f });
+		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
+		spawned_monster->set_now_pos({ 100.0f, 100.0f });
+		spawned_monster->set_frame_size({ 48, 38 });
 		monsters_.push_back(spawned_monster);
 	}
 
@@ -79,8 +77,8 @@ namespace zee {
 		case loop: {
 			static const float show_loop_time = 120.0f;
 			switch (background_direction_) {
-				//배경 루프 이미지
-				//direction 이미지 기준 0: 좌->우.. 1: 우->좌.. 2: 상->하.. 3: 하->상
+			//배경 루프 이미지
+			//direction 이미지 기준 0: 좌->우.. 1: 우->좌.. 2: 상->하.. 3: 하->상
 			case 0:
 			case 1:
 				background_src_pos_.x += delta_time * show_loop_time;
@@ -126,12 +124,21 @@ namespace zee {
 		}//case
 		}//switch (kind_of_background)
 
-
+		//유닛 틱
 		for (auto& unit_obj : units_) {
 			unit_obj->tick(delta_time);
 		}
+		//몬스터 틱
 		for (auto& mon_obj : monsters_) {
 			mon_obj->tick(delta_time);
+		}
+		//충돌 틱
+		for (auto& mon_obj : monsters_) {
+			for (auto& bullet_obj : units_[0]->get_bullets()) {
+				if (shape::intersect(mon_obj->get_rect(), bullet_obj->get_rect()) != shape::collide_type::none) {
+					ZEE_LOG(normal, TEXT("충돌"), TEXT("충돌"));
+				}
+			}
 		}
 	}
 
@@ -200,7 +207,7 @@ namespace zee {
 		for (auto& unit_obj : units_) {
 			unit_obj->render(back_buffer_);
 		}
-
+		//몬스터
 		for (auto& mon_obj : monsters_) {
 			mon_obj->render(back_buffer_);
 		}
@@ -208,10 +215,10 @@ namespace zee {
 		back_buffer_.bit_blt(dest_dc, {});
 	}
 
-	const math::vec2f& stage::get_background_src_pos() const {
+	const math::vec2f stage::get_background_src_pos() const {
 		return background_src_pos_;
 	}
-	const math::vec2f& stage::get_background_src_size() const {
+	const math::vec2f stage::get_background_src_size() const {
 		return background_src_size_;
 	}
 	void stage::set_background_src_pos(const math::vec2f& src_pos) {
