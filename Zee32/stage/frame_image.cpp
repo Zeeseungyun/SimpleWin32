@@ -1,10 +1,11 @@
 #include "frame_image.h"
+#include "stage.h"
 
 namespace zee {
 	frame_image::frame_image() noexcept {
-		frame_sizes_.resize(3);
-		max_frame_sizes_.resize(3);
-		frame_images_.resize(3);
+		frame_sizes_.resize((int)obj_type::max);
+		max_frame_sizes_.resize((int)obj_type::max);
+		frame_images_.resize((int)obj_type::max);
 	}
 	frame_image& frame_image::get() {
 		static std::unique_ptr<frame_image> inst;
@@ -28,26 +29,21 @@ namespace zee {
 		}
 	}
 
-	void frame_image::render(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y, const int& i) {
-		if (frame_images_[i].is_valid()) {
-			frame_images_[i].transparent_blt(dest_dc, dest_pos, frame_sizes_[i], frame_x + frame_y, frame_sizes_[i], RGB(255, 255, 255));
-		}
-	}
-
 	void frame_image::render_destdc_to_backbuffer(win32gdi::device_context_dynamic& dest_dc) {
 		dest_dc.bit_blt(back_buffer_, {});
 	}
 
-	void frame_image::render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y, const int& i) {
+	void frame_image::render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int& i) {
 		if (frame_images_[i].is_valid()) {
-			render_transparent(dest_dc, dest_pos, frame_x, frame_y, i);
+			frame_images_[i].transparent_blt(back_buffer_, dest_pos, frame_sizes_[i], src_pos, frame_sizes_[i], RGB(255, 255, 255));
 			back_buffer_.alphablend(dest_dc, {}, 0.5f);
 		}
 	}
 
-	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& frame_x, const math::vec2i& frame_y, const int& i) {
+	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int& i) {
 		if (frame_images_[i].is_valid()) {
-			frame_images_[i].transparent_blt(dest_dc, dest_pos, frame_sizes_[i], frame_x + frame_y, frame_sizes_[i], RGB(255, 255, 255));
+			frame_images_[i].transparent_blt(back_buffer_, dest_pos, frame_sizes_[i], src_pos, frame_sizes_[i], RGB(255, 255, 255));
+			back_buffer_.bit_blt(dest_dc, {});
 		}
 	}
 

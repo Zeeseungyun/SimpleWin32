@@ -1,7 +1,7 @@
 #include "background_image.h"
 
 namespace zee {
-	background_image::background_image() noexcept : size_({ 0, 0 }) {
+	background_image::background_image() noexcept {
 	}
 	background_image& background_image::get() {
 		static std::unique_ptr<background_image> inst;

@@ -3,9 +3,7 @@
 namespace zee {
 	using namespace math;
 
-	stage::stage() noexcept : 
-		background_src_pos_({ 0.0f, 0.0f })
-		, background_src_size_({ 0, 0 }) {
+	stage::stage() noexcept {
 	}
 	stage::~stage() noexcept {
 	}
@@ -37,29 +35,51 @@ namespace zee {
 	}
 
 	void stage::game_init() {
-		switch (kind_of_background)	{
+		switch (background_type_)	{
 		case loop:
-			background_image::get().load_background_image({ 800, 1200 }, TEXT("assets/game_background_loop_vertical.bmp"));
+			background_image::get().load_background_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
+				, TEXT("assets/game_background_loop_vertical.bmp"));
 			background_src_pos_ = { 0.0f, 0.0f };
-			background_src_size_ = { 800, 1200 };
+			background_src_size_ = { (int)back_loop_max_size_x, (int)back_loop_max_size_y };
 			break;
 		case scroll:
-			background_image::get().load_background_image({ 1152, 2048 }, TEXT("assets/game_background_stop.bmp"));
-			background_src_pos_ = { 0.0f, 1100.0f};	//y축 시작위치 설정
+			background_image::get().load_background_image({ (int)back_scroll_max_size_x, (int)back_scroll_max_size_y }
+				, TEXT("assets/game_background_stop.bmp"));
+			background_src_pos_ = { (float)back_scroll_default_unit_pos_x, (float)back_scroll_default_unit_pos_y };	//y축 시작위치 설정
 			break;
 		}
 		
 		//유닛 세팅
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
-		spawned_unit->set_size({ 64, 64 });
-		spawned_unit->set_max_move_size({ 705, 770 });
-		spawned_unit->set_now_pos({ 350, 650 });
+		spawned_unit->set_size({ (int)unit_size_x, (int)unit_size_y });
+		spawned_unit->set_body({ (float)unit_default_pos_x, (float)unit_default_pos_y });
+		spawned_unit->set_frame_size({ (int)unit_default_frame_x, (int)unit_default_frame_y });
+		spawned_unit->set_max_move_size({ (int)unit_max_move_size_x, (int)unit_max_move_size_y });
 		units_.push_back(spawned_unit);
 
 		//몬스터 세팅
+		spawn_monster((int)obj_spawn::mon_left);
+		spawn_monster((int)obj_spawn::mon_middle);
+		spawn_monster((int)obj_spawn::mon_right);
+	}
+	void stage::spawn_monster(const int& i) {
 		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
-		spawned_monster->set_now_pos({ 100.0f, 100.0f });
-		spawned_monster->set_frame_size({ 48, 38 });
+		spawned_monster->set_size({ (int)monster_size_x, (int)monster_size_y });
+		switch (i)
+		{
+		case (int)obj_spawn::mon_left:
+			spawned_monster->set_spawn_point((int)obj_spawn::mon_left);
+			spawned_monster->set_body({ (float)monster_default_left_pos_x, (float)monster_default_left_pos_y });
+			break;
+		case (int)obj_spawn::mon_middle:
+			spawned_monster->set_spawn_point((int)obj_spawn::mon_middle);
+			spawned_monster->set_body({ (float)monster_default_middle_pos_x, (float)monster_default_middle_pos_y });
+			break;		
+		case (int)obj_spawn::mon_right:
+			spawned_monster->set_spawn_point((int)obj_spawn::mon_right);
+			spawned_monster->set_body({ (float)monster_default_right_pos_x, (float)monster_default_right_pos_y });
+			break;
+		}
 		monsters_.push_back(spawned_monster);
 	}
 
@@ -73,48 +93,48 @@ namespace zee {
 	}
 
 	void stage::tick(float delta_time) {
-		switch (kind_of_background) {
+		switch (background_type_) {
 		case loop: {
-			static const float show_loop_time = 120.0f;
+			const float speed = 120.0f;
 			switch (background_direction_) {
 			//배경 루프 이미지
 			//direction 이미지 기준 0: 좌->우.. 1: 우->좌.. 2: 상->하.. 3: 하->상
 			case 0:
 			case 1:
-				background_src_pos_.x += delta_time * show_loop_time;
+				background_src_pos_.x += delta_time * speed;
 				background_src_pos_.x = (float)math::fmod(background_src_pos_.x, background_src_size_.x);
 				break;
 			case 2:
 			case 3:
-				background_src_pos_.y += delta_time * show_loop_time;
+				background_src_pos_.y += delta_time * speed;
 				background_src_pos_.y = (float)math::fmod(background_src_pos_.y, background_src_size_.y);
 				break;
 			}
-			break;
+			break;	//loop 끝
 		}
 
 		case scroll: {
-			static const int background_speed = 10;
+			const int background_speed = 10;
 			if (units_[0]->get_is_pressed()) {
-				switch (units_[0]->get_direction_()) {
+				switch (units_[0]->get_direction()) {
 				//배경 정지 이미지
 				case 0:
-					if (units_[0]->get_now_pos().y > 0 && background_src_pos_.y > 0) {
+					if (units_[0]->get_body().data[0].y > 0 && background_src_pos_.y > 0) {
 						background_src_pos_.y -= background_speed;
 					}
 					break;
 				case 1:
-					if (units_[0]->get_now_pos().x > 0 && background_src_pos_.x > 0) {
+					if (units_[0]->get_body().data[0].x > 0 && background_src_pos_.x > 0) {
 						background_src_pos_.x -= background_speed;
 					}
 					break;
 				case 2:
-					if (units_[0]->get_now_pos().y < 770 && background_src_pos_.y < 1152) {
+					if (units_[0]->get_body().data[0].y < (int)back_scroll_unit_max_move_y && background_src_pos_.y < (int)back_scroll_max_y) {
 						background_src_pos_.y += background_speed;
 					}
 					break;
 				case 3:
-					if (units_[0]->get_now_pos().x < 705 && background_src_pos_.x < 390) {
+					if (units_[0]->get_body().data[0].x < (int)back_scroll_unit_max_move_x && background_src_pos_.x < (int)back_scroll_max_x) {
 						background_src_pos_.x += background_speed;
 					}
 					break;
@@ -128,44 +148,60 @@ namespace zee {
 		for (auto& unit_obj : units_) {
 			unit_obj->tick(delta_time);
 		}
-		//몬스터 틱
 		for (auto& mon_obj : monsters_) {
+			//적 틱
 			mon_obj->tick(delta_time);
-		}
-		//충돌 틱
-		for (auto& mon_obj : monsters_) {
+
+			//플레이어 총알 vs 적 충돌 틱
 			for (auto& bullet_obj : units_[0]->get_bullets()) {
-				if (shape::intersect(mon_obj->get_rect(), bullet_obj->get_rect()) != shape::collide_type::none) {
-					ZEE_LOG(normal, TEXT("충돌"), TEXT("충돌"));
+				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) 
+					!= shape::collide_type::none) {
+
+					bullet_obj->set_state((int)obj_state::hit);
+					bullet_obj->set_bomb_point(bullet_obj->get_body().data[0]);
+					bullet_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+					mon_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
 				}
+			}
+
+			//적 총알 vs 플레이어 충돌 틱
+			for (auto& bullet_obj : mon_obj->get_bullets()) {
+				//의도: 난이도 조절 위해 플레이어는 총알에 완전 중첩되어야 피격 판정
+				if (shape::intersect(units_[0]->get_body(), bullet_obj->get_body()) 
+					== shape::collide_type::contain) {
+
+					bullet_obj->set_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
+					units_[0]->set_state((int)obj_state::hit);
+				}
+			}
+
+			//적 vs 플레이어 충돌 틱
+			if (shape::intersect(mon_obj->get_body(), units_[0]->get_body())
+				!= shape::collide_type::none) {
+
+				units_[0]->set_state((int)obj_state::hit);
 			}
 		}
 	}
 
 	void stage::render(win32gdi::device_context_base& dest_dc) {
 		if (back_buffer_.is_valid()) {
-			switch (kind_of_background)	{
+			switch (background_type_)	{
 			case loop:
 				//배경 루프 이미지
 				//direction 이미지 기준 0: 좌->우.. 1: 우->좌.. 2: 상->하.. 3: 하->상
 				switch (background_direction_)
 				{
 				case 0:
+					background_image::get().render(back_buffer_, -background_src_pos_);
 					background_image::get().render(
 						back_buffer_
-						, -background_src_pos_
-					);
-					background_image::get().render(
-						back_buffer_ 
 						, { -background_src_pos_.x + background_src_size_.x
 						, background_src_pos_.y }
 					);
 					break;
 				case 1:
-					background_image::get().render(
-						back_buffer_
-						, background_src_pos_
-					);
+					background_image::get().render(back_buffer_, background_src_pos_);
 					background_image::get().render(
 						back_buffer_
 						, { background_src_pos_.x - background_src_size_.x
@@ -173,10 +209,7 @@ namespace zee {
 					);
 					break;
 				case 2:
-					background_image::get().render(
-						back_buffer_
-						, -background_src_pos_
-					);
+					background_image::get().render(back_buffer_, -background_src_pos_);
 					background_image::get().render(
 						back_buffer_
 						, { background_src_pos_.x
@@ -184,10 +217,7 @@ namespace zee {
 					);
 					break;
 				case 3:
-					background_image::get().render(
-						back_buffer_
-						, background_src_pos_
-					);
+					background_image::get().render(back_buffer_, background_src_pos_);
 					background_image::get().render(
 						back_buffer_
 						, { background_src_pos_.x
