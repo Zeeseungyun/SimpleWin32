@@ -275,7 +275,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
 
 		if (stage_) {
-			stage_->render(temp_dc);
+			stage_->render(temp_dc, g_fps);
 		}
 		return 0;
 	}//WM_PAINT

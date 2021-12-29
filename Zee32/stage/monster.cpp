@@ -9,8 +9,7 @@ namespace zee {
 		, frame_y_()
 		, center_point_()
 		, angle_()
-		, spawn_point_()
-		, shoot_delay()  {
+		, spawn_pos_type_()  {
 		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
 			, { (int)monster_size_x, (int)monster_size_y }, TEXT("assets/monster.bmp"), (int)obj_type::monster);
 	}
@@ -27,7 +26,11 @@ namespace zee {
 	void monster::respawn(const float& delta_time) {
 		if (body_.data[0].x >= (int)back_loop_max_size_x || body_.data[0].y >= (int)back_loop_max_size_y
 			|| body_.data[0].x <= (int)back_min_size_x || body_.data[0].y <= (int)back_min_size_y) {
-			switch (spawn_point_)
+
+			int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
+			shoot_type_ = random_shoot_type;
+
+			switch (spawn_pos_type_)
 			{
 			case (int)obj_spawn::mon_left:
 				body_.data[0].x = (int)monster_default_left_pos_x;
@@ -54,7 +57,7 @@ namespace zee {
 		const float speed_4 = 0.5f;
 		const float speed_5 = 0.7f;
 
-		switch (spawn_point_)
+		switch (spawn_pos_type_)
 		{
 		case (int)obj_spawn::mon_left:
 			body_.data[0].x += speed_1;
@@ -77,35 +80,101 @@ namespace zee {
 
 	void monster::rotate(const float& delta_time) {
 		angle_ += 0.1f;
-		if (angle_ >= 360) {
+		if (angle_ >= math::pi() * 2) {
 			angle_ = 0.0f;
 		}
 	}
 
 	void monster::shoot(const float& delta_time) {
+		static float delay = 0.0f;
 		const float frame = 2.0f;
-		shoot_delay += delta_time;
-		if (shoot_delay >= frame) {
-			std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		delay += delta_time;
+		if (delay >= frame) {
 
-			spawned_bullet->set_obj((int)obj_type::monster);
-			spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
-			spawned_bullet->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
-			spawned_bullet->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
-			spawned_bullet->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
-			bullets_.push_back(spawned_bullet);
 
-			if (bullets_.size() >= monster_max_bullet_num) {
+			switch (shoot_type_)
+			{
+			case (int)obj_shoot_type::straight:
+				shoot_straight();
+				break;
+			case (int)obj_shoot_type::circle:
+				shoot_circle();
+				break;
+			case (int)obj_shoot_type::follow:
+				shoot_follow();
+				break;
+			}
+
+			while(bullets_.size() > monster_max_bullet_num) {
 				bullets_.erase(bullets_.begin());
 			}
 		}
 
-		shoot_delay = (float)fmod(shoot_delay, frame);
+		delay = (float)math::fmod(delay, frame);
 
 		for (auto& bullet_obj : bullets_) {
 			bullet_obj->tick(delta_time);
 		}
 	}
+	void monster::shoot_straight() {
+		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		spawned_bullet->set_obj((int)obj_type::monster);
+		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+		spawned_bullet->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
+		spawned_bullet->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
+		spawned_bullet->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
+
+		spawned_bullet->set_move_type((int)obj_shoot_type::straight);
+
+		bullets_.push_back(spawned_bullet);
+	}
+	void monster::shoot_circle() {
+		float angle = 0;
+		const int bullet_cnt = 10;
+		std::vector<std::shared_ptr<bullet>> spawned_bullets{
+			std::make_shared<bullet>()		, std::make_shared<bullet>()
+			, std::make_shared<bullet>()	, std::make_shared<bullet>()
+			, std::make_shared<bullet>()	, std::make_shared<bullet>()
+			, std::make_shared<bullet>()	, std::make_shared<bullet>()
+			, std::make_shared<bullet>()	, std::make_shared<bullet>()
+		};
+
+		for (int i = 0; i != bullet_cnt; i++) {
+			spawned_bullets[i]->set_obj((int)obj_type::monster);
+			spawned_bullets[i]->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+			spawned_bullets[i]->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
+			spawned_bullets[i]->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
+			spawned_bullets[i]->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
+
+			spawned_bullets[i]->set_move_type((int)obj_shoot_type::circle);
+			spawned_bullets[i]->set_angle(angle);
+
+			bullets_.push_back(spawned_bullets[i]);
+			angle += math::pi() * 2 / (float)bullet_cnt;
+		}
+	}
+	void monster::shoot_follow() {
+		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		spawned_bullet->set_obj((int)obj_type::monster);
+		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+		spawned_bullet->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
+		spawned_bullet->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
+		spawned_bullet->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
+
+		spawned_bullet->set_move_type((int)obj_shoot_type::follow);
+
+		bullets_.push_back(spawned_bullet);
+	}
+	
+	//stage tick에서 충돌 시 호출
+	void monster::destroy(const float& delta_time) {
+		for (auto& bullet_obj : bullets_) {
+			bullet_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+		}
+		body_.data[0] = { (int)back_loop_max_size_x, (int)back_loop_max_size_y };
+		body_.data[1] = { (int)back_loop_max_size_x + size_.x, (int)back_loop_max_size_y + size_.y };
+	}
+
 
 	void monster::render(win32gdi::device_context_dynamic& dest_dc) {
 		frame_image::get().render_destdc_to_backbuffer(dest_dc);
@@ -149,8 +218,11 @@ namespace zee {
 	const std::vector<std::shared_ptr<bullet>> monster::get_bullets() const {
 		return bullets_;
 	}
-	const int& monster::get_spawn_point() const {
-		return spawn_point_;
+	const int& monster::get_spawn_pos_type() const {
+		return spawn_pos_type_;
+	}
+	const int& monster::get_shoot_type() const {
+		return shoot_type_;
 	}
 	void monster::set_size(const math::vec2i& size) {
 		size_ = size;
@@ -163,7 +235,10 @@ namespace zee {
 	void monster::set_center_point(const math::vec2f& point) {
 		center_point_ = point;
 	}
-	void monster::set_spawn_point(const int& i) {
-		spawn_point_ = i;
+	void monster::set_spawn_pos_type(const int& i) {
+		spawn_pos_type_ = i;
+	}
+	void monster::set_shoot_type(const int& i) {
+		shoot_type_ = i;
 	}
 }

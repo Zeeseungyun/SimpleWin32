@@ -49,7 +49,7 @@ namespace zee {
 			break;
 		}
 		
-		//유닛 세팅
+		//유닛 스폰
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
 		spawned_unit->set_size({ (int)unit_size_x, (int)unit_size_y });
 		spawned_unit->set_body({ (float)unit_default_pos_x, (float)unit_default_pos_y });
@@ -57,26 +57,28 @@ namespace zee {
 		spawned_unit->set_max_move_size({ (int)unit_max_move_size_x, (int)unit_max_move_size_y });
 		units_.push_back(spawned_unit);
 
-		//몬스터 세팅
+		//몬스터 스폰
 		spawn_monster((int)obj_spawn::mon_left);
 		spawn_monster((int)obj_spawn::mon_middle);
 		spawn_monster((int)obj_spawn::mon_right);
 	}
+	//몬스터 스폰
 	void stage::spawn_monster(const int& i) {
 		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
 		spawned_monster->set_size({ (int)monster_size_x, (int)monster_size_y });
+		spawned_monster->set_shoot_type({ (int)obj_shoot_type::straight });
 		switch (i)
 		{
 		case (int)obj_spawn::mon_left:
-			spawned_monster->set_spawn_point((int)obj_spawn::mon_left);
+			spawned_monster->set_spawn_pos_type((int)obj_spawn::mon_left);
 			spawned_monster->set_body({ (float)monster_default_left_pos_x, (float)monster_default_left_pos_y });
 			break;
 		case (int)obj_spawn::mon_middle:
-			spawned_monster->set_spawn_point((int)obj_spawn::mon_middle);
+			spawned_monster->set_spawn_pos_type((int)obj_spawn::mon_middle);
 			spawned_monster->set_body({ (float)monster_default_middle_pos_x, (float)monster_default_middle_pos_y });
 			break;		
 		case (int)obj_spawn::mon_right:
-			spawned_monster->set_spawn_point((int)obj_spawn::mon_right);
+			spawned_monster->set_spawn_pos_type((int)obj_spawn::mon_right);
 			spawned_monster->set_body({ (float)monster_default_right_pos_x, (float)monster_default_right_pos_y });
 			break;
 		}
@@ -152,23 +154,45 @@ namespace zee {
 			//적 틱
 			mon_obj->tick(delta_time);
 
+			//적 유도탄
+			static float delay = 0.0f;
+			const float frame = 0.2f;
+			delay += delta_time;
+			if (delay >= frame) {
+				for (auto& bullet_obj : mon_obj->get_bullets()) {
+					if (bullet_obj->get_move_type() == (int)obj_shoot_type::follow) {
+						//이동 방향 벡터
+						math::vec2f v{
+							units_[0]->get_body().data[0] - bullet_obj->get_body().data[0]
+						};
+						//단위화 위해 거리 구하기
+						float dist = sqrtf(v.x * v.x + v.y * v.y);
+						//단위화
+						v /= dist;
+						bullet_obj->set_vec_for_player(v);
+					}
+				}
+				delay = (float)math::fmod(delay, frame);
+			}
+
 			//플레이어 총알 vs 적 충돌 틱
 			for (auto& bullet_obj : units_[0]->get_bullets()) {
 				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) 
 					!= shape::collide_type::none) {
-
+					//유저 총알 처리
 					bullet_obj->set_state((int)obj_state::hit);
 					bullet_obj->set_bomb_point(bullet_obj->get_body().data[0]);
 					bullet_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
-					mon_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+
+					//몬스터 및 몬스터 소유 총알 처리
+					mon_obj->destroy(delta_time);
 				}
 			}
 
 			//적 총알 vs 플레이어 충돌 틱
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				//의도: 난이도 조절 위해 플레이어는 총알에 완전 중첩되어야 피격 판정
 				if (shape::intersect(units_[0]->get_body(), bullet_obj->get_body()) 
-					== shape::collide_type::contain) {
+					!= shape::collide_type::none) {
 
 					bullet_obj->set_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
 					units_[0]->set_state((int)obj_state::hit);
@@ -181,10 +205,11 @@ namespace zee {
 
 				units_[0]->set_state((int)obj_state::hit);
 			}
+
 		}
 	}
 
-	void stage::render(win32gdi::device_context_base& dest_dc) {
+	void stage::render(win32gdi::device_context_base& dest_dc, const float& g_fps) {
 		if (back_buffer_.is_valid()) {
 			switch (background_type_)	{
 			case loop:
@@ -242,6 +267,7 @@ namespace zee {
 			mon_obj->render(back_buffer_);
 		}
 
+		back_buffer_.print_text({ 0, 0 }, to_tstring(to_wstring(g_fps)));
 		back_buffer_.bit_blt(dest_dc, {});
 	}
 
@@ -250,6 +276,9 @@ namespace zee {
 	}
 	const math::vec2f stage::get_background_src_size() const {
 		return background_src_size_;
+	}
+	const std::vector<std::shared_ptr<unit>> stage::get_units() const {
+		return units_;
 	}
 	void stage::set_background_src_pos(const math::vec2f& src_pos) {
 		background_src_pos_ = src_pos;

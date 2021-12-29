@@ -13,6 +13,10 @@ namespace zee {
 		void move(const float& delta_time);
 		void rotate(const float& delta_time);
 		void shoot(const float& delta_time);
+		void destroy(const float& delata_time);
+		void shoot_straight();
+		void shoot_circle();
+		void shoot_follow();
 		void render(win32gdi::device_context_dynamic& dest_dc);
 
 		const shape::rectf& get_body() const;
@@ -21,11 +25,13 @@ namespace zee {
 		const math::vec2f& get_center_point() const;
 		const float& get_angle() const;
 		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
-		const int& get_spawn_point() const;
+		const int& get_spawn_pos_type() const;
+		const int& get_shoot_type() const;
 		void set_size(const math::vec2i& size);
 		void set_body(const math::vec2f& point);
 		void set_center_point(const math::vec2f& point);
-		void set_spawn_point(const int& i);
+		void set_spawn_pos_type(const int& i);
+		void set_shoot_type(const int& i);
 
 	private:
 		math::vec2i size_;
@@ -36,7 +42,7 @@ namespace zee {
 		float angle_;
 
 		std::vector<std::shared_ptr<bullet>> bullets_;
-		int spawn_point_;
-		float shoot_delay;
+		int spawn_pos_type_;
+		int shoot_type_;
 	};
 }

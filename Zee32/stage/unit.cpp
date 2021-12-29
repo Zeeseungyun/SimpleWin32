@@ -82,7 +82,7 @@ namespace zee {
 			if (is_arrow_up_pressed || is_arrow_down_pressed) {
 				const float frame = 2.0f;
 				frame_per_time_ += delta_time * speed;
-				frame_per_time_ = (float)fmod(frame_per_time_, frame);
+				frame_per_time_ = (float)math::fmod(frame_per_time_, frame);
 				frame_y_ = { 0, size_.y * (int)frame_per_time_ };
 			}
 
@@ -131,8 +131,8 @@ namespace zee {
 		//ÃÑ¾Ë ½î±â
 		if (key_state::is_down(keys::space)) {
 
-			static float delay = 0.3f;
-			const float frame = 0.3f;
+			static float delay = 0.2f;
+			const float frame = 0.2f;
 			delay += delta_time;
 			if (delay >= frame) {
 				std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
@@ -145,11 +145,11 @@ namespace zee {
 				spawned_bullet->set_direction(0);
 				bullets_.push_back(spawned_bullet);
 
-				if (bullets_.size() >= unit_max_bullet_num) {
+				while (bullets_.size() > unit_max_bullet_num) {
 					bullets_.erase(bullets_.begin());
 				}
 
-				delay = (float)fmod(delay, frame);
+				delay = (float)math::fmod(delay, frame);
 			}
 		}
 
@@ -168,7 +168,7 @@ namespace zee {
 				state_ = (int)obj_state::idle;
 			}
 
-			delay = (float)fmod(delay, frame);
+			delay = (float)math::fmod(delay, frame);
 		}
 	}
 

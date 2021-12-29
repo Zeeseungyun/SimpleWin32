@@ -24,8 +24,9 @@ namespace zee {
 
 	enum class obj_type {
 		player,
-		bullet,
 		monster,
+		bullet_player,
+		bullet_monster,
 		bomb,
 		max
 	};
@@ -37,6 +38,12 @@ namespace zee {
 		mon_left,
 		mon_middle,
 		mon_right
+	};
+	enum class obj_shoot_type {
+		straight,
+		circle,
+		follow,
+		max
 	};
 
 	enum const_var {
@@ -51,9 +58,10 @@ namespace zee {
 		unit_size_x = 31,					unit_size_y = 48,
 		unit_default_pos_x = 350,			unit_default_pos_y = 650,
 		unit_default_frame_x = 60,			unit_default_frame_y = 0,
-		unit_max_move_size_x = 720,			unit_max_move_size_y = 820,
+		unit_max_move_size_x = 760,			unit_max_move_size_y = 940,
 		unit_bullet_size_x = 10,			unit_bullet_size_y = 10,
 		unit_bullet_frame_x = 0,			unit_bullet_frame_y = 0,
+		unit_max_bullet_num = 20,
 
 		monster_size_x = 32,				monster_size_y = 32,
 		monster_default_frame_x = 0,		monster_default_frame_y = 0,
@@ -62,11 +70,10 @@ namespace zee {
 		monster_default_right_pos_x = 750,	monster_default_right_pos_y = -50,
 		monster_bullet_size_x = 10,			monster_bullet_size_y = 10,
 		monster_bullet_frame_x = 10,		monster_bullet_frame_y = 0,
+		monster_max_bullet_num = 40,
+		monster_bullet_next_frame_x = 28,
 
 		effect_bomb_size_x = 32,			effect_bomb_size_y = 32,
-
-		unit_max_bullet_num = 20,
-		monster_max_bullet_num = 20,
 		effect_bomb_final_frame_x = 128,
 		
 		//³ªÁß¿¡ enum hack
@@ -82,10 +89,11 @@ namespace zee {
 		void spawn_monster(const int& i);
 		void on_resize(const math::vec2i& client_size);
 		void tick(float delta_time) override;
-		void render(win32gdi::device_context_base& dest_dc);
+		void render(win32gdi::device_context_base& dest_dc, const float& g_fps);
 
 		const math::vec2f get_background_src_pos() const;
 		const math::vec2f get_background_src_size() const;
+		const std::vector<std::shared_ptr<unit>> get_units() const;
 		void set_background_src_pos(const math::vec2f& src_pos);
 		void set_background_src_size(const math::vec2f& size);
 
