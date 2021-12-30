@@ -23,21 +23,18 @@ namespace zee {
 	static const int background_direction_ = 2;
 
 	enum class obj_type {
-		player,
+		unit,
 		monster,
-		bullet_player,
+		bullet_unit,
+		bullet_follow_unit,
 		bullet_monster,
+		bullet_follow_monster,
 		bomb,
 		max
 	};
 	enum class obj_state {
 		idle,
 		hit
-	};
-	enum class obj_spawn {
-		mon_left,
-		mon_middle,
-		mon_right
 	};
 	enum class obj_shoot_type {
 		straight,
@@ -60,23 +57,23 @@ namespace zee {
 		unit_default_frame_x = 60,			unit_default_frame_y = 0,
 		unit_max_move_size_x = 760,			unit_max_move_size_y = 940,
 		unit_bullet_size_x = 10,			unit_bullet_size_y = 10,
+		unit_bullet_follow_size_x = 12,		unit_bullet_follow_size_y = 20,
 		unit_bullet_frame_x = 0,			unit_bullet_frame_y = 0,
 		unit_max_bullet_num = 20,
+		bullet_next_frame_x = 28,
 
 		monster_size_x = 32,				monster_size_y = 32,
 		monster_default_frame_x = 0,		monster_default_frame_y = 0,
-		monster_default_left_pos_x = -50, monster_default_left_pos_y = -50,
-		monster_default_middle_pos_x = 350,	monster_default_middle_pos_y = -50,
-		monster_default_right_pos_x = 750,	monster_default_right_pos_y = -50,
+		monster_min_pos_x = -100,			monster_min_pos_y = -100,
+		monster_max_pos_x = 800,			monster_max_pos_y = 900,
 		monster_bullet_size_x = 10,			monster_bullet_size_y = 10,
+		monster_bullet_follow_size_x = 11,	monster_bullet_follow_size_y = 17,
 		monster_bullet_frame_x = 10,		monster_bullet_frame_y = 0,
-		monster_max_bullet_num = 40,
-		monster_bullet_next_frame_x = 28,
+		monster_bullet_max_num = 100,
+		monster_spawn_num = 4,
 
 		effect_bomb_size_x = 32,			effect_bomb_size_y = 32,
-		effect_bomb_final_frame_x = 128,
-		
-		//³ªÁß¿¡ enum hack
+		effect_bomb_final_frame_x = 128
 	};
 
 	class stage : public interfaces::tickable, public std::enable_shared_from_this<stage> {
@@ -85,8 +82,8 @@ namespace zee {
 		virtual ~stage() noexcept;
 
 		void on_app_started();
-		void game_init();
-		void spawn_monster(const int& i);
+		void init_game();
+		void spawn_monster();
 		void on_resize(const math::vec2i& client_size);
 		void tick(float delta_time) override;
 		void render(win32gdi::device_context_base& dest_dc, const float& g_fps);

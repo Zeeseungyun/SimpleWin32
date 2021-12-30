@@ -4,78 +4,38 @@
 namespace zee {
 	monster::monster() noexcept :
 		size_()
+		, now_pos_()
 		, body_()
 		, frame_x_()
 		, frame_y_()
-		, center_point_()
 		, angle_()
-		, spawn_pos_type_()  {
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
-			, { (int)monster_size_x, (int)monster_size_y }, TEXT("assets/monster.bmp"), (int)obj_type::monster);
+		, shoot_type_()
+		, state_()	{
 	}
 	monster::~monster() noexcept {
 	}
 
 	void monster::tick(float delta_time) {
-		respawn(delta_time);
 		move(delta_time);
 		rotate(delta_time);
 		shoot(delta_time);
+		hit_to_idle(delta_time);
+		destroy(delta_time);
 	}
 
-	void monster::respawn(const float& delta_time) {
-		if (body_.data[0].x >= (int)back_loop_max_size_x || body_.data[0].y >= (int)back_loop_max_size_y
-			|| body_.data[0].x <= (int)back_min_size_x || body_.data[0].y <= (int)back_min_size_y) {
-
-			int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
-			shoot_type_ = random_shoot_type;
-
-			switch (spawn_pos_type_)
-			{
-			case (int)obj_spawn::mon_left:
-				body_.data[0].x = (int)monster_default_left_pos_x;
-				body_.data[0].y = (int)monster_default_left_pos_y;
-				break;
-			case (int)obj_spawn::mon_middle:
-				body_.data[0].x = (int)monster_default_middle_pos_x;
-				body_.data[0].y = (int)monster_default_middle_pos_y;
-				break;
-			case (int)obj_spawn::mon_right:
-				body_.data[0].x = (int)monster_default_right_pos_x;
-				body_.data[0].y = (int)monster_default_right_pos_y;
-				break;
-			}
-			body_.data[1].x = body_.data[0].x + size_.x;
-			body_.data[1].y = body_.data[0].y + size_.y;
-		}
+	const bool monster::in_screen() const {
+		return now_pos_.x > (int)back_min_size_x && now_pos_.x < (int)back_loop_max_size_x
+			&& now_pos_.y >(int)back_min_size_y && now_pos_.y < (int)back_loop_max_size_y;
 	}
 
 	void monster::move(const float& delta_time) {
-		const float speed_1 = 1.0f;
-		const float speed_2 = 2.0f;
-		const float speed_3 = 3.0f;
-		const float speed_4 = 0.5f;
-		const float speed_5 = 0.7f;
-
-		switch (spawn_pos_type_)
-		{
-		case (int)obj_spawn::mon_left:
-			body_.data[0].x += speed_1;
-			body_.data[0].y += speed_4;
-			body_.data[1].x += speed_1;
-			body_.data[1].y += speed_4;
-			break;
-		case (int)obj_spawn::mon_middle:
-			body_.data[0].y += speed_2;
-			body_.data[1].y += speed_2;
-			break;
-		case (int)obj_spawn::mon_right:
-			body_.data[0].x -= speed_3;
-			body_.data[0].y += speed_5;
-			body_.data[1].x -= speed_3;
-			body_.data[1].y += speed_5;
-			break;
-		}
+		const float speed = 2.0f;
+		//이동 방향 벡터는 첨에 스폰 시 생성
+		//단위화 위해 거리 구하기
+		float dist = sqrtf(arrival_point_.x * arrival_point_.x + arrival_point_.y * arrival_point_.y);
+		//단위화
+		arrival_point_ /= dist;
+		set_now_pos_and_body(now_pos_ + arrival_point_ * speed);
 	}
 
 	void monster::rotate(const float& delta_time) {
@@ -87,26 +47,56 @@ namespace zee {
 
 	void monster::shoot(const float& delta_time) {
 		static float delay = 0.0f;
-		const float frame = 2.0f;
+		const float frame = 3.0f;
 		delay += delta_time;
 		if (delay >= frame) {
-
-
 			switch (shoot_type_)
 			{
 			case (int)obj_shoot_type::straight:
-				shoot_straight();
+				for (auto& bullet_obj : bullets_) {
+					if (!bullet_obj->get_spawn_state()) {
+						bullet_obj->set_spawn_state(true);
+						bullet_obj->set_state((int)obj_state::idle);
+						bullet_obj->set_now_pos_and_body(
+							{ now_pos_.x + size_.x / 2 - (int)monster_bullet_size_x / 2
+							, now_pos_.y + size_.y / 2 }
+						);
+						break;
+					}
+				}
+			case (int)obj_shoot_type::follow:
+				for (auto& bullet_obj : bullets_) {
+					if (!bullet_obj->get_spawn_state()) {
+						bullet_obj->set_spawn_state(true);
+						bullet_obj->set_now_pos_and_body(
+							{ now_pos_.x + size_.x / 2 - (int)monster_bullet_follow_size_x / 2
+							, now_pos_.y + size_.y / 2 }
+						);
+						break;
+					}
+				}
 				break;
 			case (int)obj_shoot_type::circle:
-				shoot_circle();
-				break;
-			case (int)obj_shoot_type::follow:
-				shoot_follow();
-				break;
-			}
+				float circle_angle = 0;
+				const int bullet_cnt = 10;
 
-			while(bullets_.size() > monster_max_bullet_num) {
-				bullets_.erase(bullets_.begin());
+				for (int i = 0; i < bullet_cnt; ) {
+					for (auto& bullet_obj : bullets_) {
+						if (!bullet_obj->get_spawn_state()) {
+							bullet_obj->set_spawn_state(true);
+							bullet_obj->set_now_pos_and_body(
+								{ now_pos_.x + size_.x / 2 - (int)monster_bullet_size_x / 2
+								, now_pos_.y + size_.y / 2 }
+							);
+							circle_angle += math::pi() * 2 / (float)bullet_cnt;
+							bullet_obj->set_circle_angle(circle_angle);
+							i++;
+							break;
+						}
+					}
+
+				}
+				break;
 			}
 		}
 
@@ -116,91 +106,133 @@ namespace zee {
 			bullet_obj->tick(delta_time);
 		}
 	}
-	void monster::shoot_straight() {
-		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-		spawned_bullet->set_obj((int)obj_type::monster);
-		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
-		spawned_bullet->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
-		spawned_bullet->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
-		spawned_bullet->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
 
-		spawned_bullet->set_move_type((int)obj_shoot_type::straight);
+	//bomb 이미지 출력 위한 시간
+	void monster::hit_to_idle(const float& delta_time) {
+		if (state_ == (int)obj_state::hit) {
+			static float delay = 0.0f;
+			const float frame = 0.8f;
+			delay += delta_time;
+			if (delay >= frame) {
+				state_ = (int)obj_state::idle;
+			}
 
-		bullets_.push_back(spawned_bullet);
-	}
-	void monster::shoot_circle() {
-		float angle = 0;
-		const int bullet_cnt = 10;
-		std::vector<std::shared_ptr<bullet>> spawned_bullets{
-			std::make_shared<bullet>()		, std::make_shared<bullet>()
-			, std::make_shared<bullet>()	, std::make_shared<bullet>()
-			, std::make_shared<bullet>()	, std::make_shared<bullet>()
-			, std::make_shared<bullet>()	, std::make_shared<bullet>()
-			, std::make_shared<bullet>()	, std::make_shared<bullet>()
-		};
-
-		for (int i = 0; i != bullet_cnt; i++) {
-			spawned_bullets[i]->set_obj((int)obj_type::monster);
-			spawned_bullets[i]->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
-			spawned_bullets[i]->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
-			spawned_bullets[i]->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
-			spawned_bullets[i]->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
-
-			spawned_bullets[i]->set_move_type((int)obj_shoot_type::circle);
-			spawned_bullets[i]->set_angle(angle);
-
-			bullets_.push_back(spawned_bullets[i]);
-			angle += math::pi() * 2 / (float)bullet_cnt;
+			delay = (float)math::fmod(delay, frame);
 		}
 	}
-	void monster::shoot_follow() {
-		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-		spawned_bullet->set_obj((int)obj_type::monster);
-		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
-		spawned_bullet->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
-		spawned_bullet->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
-		spawned_bullet->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
 
-		spawned_bullet->set_move_type((int)obj_shoot_type::follow);
-
-		bullets_.push_back(spawned_bullet);
-	}
-	
-	//stage tick에서 충돌 시 호출
 	void monster::destroy(const float& delta_time) {
-		for (auto& bullet_obj : bullets_) {
-			bullet_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+		if (state_ == (int)obj_state::hit || !(in_screen())) {
+
+			//폭발 이펙트
+			static float delay = 0.0f;
+			const float speed = 7.0f;
+			const float frame = 1.0f;
+			const float frame_final = 4.0f;
+			delay += delta_time * speed;
+
+			if (delay >= frame) {
+				frame_x_ = { (int)effect_bomb_size_x * (int)delay, 0 };
+			}
+			if (delay >= frame_final) {
+				state_ = (int)obj_state::idle;
+			}
+			delay = (float)math::fmod(delay, frame_final);
+			frame_x_.x %= (int)effect_bomb_final_frame_x;
+
+			//폭발 위치 기억
+			bomb_point_ = now_pos_;
+			set_now_pos_and_body({ (float)back_destroy_zone_x, (float)back_destroy_zone_y });
+
+			//자기 총알 없애기
+			for (auto& bullet_obj : bullets_) {
+				bullet_obj->set_now_pos_and_body({ (float)back_destroy_zone_x, (float)back_destroy_zone_y });
+			}
+
+			spawn(delta_time);
 		}
-		body_.data[0] = { (int)back_loop_max_size_x, (int)back_loop_max_size_y };
-		body_.data[1] = { (int)back_loop_max_size_x + size_.x, (int)back_loop_max_size_y + size_.y };
 	}
 
+	void monster::spawn(const float& delta_time) {
+		if (state_ == (int)obj_state::idle) {
+			int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
+			shoot_type_ = random_shoot_type;
+
+			int rx = rand((int)monster_min_pos_x, (int)monster_max_pos_x);
+			int ry = (int)monster_min_pos_y;
+			set_now_pos_and_body({ (float)rx, (float)ry });
+
+			rx = rand((int)monster_min_pos_x, (int)monster_max_pos_x);
+			ry = (int)monster_max_pos_y;
+			set_arrival_point({ (float)rx, (float)ry });
+		}
+	}
 
 	void monster::render(win32gdi::device_context_dynamic& dest_dc) {
-		frame_image::get().render_destdc_to_backbuffer(dest_dc);
-		//회전 테스트
-		/*frame_image::get().render_plg(dest_dc, center_point_, angle_, (int)frame_image_index::monster);
-		frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});*/
+		if (in_screen()) {
+			frame_image::get().render_destdc_to_backbuffer(dest_dc);
+			//회전 테스트
+			/*frame_image::get().render_plg(dest_dc, body_.origin, angle_, (int)obj_type::monster);
+			frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});*/
 
-		//몸체
-		frame_image::get().render_transparent(
-			dest_dc
-			, body_.data[0]
-			, {}
-			, (int)obj_type::monster
-		);
+			//몸체
+			if (state_ == (int)obj_state::idle) {
+				frame_image::get().render_transparent(
+					dest_dc
+					, now_pos_
+					, {}
+					, (int)obj_type::monster
+				);
+			}
+			else if (state_ == (int)obj_state::hit) {
+ 				frame_image::get().render_transparent(
+					dest_dc
+					, bomb_point_
+					, frame_x_ + frame_y_
+					, (int)obj_type::bomb
+				);
+			}
 
-		//총알
-		for (auto& bullet_obj : bullets_) {
-			bullet_obj->render(dest_dc);
+			//총알
+			for (auto& bullet_obj : bullets_) {
+				bullet_obj->render(dest_dc);
+			}
+
+			//충돌범위 테스트
+			shape::circlef circle{ body_.origin, body_.radius };
+			if (key_state::is_toggle_on(keys::tab)) {
+				dest_dc.circle(circle);
+			}
 		}
-
-		//충돌범위
-		/*shape::rectf rect = {body_.data[0], body_.data[1]};
-		dest_dc.rectangle(rect);*/
 	}
 
-	const shape::rectf& monster::get_body() const {
+	//app 실행 시 stage에서 호출
+	void monster::init_bullet(const int& shoot_type) {
+
+		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		spawned_bullet->set_obj((int)obj_type::monster);
+		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+		switch (shoot_type)
+		{
+		case (int)obj_shoot_type::follow:
+			spawned_bullet->set_size({ (int)monster_bullet_follow_size_x, (int)monster_bullet_follow_size_y });
+			break;
+		default:
+			spawned_bullet->set_size({ (int)monster_bullet_size_x, (int)monster_bullet_size_y });
+			break;
+		}
+		spawned_bullet->set_now_pos_and_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
+		spawned_bullet->set_frame_size({ (int)monster_bullet_frame_x, (int)monster_bullet_frame_y });
+		spawned_bullet->set_obj((int)obj_type::monster);
+		spawned_bullet->set_move_type(shoot_type);
+		spawned_bullet->set_spawn_state(false);
+		bullets_.push_back(spawned_bullet);
+	}
+
+	const math::vec2f monster::get_now_pos() const {
+		return now_pos_;
+	}
+	const shape::circlef monster::get_body() const {
 		return body_;
 	}
 	const math::vec2i& monster::get_frame_x() const {
@@ -209,36 +241,45 @@ namespace zee {
 	const math::vec2i& monster::get_frame_y() const {
 		return frame_y_;
 	}
-	const math::vec2f& monster::get_center_point() const {
-		return center_point_;
-	}
 	const float& monster::get_angle() const {
 		return angle_;
-	}
-	const std::vector<std::shared_ptr<bullet>> monster::get_bullets() const {
-		return bullets_;
-	}
-	const int& monster::get_spawn_pos_type() const {
-		return spawn_pos_type_;
 	}
 	const int& monster::get_shoot_type() const {
 		return shoot_type_;
 	}
+	const int& monster::get_state() const {
+		return state_;
+	}
+	const math::vec2f& monster::get_bomb_point() const {
+		return bomb_point_;
+	}
+	const math::vec2f& monster::get_arrival_point() const {
+		return arrival_point_;
+	}
+	const std::vector<std::shared_ptr<bullet>> monster::get_bullets() const {
+		return bullets_;
+	}
+	void monster::set_now_pos_and_body(const math::vec2f& point) {
+		now_pos_ = point;
+		set_body(now_pos_ + size_ / 2, (float)math::min(size_.x, size_.y) / 2);
+	}
+	void monster::set_body(const math::vec2f& origin, const float& r) {
+		body_.origin = origin;
+		body_.radius = r;
+	}
 	void monster::set_size(const math::vec2i& size) {
 		size_ = size;
 	}
-	void monster::set_body(const math::vec2f& point) {
-		body_.data[0] = point;
-		body_.data[1] = body_.data[0] + size_;
-		set_center_point(body_.data[0] + size_ / 2);
-	}
-	void monster::set_center_point(const math::vec2f& point) {
-		center_point_ = point;
-	}
-	void monster::set_spawn_pos_type(const int& i) {
-		spawn_pos_type_ = i;
-	}
 	void monster::set_shoot_type(const int& i) {
 		shoot_type_ = i;
+	}
+	void monster::set_state(const int& i) {
+		state_ = i;
+	}
+	void monster::set_bomb_point(const math::vec2f& point) {
+		bomb_point_ = point;
+	}
+	void monster::set_arrival_point(const math::vec2f& point) {
+		arrival_point_ = point;
 	}
 }

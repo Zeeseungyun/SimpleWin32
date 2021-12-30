@@ -6,6 +6,7 @@ namespace zee {
 
 	unit::unit() noexcept :
 		size_()
+		, now_pos_()
 		, body_()
 		, max_move_size_()
 		, frame_x_()
@@ -17,9 +18,8 @@ namespace zee {
 		, is_arrow_down_pressed()
 		, is_arrow_right_pressed()
 		, frame_per_time_()
+		, shoot_type_()
 		, state_() {
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
-			, { (int)unit_size_x, (int)unit_size_y }, TEXT("assets/player.bmp"), (int)obj_type::player);
 	}
 	unit::~unit() noexcept {
 	}
@@ -27,7 +27,12 @@ namespace zee {
 	void unit::tick(float delta_time) {
 		move(delta_time);
 		shoot(delta_time);
-		hit(delta_time);
+		hit_to_idle(delta_time);
+	}
+
+	const bool unit::in_screen() const {
+		return now_pos_.x > (int)back_min_size_x && now_pos_.x < (int)back_loop_max_size_x
+			&& now_pos_.y >(int)back_min_size_y && now_pos_.y < (int)back_loop_max_size_y;
 	}
 
 	void unit::move(const float& delta_time) {
@@ -99,27 +104,23 @@ namespace zee {
 				//위치 이동
 				switch (direction_) {
 				case 0:
-					if (body_.data[0].y > 0) {
-						body_.data[0].y -= speed;
-						body_.data[1].y -= speed;
+					if (now_pos_.y > 0) {
+						set_now_pos_and_body({ now_pos_.x, now_pos_.y - speed });
 					}
 					break;
 				case 1:
-					if (body_.data[0].x > 0) {
-						body_.data[0].x -= speed;
-						body_.data[1].x -= speed;
+					if (now_pos_.x > 0) {
+						set_now_pos_and_body({ now_pos_.x - speed, now_pos_.y });
 					}
 					break;
 				case 2:
-					if (body_.data[0].y < max_move_size_.y) {
-						body_.data[0].y += speed;
-						body_.data[1].y += speed;
+					if (now_pos_.y < max_move_size_.y) {
+						set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
 					}
 					break;
 				case 3:
-					if (body_.data[0].x < max_move_size_.x) {
-						body_.data[0].x += speed;
-						body_.data[1].x += speed;
+					if (now_pos_.x < max_move_size_.x) {
+						set_now_pos_and_body({ now_pos_.x + speed, now_pos_.y });
 					}
 					break;
 				}
@@ -135,18 +136,17 @@ namespace zee {
 			const float frame = 0.2f;
 			delay += delta_time;
 			if (delay >= frame) {
-				std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
 
-				spawned_bullet->set_obj((int)obj_type::player);
-				spawned_bullet->set_max_move_size({ (int)back_scroll_max_size_x, (int)back_scroll_max_size_y });
-				spawned_bullet->set_size({ (int)unit_bullet_size_x, (int)unit_bullet_size_y });
-				spawned_bullet->set_body({ body_.data[0].x + size_.x / 2, body_.data[0].y + size_.y / 2 });
-				spawned_bullet->set_frame_size({ (int)unit_bullet_frame_x, (int)unit_bullet_frame_y });
-				spawned_bullet->set_direction(0);
-				bullets_.push_back(spawned_bullet);
-
-				while (bullets_.size() > unit_max_bullet_num) {
-					bullets_.erase(bullets_.begin());
+				for (auto& bullet_obj : bullets_) {
+					if (!bullet_obj->get_spawn_state()) {
+						bullet_obj->set_spawn_state(true);
+						bullet_obj->set_state((int)obj_state::idle);
+						bullet_obj->set_now_pos_and_body(
+							{ now_pos_.x + size_.x / 2 - (int)unit_bullet_size_x / 2
+							, now_pos_.y + size_.y / 2 }
+						);
+						break;
+					}
 				}
 
 				delay = (float)math::fmod(delay, frame);
@@ -159,7 +159,7 @@ namespace zee {
 		}
 	}
 
-	void unit::hit(const float& delta_time) {
+	void unit::hit_to_idle(const float& delta_time) {
 		if (state_ == (int)obj_state::hit) {
 			static float delay = 0.0f;
 			const float frame = 0.8f;
@@ -173,31 +173,55 @@ namespace zee {
 	}
 
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
-		frame_image::get().render_destdc_to_backbuffer(dest_dc);
-		if (state_ == (int)obj_state::idle) {
-			frame_image::get().render_transparent(
-				dest_dc
-				, body_.data[0]
-				, frame_x_ + frame_y_
-				, (int)obj_type::player
-			);
-		}
-		if (state_ == (int)obj_state::hit) {
-			frame_image::get().render_alphablend(
-				dest_dc
-				, body_.data[0]
-				, frame_x_ + frame_y_
-				, (int)obj_type::player
-			);
-		}
+		if (in_screen()) {
+			frame_image::get().render_destdc_to_backbuffer(dest_dc);
+			if (state_ == (int)obj_state::idle) {
+				frame_image::get().render_transparent(
+					dest_dc
+					, now_pos_
+					, frame_x_ + frame_y_
+					, (int)obj_type::unit
+				);
+			}
+			if (state_ == (int)obj_state::hit) {
+				frame_image::get().render_alphablend(
+					dest_dc
+					, now_pos_
+					, frame_x_ + frame_y_
+					, (int)obj_type::unit
+				);
+			}
 
-		//총알
-		for (auto& bullet_obj : bullets_) {
-			bullet_obj->render(dest_dc);
+			//총알
+			for (auto& bullet_obj : bullets_) {
+				bullet_obj->render(dest_dc);
+			}
+
+			//충돌범위 테스트
+			shape::circlef circle{ body_.origin, body_.radius };
+			if (key_state::is_toggle_on(keys::tab)) {
+				dest_dc.circle(circle);
+			}
 		}
 	}
 
-	const shape::rectf unit::get_body() const {
+	//app 실행 시 stage에서 호출
+	void unit::init_bullet(const int& shoot_type) {
+		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		spawned_bullet->set_size({ (int)unit_bullet_size_x, (int)unit_bullet_size_y });
+		spawned_bullet->set_now_pos_and_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
+		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
+		spawned_bullet->set_frame_size({ (int)unit_bullet_frame_x, (int)unit_bullet_frame_y });
+		spawned_bullet->set_obj((int)obj_type::unit);
+		spawned_bullet->set_move_type(shoot_type);
+		spawned_bullet->set_spawn_state(false);
+		bullets_.push_back(spawned_bullet);
+	}
+
+	const math::vec2f unit::get_now_pos() const {
+		return now_pos_;
+	}
+	const shape::circlef unit::get_body() const {
 		return body_;
 	}
 	const math::vec2i& unit::get_frame_x() const {
@@ -212,18 +236,26 @@ namespace zee {
 	const bool& unit::get_is_pressed() const {
 		return is_dir_key_pressed;
 	}
-	const std::vector<std::shared_ptr<bullet>> unit::get_bullets() const {
-		return bullets_;
+	const int& unit::get_shoot_type() const {
+		return shoot_type_;
 	}
 	const int& unit::get_state() const {
 		return state_;
 	}
+	const std::vector<std::shared_ptr<bullet>> unit::get_bullets() const {
+		return bullets_;
+	}
+
+	void unit::set_now_pos_and_body(const math::vec2f& point) {
+		now_pos_ = point;
+		set_body(now_pos_ + size_ / 2, (float)math::min(size_.x, size_.y) / 2);
+	}
+	void unit::set_body(const math::vec2f& origin, const float& r) {
+		body_.origin = origin;
+		body_.radius = r;
+	}
 	void unit::set_size(const math::vec2i& size) {
 		size_ = size;
-	}
-	void unit::set_body(const math::vec2f& point) {
-		body_.data[0] = point;
-		body_.data[1] = body_.data[0] + size_;
 	}
 	void unit::set_frame_size(const math::vec2i& size) {
 		frame_x_ = { size.x, 0 };
@@ -231,6 +263,9 @@ namespace zee {
 	}
 	void unit::set_max_move_size(const math::vec2i& size) {
 		max_move_size_ = size;
+	}
+	void unit::set_shoot_type(const int& i) {
+		shoot_type_ = i;
 	}
 	void unit::set_state(const int& state) {
 		state_ = state;

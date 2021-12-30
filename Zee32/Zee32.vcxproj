@@ -72,7 +72,9 @@
     <Image Include="assets\game_background_loop_vertical.bmp" />
     <Image Include="assets\game_background_stop.bmp" />
     <Image Include="assets\monster.bmp" />
+    <Image Include="assets\monster_bullet_follow.bmp" />
     <Image Include="assets\player.bmp" />
+    <Image Include="assets\unit_bullet_follow.bmp" />
     <Image Include="assets\walk.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

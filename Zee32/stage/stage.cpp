@@ -13,10 +13,35 @@ namespace zee {
 		tick_manager::get().add(shared_from_this());
 		on_resize(application::get().config().client_size);
 		application::get().window_handle<HWND>();	//윈도우 핸들 가져오기
-		
-		game_init();
 
-		//테스트용
+		//이미지 로드
+		//배경
+		background_image::get().load_background_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
+		, TEXT("assets/game_background_loop_vertical.bmp"));
+		background_image::get().load_background_image({ (int)back_scroll_max_size_x, (int)back_scroll_max_size_y }
+		, TEXT("assets/game_background_stop.bmp"));
+		//유닛
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)unit_size_x, (int)unit_size_y }
+		, TEXT("assets/player.bmp"), (int)obj_type::unit);
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)monster_size_x, (int)monster_size_y }
+		, TEXT("assets/monster.bmp"), (int)obj_type::monster);
+		//뷸렛
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)unit_bullet_size_x, (int)unit_bullet_size_y }
+		, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_unit);
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)unit_bullet_follow_size_x, (int)unit_bullet_follow_size_y }
+		, TEXT("assets/unit_bullet_follow.bmp"), (int)obj_type::bullet_follow_unit);
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)monster_bullet_size_x, (int)monster_bullet_size_y }
+		, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_monster);
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)monster_bullet_follow_size_x, (int)monster_bullet_follow_size_y }
+		, TEXT("assets/monster_bullet_follow.bmp"), (int)obj_type::bullet_follow_monster);
+		//폭발
+		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)effect_bomb_size_x, (int)effect_bomb_size_y }
+		, TEXT("assets/bomb.bmp"), (int)obj_type::bomb);
+
+		//게임 초기화
+		init_game();
+
+		//행렬 테스트
 		/*matrix m;
 		//행렬식
 		m.set_m2f({ {2,3}, {4,6} });
@@ -34,57 +59,6 @@ namespace zee {
 		m.inverse(vv);*/
 	}
 
-	void stage::game_init() {
-		switch (background_type_)	{
-		case loop:
-			background_image::get().load_background_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
-				, TEXT("assets/game_background_loop_vertical.bmp"));
-			background_src_pos_ = { 0.0f, 0.0f };
-			background_src_size_ = { (int)back_loop_max_size_x, (int)back_loop_max_size_y };
-			break;
-		case scroll:
-			background_image::get().load_background_image({ (int)back_scroll_max_size_x, (int)back_scroll_max_size_y }
-				, TEXT("assets/game_background_stop.bmp"));
-			background_src_pos_ = { (float)back_scroll_default_unit_pos_x, (float)back_scroll_default_unit_pos_y };	//y축 시작위치 설정
-			break;
-		}
-		
-		//유닛 스폰
-		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
-		spawned_unit->set_size({ (int)unit_size_x, (int)unit_size_y });
-		spawned_unit->set_body({ (float)unit_default_pos_x, (float)unit_default_pos_y });
-		spawned_unit->set_frame_size({ (int)unit_default_frame_x, (int)unit_default_frame_y });
-		spawned_unit->set_max_move_size({ (int)unit_max_move_size_x, (int)unit_max_move_size_y });
-		units_.push_back(spawned_unit);
-
-		//몬스터 스폰
-		spawn_monster((int)obj_spawn::mon_left);
-		spawn_monster((int)obj_spawn::mon_middle);
-		spawn_monster((int)obj_spawn::mon_right);
-	}
-	//몬스터 스폰
-	void stage::spawn_monster(const int& i) {
-		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
-		spawned_monster->set_size({ (int)monster_size_x, (int)monster_size_y });
-		spawned_monster->set_shoot_type({ (int)obj_shoot_type::straight });
-		switch (i)
-		{
-		case (int)obj_spawn::mon_left:
-			spawned_monster->set_spawn_pos_type((int)obj_spawn::mon_left);
-			spawned_monster->set_body({ (float)monster_default_left_pos_x, (float)monster_default_left_pos_y });
-			break;
-		case (int)obj_spawn::mon_middle:
-			spawned_monster->set_spawn_pos_type((int)obj_spawn::mon_middle);
-			spawned_monster->set_body({ (float)monster_default_middle_pos_x, (float)monster_default_middle_pos_y });
-			break;		
-		case (int)obj_spawn::mon_right:
-			spawned_monster->set_spawn_pos_type((int)obj_spawn::mon_right);
-			spawned_monster->set_body({ (float)monster_default_right_pos_x, (float)monster_default_right_pos_y });
-			break;
-		}
-		monsters_.push_back(spawned_monster);
-	}
-
 	void stage::on_resize(const math::vec2i& client_size) {
 		if (back_buffer_.is_valid()) {
 			back_buffer_.resize(client_size);
@@ -94,7 +68,67 @@ namespace zee {
 		}
 	}
 
+	void stage::init_game() {
+		switch (background_type_)	{
+		case loop:
+			background_src_pos_ = { 0.0f, 0.0f };
+			background_src_size_ = { (int)back_loop_max_size_x, (int)back_loop_max_size_y };
+			break;
+		case scroll:
+			background_src_pos_ = { (float)back_scroll_default_unit_pos_x, (float)back_scroll_default_unit_pos_y };	//y축 시작위치 설정
+			break;
+		}
+		
+		//유닛 스폰
+		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
+		spawned_unit->set_size({ (int)unit_size_x, (int)unit_size_y });
+		spawned_unit->set_now_pos_and_body({ (float)unit_default_pos_x, (float)unit_default_pos_y });
+		spawned_unit->set_frame_size({ (int)unit_default_frame_x, (int)unit_default_frame_y });
+		spawned_unit->set_max_move_size({ (int)unit_max_move_size_x, (int)unit_max_move_size_y });
+		spawned_unit->set_shoot_type((int)obj_shoot_type::straight);
+		spawned_unit->set_state((int)obj_state::idle);
+		units_.push_back(spawned_unit);
+
+		//유닛 뷸렛
+		for (auto& unit_obj : units_) {
+			for (int i = 0; i != (int)unit_max_bullet_num; i++) {
+				unit_obj->init_bullet(unit_obj->get_shoot_type());
+			}
+		}
+
+		//몬스터 스폰
+		for (int i = 0; i != (int)monster_spawn_num; i++) {
+			spawn_monster();
+		}
+
+		//몬스터 뷸렛
+		for (auto& monster_obj : monsters_) {
+			for (int i = 0; i != (int)monster_bullet_max_num; i++) {
+				monster_obj->init_bullet(monster_obj->get_shoot_type());
+			}
+		}
+	}
+	//몬스터 스폰
+	void stage::spawn_monster() {
+		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
+		spawned_monster->set_size({ (int)monster_size_x, (int)monster_size_y });
+
+		int rx = rand((int)monster_min_pos_x, (int)monster_max_pos_x);
+		int ry = (int)monster_min_pos_y;
+		spawned_monster->set_now_pos_and_body({ (float)rx, (float)ry });
+
+		int rand_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
+		spawned_monster->set_shoot_type(rand_shoot_type);
+
+		spawned_monster->set_arrival_point({
+			rand((int)monster_min_pos_x, (int)monster_max_pos_x)
+			, (float)monster_max_pos_y });
+
+		monsters_.push_back(spawned_monster);
+	}
+
 	void stage::tick(float delta_time) {
+		//배경 틱
 		switch (background_type_) {
 		case loop: {
 			const float speed = 120.0f;
@@ -121,22 +155,22 @@ namespace zee {
 				switch (units_[0]->get_direction()) {
 				//배경 정지 이미지
 				case 0:
-					if (units_[0]->get_body().data[0].y > 0 && background_src_pos_.y > 0) {
+					if (units_[0]->get_now_pos().y > 0 && background_src_pos_.y > 0) {
 						background_src_pos_.y -= background_speed;
 					}
 					break;
 				case 1:
-					if (units_[0]->get_body().data[0].x > 0 && background_src_pos_.x > 0) {
+					if (units_[0]->get_now_pos().x > 0 && background_src_pos_.x > 0) {
 						background_src_pos_.x -= background_speed;
 					}
 					break;
 				case 2:
-					if (units_[0]->get_body().data[0].y < (int)back_scroll_unit_max_move_y && background_src_pos_.y < (int)back_scroll_max_y) {
+					if (units_[0]->get_now_pos().y < (int)back_scroll_unit_max_move_y && background_src_pos_.y < (int)back_scroll_max_y) {
 						background_src_pos_.y += background_speed;
 					}
 					break;
 				case 3:
-					if (units_[0]->get_body().data[0].x < (int)back_scroll_unit_max_move_x && background_src_pos_.x < (int)back_scroll_max_x) {
+					if (units_[0]->get_now_pos().x < (int)back_scroll_unit_max_move_x && background_src_pos_.x < (int)back_scroll_max_x) {
 						background_src_pos_.x += background_speed;
 					}
 					break;
@@ -154,53 +188,45 @@ namespace zee {
 			//적 틱
 			mon_obj->tick(delta_time);
 
-			//적 유도탄
-			static float delay = 0.0f;
-			const float frame = 0.2f;
-			delay += delta_time;
-			if (delay >= frame) {
-				for (auto& bullet_obj : mon_obj->get_bullets()) {
-					if (bullet_obj->get_move_type() == (int)obj_shoot_type::follow) {
-						//이동 방향 벡터
-						math::vec2f v{
-							units_[0]->get_body().data[0] - bullet_obj->get_body().data[0]
-						};
-						//단위화 위해 거리 구하기
-						float dist = sqrtf(v.x * v.x + v.y * v.y);
-						//단위화
-						v /= dist;
-						bullet_obj->set_vec_for_player(v);
-					}
+
+			//적 유도탄 위한 벡터
+			for (auto& bullet_obj : mon_obj->get_bullets()) {
+				if (bullet_obj->get_spawn_state()
+					&& bullet_obj->get_move_type() == (int)obj_shoot_type::follow) {
+					//이동 방향 벡터
+					math::vec2f v{
+						units_[0]->get_body().origin - bullet_obj->get_body().origin
+					};
+					//단위화 위해 거리 구하기
+					float dist = sqrtf(v.x * v.x + v.y * v.y);
+					//단위화
+					v /= dist;
+					bullet_obj->set_vec_for_player(v);
 				}
-				delay = (float)math::fmod(delay, frame);
 			}
 
 			//플레이어 총알 vs 적 충돌 틱
 			for (auto& bullet_obj : units_[0]->get_bullets()) {
 				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) 
 					!= shape::collide_type::none) {
-					//유저 총알 처리
-					bullet_obj->set_state((int)obj_state::hit);
-					bullet_obj->set_bomb_point(bullet_obj->get_body().data[0]);
-					bullet_obj->set_body({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
 
-					//몬스터 및 몬스터 소유 총알 처리
-					mon_obj->destroy(delta_time);
+					mon_obj->set_state((int)obj_state::hit);
+					bullet_obj->set_state((int)obj_state::hit);
 				}
 			}
 
 			//적 총알 vs 플레이어 충돌 틱
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (shape::intersect(units_[0]->get_body(), bullet_obj->get_body()) 
+				if (shape::intersect(units_[0]->get_body(), bullet_obj->get_body())
 					!= shape::collide_type::none) {
 
-					bullet_obj->set_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
 					units_[0]->set_state((int)obj_state::hit);
+					bullet_obj->set_state((int)obj_state::hit);
 				}
 			}
 
 			//적 vs 플레이어 충돌 틱
-			if (shape::intersect(mon_obj->get_body(), units_[0]->get_body())
+			if (shape::intersect(mon_obj->get_body(), units_[0]->get_now_pos())
 				!= shape::collide_type::none) {
 
 				units_[0]->set_state((int)obj_state::hit);
