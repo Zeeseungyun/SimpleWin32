@@ -68,6 +68,7 @@ namespace zee {
 		if (is_dir_key_pressed) {
 			//x축 이동
 			const float speed = 15.0f;
+			const float frame = 2.0f;
 			if (is_arrow_left_pressed || is_arrow_right_pressed) {
 				if (is_arrow_left_pressed) {
 					frame_per_time_ -= delta_time * speed;
@@ -78,18 +79,18 @@ namespace zee {
 				if (frame_per_time_ <= 0) {
 					frame_per_time_ = 0.0f;
 				}
-				else if (frame_per_time_ >= 4.0f) {
-					frame_per_time_ = 4.0f;
+				else if (frame_per_time_ >= frame) {
+					frame_per_time_ = frame;
 				}
 				frame_x_ = { size_.x * (int)frame_per_time_, 0 };
 			}
 			//y축 이동
+			/*
 			if (is_arrow_up_pressed || is_arrow_down_pressed) {
-				const float frame = 2.0f;
 				frame_per_time_ += delta_time * speed;
 				frame_per_time_ = (float)math::fmod(frame_per_time_, frame);
 				frame_y_ = { 0, size_.y * (int)frame_per_time_ };
-			}
+			}*/
 
 			//walk 이미지
 			/*const float move_frame = 8.0f;

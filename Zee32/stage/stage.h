@@ -24,11 +24,13 @@ namespace zee {
 
 	enum class obj_type {
 		unit,
-		monster,
-		bullet_unit,
-		bullet_follow_unit,
-		bullet_monster,
-		bullet_follow_monster,
+		monster_1,
+		monster_2,
+		monster_3,
+		unit_bullet,
+		monster_bullet,
+		monster_bullet_circle,
+		monster_bullet_follow,
 		bomb,
 		max
 	};
@@ -59,13 +61,15 @@ namespace zee {
 		unit_bullet_size,
 		unit_bullet_follow_size,
 		unit_bullet_frame,
-		unit_bullet_next_frame,
 
-		monster_size,
+		monster_1_size,
+		monster_2_size,
+		monster_3_size,
 		monster_default_frame,
 		monster_min_pos,
 		monster_max_pos,
 		monster_bullet_size,
+		monster_bullet_circle_size,
 		monster_bullet_follow_size,
 		monster_bullet_frame,
 
@@ -80,31 +84,33 @@ namespace zee {
 	static std::vector<math::vec2i> coords {
 		{2048, 2048},	//back_destroy_zone
 		{-200, -200},	//back_min_size
-		{800, 1200},	//back_loop_max_size
+		{720, 1280},	//back_loop_max_size
 		{1152, 2048},	//back_scroll_max_size
 		{0, 1100},		//back_scroll_default_unit_pos
 		{390, 1152},	//back_scroll_max
 		{705, 770},		//back_scroll_unit_max_move
 
-		{31, 48},		//unit_size
+		{64, 58},		//unit_size
 		{350, 650},		//unit_default_pos
-		{60, 0},		//unit_default_frame
-		{760, 940},		//unit_max_move_size
-		{10, 10},		//unit_bullet_size
-		{12, 20},		//unit_bullet_follow_size
+		{64, 0},		//unit_default_frame
+		{660, 940},		//unit_max_move_size
+		{16, 16},		//unit_bullet_size
+		{13, 22},		//unit_bullet_follow_size
 		{0, 0},			//unit_bullet_frame
-		{28, 0},		//unit_bullet_next_frame
 						
-		{32, 32},		//monster_size
+		{64, 48},		//monster_1_size
+		{52, 62},		//monster_2_size
+		{60, 64},		//monster_3_size
 		{0, 0},			//monster_default_frame
 		{0, -100},		//monster_min_pos
-		{800, 900},		//monster_max_pos
-		{10, 10},		//monster_bullet_size
-		{11, 17},		//monster_bullet_follow_size
-		{10, 0},		//monster_bullet_frame
+		{660, 900},		//monster_max_pos
+		{16, 16},		//monster_bullet_size
+		{26, 26},		//monster_bullet_circle_size
+		{32, 32},		//monster_bullet_follow_size
+		{0, 0},			//monster_bullet_frame
 						
 		{32, 32},		//effect_bomb_size
-		{128, 0},		//effect_bomb_final_frame
+		{96, 0},		//effect_bomb_final_frame
 
 		{-1, -1},		//none
 		{-1, -1},		//none

@@ -67,14 +67,17 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\bomb.bmp" />
-    <Image Include="assets\bullet.bmp" />
     <Image Include="assets\game_background_loop_horizon.bmp" />
     <Image Include="assets\game_background_loop_vertical.bmp" />
     <Image Include="assets\game_background_stop.bmp" />
-    <Image Include="assets\monster.bmp" />
+    <Image Include="assets\monster_1.bmp" />
+    <Image Include="assets\monster_2.bmp" />
+    <Image Include="assets\monster_3.bmp" />
+    <Image Include="assets\monster_bullet.bmp" />
+    <Image Include="assets\monster_bullet_circle.bmp" />
     <Image Include="assets\monster_bullet_follow.bmp" />
     <Image Include="assets\player.bmp" />
-    <Image Include="assets\unit_bullet_follow.bmp" />
+    <Image Include="assets\unit_bullet.bmp" />
     <Image Include="assets\walk.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -23,17 +23,21 @@ namespace zee {
 		//À¯´Ö
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_size]
 			, TEXT("assets/player.bmp"), (int)obj_type::unit);
-		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_size]
-			, TEXT("assets/monster.bmp"), (int)obj_type::monster);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_1_size]
+			, TEXT("assets/monster_1.bmp"), (int)obj_type::monster_1);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_2_size]
+			, TEXT("assets/monster_2.bmp"), (int)obj_type::monster_2);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_2_size]
+			, TEXT("assets/monster_3.bmp"), (int)obj_type::monster_3);
 		//ºæ·¿
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_bullet_size]
-			, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_unit);
-		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_bullet_follow_size]
-			, TEXT("assets/unit_bullet_follow.bmp"), (int)obj_type::bullet_follow_unit);
+			, TEXT("assets/unit_bullet.bmp"), (int)obj_type::unit_bullet);
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_size]
-			, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_monster);
+			, TEXT("assets/monster_bullet.bmp"), (int)obj_type::monster_bullet);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_circle_size]
+			, TEXT("assets/monster_bullet_circle.bmp"), (int)obj_type::monster_bullet_circle);
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_follow_size]
-			, TEXT("assets/monster_bullet_follow.bmp"), (int)obj_type::bullet_follow_monster);
+			, TEXT("assets/monster_bullet_follow.bmp"), (int)obj_type::monster_bullet_follow);
 		//Æø¹ß
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[effect_bomb_size]
 			, TEXT("assets/bomb.bmp"), (int)obj_type::bomb);
@@ -79,7 +83,7 @@ namespace zee {
 			break;
 		}
 		
-		//À¯´Ö ½ºÆù
+		//À¯´Ö ÃÊ±âÈ­
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
 		spawned_unit->set_size(coords[unit_size]);
 		spawned_unit->set_now_pos_and_body(coords[unit_default_pos]);
@@ -98,7 +102,12 @@ namespace zee {
 
 		//¸ó½ºÅÍ ½ºÆù
 		for (int i = 0; i != (int)monster_spawn_num; i++) {
-			spawn_monster();
+			std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
+			monsters_.push_back(spawned_monster);
+		}
+		//¸ó½ºÅÍ ÃÊ±âÈ­
+		for (auto& mon_obj : monsters_) {
+			mon_obj->init();
 		}
 
 		//¸ó½ºÅÍ ºæ·¿
@@ -107,24 +116,6 @@ namespace zee {
 				monster_obj->init_bullet(monster_obj->get_shoot_type());
 			}
 		}
-	}
-	//¸ó½ºÅÍ ½ºÆù
-	void stage::spawn_monster() {
-		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
-		spawned_monster->set_size(coords[monster_size]);
-
-		int rx = rand(coords[monster_max_pos].x, coords[monster_max_pos].x);
-		int ry = coords[monster_min_pos].y;
-		spawned_monster->set_now_pos_and_body({ (float)rx, (float)ry });
-
-		int rand_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
-		spawned_monster->set_shoot_type(rand_shoot_type);	//Å×½ºÆ®
-
-		spawned_monster->set_arrival_point({
-			rand(coords[monster_min_pos].x, coords[monster_max_pos].x)
-			, coords[monster_max_pos].y});
-
-		monsters_.push_back(spawned_monster);
 	}
 
 	void stage::tick(float delta_time) {

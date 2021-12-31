@@ -141,13 +141,7 @@
     <Image Include="assets\game_background_loop_vertical.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\bullet.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
     <Image Include="assets\player.bmp">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="assets\monster.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="assets\bomb.bmp">
@@ -156,7 +150,22 @@
     <Image Include="assets\monster_bullet_follow.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="assets\unit_bullet_follow.bmp">
+    <Image Include="assets\monster_bullet_circle.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_1.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_2.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_3.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\unit_bullet.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

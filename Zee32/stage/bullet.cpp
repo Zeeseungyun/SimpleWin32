@@ -59,7 +59,7 @@ namespace zee {
 			const float speed = 5.0f;
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y - speed });
 		}
-		else if (obj_ = (int)obj_type::monster) {
+		else if (obj_ = (int)obj_type::monster_1) {
 			const float speed = 4.0f;
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
 		}
@@ -99,47 +99,45 @@ namespace zee {
 		if (spawn_state_ && in_screen()) {
 			//ÇÃ·¹ÀÌ¾î
 			if (obj_ == (int)obj_type::unit) {
-				//À¯µµÅº
-
-				if (move_type_ == (int)obj_shoot_type::follow) {
-					frame_image::get().render_plg(
-						dest_dc
-						, body_.origin
-						, follow_angle_
-						, (int)obj_type::bullet_follow_unit
-					);
-					frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});
-				}
-				//±× ¿Ü Åº
-				else {
-					frame_image::get().render_transparent(
-						dest_dc
-						, now_pos_
-						, coords[unit_bullet_next_frame]
-						, (int)obj_type::bullet_unit
-					);
-				}
+				frame_image::get().render_transparent(
+					dest_dc
+					, now_pos_
+					, {}
+					, (int)obj_type::unit_bullet
+				);
 			}
 			//Àû
-			else if (obj_ == (int)obj_type::monster) {
-				//À¯µµÅº
-				if (move_type_ == (int)obj_shoot_type::follow) {
-					frame_image::get().render_plg(
-						dest_dc
-						, body_.origin
-						, follow_angle_
-						, (int)obj_type::bullet_follow_monster
-					);
-					frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});
-				} 
-				//±× ¿Ü Åº
-				else {
+			else if (obj_ == (int)obj_type::monster_1) {
+				switch (move_type_)
+				{
+				case (int)obj_shoot_type::straight:
+					//Á÷¼±Åº
 					frame_image::get().render_transparent(
 						dest_dc
 						, now_pos_
 						, {}
-						, (int)obj_type::bullet_monster
+						, (int)obj_type::monster_bullet
 					);
+					break;
+				case (int)obj_shoot_type::circle:
+					//¿øÇüÅº
+					frame_image::get().render_transparent(
+						dest_dc
+						, now_pos_
+						, {}
+						, (int)obj_type::monster_bullet_circle
+					);
+					break;
+				case (int)obj_shoot_type::follow:
+					//À¯µµÅº
+					frame_image::get().render_plg(
+						dest_dc
+						, body_.origin
+						, follow_angle_
+						, (int)obj_type::monster_bullet_follow
+					);
+					frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});
+					break;
 				}
 			}
 

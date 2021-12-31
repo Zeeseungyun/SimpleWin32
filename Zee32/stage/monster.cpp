@@ -15,6 +15,47 @@ namespace zee {
 	monster::~monster() noexcept {
 	}
 
+	void monster::init() {
+		if (state_ == (int)obj_state::idle) {
+
+			set_size(coords[monster_1_size]);
+
+			int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
+			shoot_type_ = random_shoot_type;
+
+			int rx = rand(coords[monster_min_pos].x, coords[monster_max_pos].x);
+			int ry = coords[monster_min_pos].y;
+			set_now_pos_and_body({ (float)rx, (float)ry });
+
+			rx = rand(coords[monster_min_pos].x, coords[monster_max_pos].x);
+			ry = coords[monster_max_pos].y;
+			set_arrival_point({ (float)rx, (float)ry });
+		}
+	}
+
+	//app 실행 시 stage에서 호출
+	void monster::init_bullet(const int& shoot_type) {
+
+		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		spawned_bullet->set_obj((int)obj_type::monster_1);
+		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
+		switch (shoot_type)
+		{
+		case (int)obj_shoot_type::follow:
+			spawned_bullet->set_size(coords[monster_bullet_follow_size]);
+			break;
+		default:
+			spawned_bullet->set_size(coords[monster_bullet_size]);
+			break;
+		}
+		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
+		spawned_bullet->set_frame_size(coords[monster_bullet_frame]);
+		spawned_bullet->set_obj((int)obj_type::monster_1);
+		spawned_bullet->set_move_type(shoot_type);
+		spawned_bullet->set_spawn_state(false);
+		bullets_.push_back(spawned_bullet);
+	}
+
 	void monster::tick(float delta_time) {
 		move(delta_time);
 		rotate(delta_time);
@@ -32,13 +73,9 @@ namespace zee {
 		const float speed = 2.0f;
 		//이동 방향 벡터는 첨에 스폰 시 생성
 		//단위화 위해 거리 구하기
-		static int idx = 0;
-		//if (idx == 0) {
-			float dist = sqrtf(arrival_point_.x * arrival_point_.x + arrival_point_.y * arrival_point_.y);
-			//단위화
-			arrival_point_ /= dist;
-		//}
-		idx = 1;
+		float dist = sqrtf(arrival_point_.x * arrival_point_.x + arrival_point_.y * arrival_point_.y);
+		//단위화
+		arrival_point_ /= dist;
 		set_now_pos_and_body(now_pos_ + arrival_point_ * speed);
 	}
 
@@ -132,7 +169,7 @@ namespace zee {
 			static float delay = 0.0f;
 			const float speed = 7.0f;
 			const float frame = 1.0f;
-			const float frame_final = 4.0f;
+			const float frame_final = 3.0f;
 			delay += delta_time * speed;
 
 			if (delay >= frame) {
@@ -153,22 +190,7 @@ namespace zee {
 				bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
 			}
 
-			spawn(delta_time);
-		}
-	}
-
-	void monster::spawn(const float& delta_time) {
-		if (state_ == (int)obj_state::idle) {
-			int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
-			shoot_type_ = random_shoot_type;
-
-			int rx = rand(coords[monster_min_pos].x, coords[monster_max_pos].x);
-			int ry = coords[monster_min_pos].y;
-			set_now_pos_and_body({ (float)rx, (float)ry });
-
-			rx = rand(coords[monster_min_pos].x, coords[monster_max_pos].x);
-			ry = coords[monster_max_pos].y;
-			set_arrival_point({ (float)rx, (float)ry });
+			init();
 		}
 	}
 
@@ -181,12 +203,33 @@ namespace zee {
 
 			//몸체
 			if (state_ == (int)obj_state::idle) {
-				frame_image::get().render_transparent(
-					dest_dc
-					, now_pos_
-					, {}
-					, (int)obj_type::monster
-				);
+				switch (shoot_type_)
+				{
+				case (int)obj_shoot_type::straight:
+					frame_image::get().render_transparent(
+						dest_dc
+						, now_pos_
+						, {}
+						, (int)obj_type::monster_1
+					);
+					break;
+				case (int)obj_shoot_type::circle:
+					frame_image::get().render_transparent(
+						dest_dc
+						, now_pos_
+						, {}
+						, (int)obj_type::monster_2
+					);
+					break;
+				case (int)obj_shoot_type::follow:
+					frame_image::get().render_transparent(
+						dest_dc
+						, now_pos_
+						, {}
+						, (int)obj_type::monster_3
+					);
+					break;
+				}
 			}
 			else if (state_ == (int)obj_state::hit) {
  				frame_image::get().render_transparent(
@@ -208,29 +251,6 @@ namespace zee {
 				dest_dc.circle(circle);
 			}
 		}
-	}
-
-	//app 실행 시 stage에서 호출
-	void monster::init_bullet(const int& shoot_type) {
-
-		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-		spawned_bullet->set_obj((int)obj_type::monster);
-		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
-		switch (shoot_type)
-		{
-		case (int)obj_shoot_type::follow:
-			spawned_bullet->set_size(coords[monster_bullet_follow_size]);
-			break;
-		default:
-			spawned_bullet->set_size(coords[monster_bullet_size]);
-			break;
-		}
-		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
-		spawned_bullet->set_frame_size(coords[monster_bullet_frame]);
-		spawned_bullet->set_obj((int)obj_type::monster);
-		spawned_bullet->set_move_type(shoot_type);
-		spawned_bullet->set_spawn_state(false);
-		bullets_.push_back(spawned_bullet);
 	}
 
 	const math::vec2f monster::get_now_pos() const {
