@@ -26,16 +26,14 @@ namespace zee {
 		const math::vec2i& get_frame_y() const;
 		const float& get_angle() const;
 		const int& get_shoot_type() const;
-		const int& get_state() const;
-		const math::vec2f& get_bomb_point() const;
 		const math::vec2f& get_arrival_point() const;
+		const int& get_hp() const;
 		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
 		void set_size(const math::vec2i& size);
 		void set_now_pos_and_body(const math::vec2f& point);
 		void set_shoot_type(const int& i);
-		void set_state(const int& state);
-		void set_bomb_point(const math::vec2f& point);
 		void set_arrival_point(const math::vec2f& point);
+		void set_hp(const int& hp);
 
 	private:
 		void set_body(const math::vec2f& origin, const float& r);
@@ -49,8 +47,7 @@ namespace zee {
 
 		std::vector<std::shared_ptr<bullet>> bullets_;
 		int shoot_type_;
-		int state_;
-		math::vec2f bomb_point_;
 		math::vec2f arrival_point_;
+		int hp_;
 	};
 }

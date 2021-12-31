@@ -29,8 +29,7 @@ namespace zee {
 		const float& get_circle_angle() const;
 		const int& get_move_type() const;
 		const math::vec2f& get_vec_for_player() const;
-		const int& get_state() const;
-		const bool& get_spawn_state() const;
+		const int& get_hp() const;
 		void set_size(const math::vec2i& size);
 		void set_now_pos_and_body(const math::vec2f& point);
 		void set_frame_size(const math::vec2i& size);
@@ -40,8 +39,7 @@ namespace zee {
 		void set_circle_angle(const float& angle);
 		void set_move_type(const int& i);
 		void set_vec_for_player(const math::vec2f& v);
-		void set_state(const int& state);
-		void set_spawn_state(const bool& state);
+		void set_hp(const int& hp);
 
 	private:
 		void set_body(const math::vec2f& origin, const float& r);
@@ -58,7 +56,6 @@ namespace zee {
 		float circle_angle_;
 		int move_type_;
 		math::vec2f vec_for_player_;
-		int state_;
-		bool spawn_state_;
+		int hp_;
 	};
 }

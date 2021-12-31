@@ -13,13 +13,10 @@ namespace zee {
 		, frame_y_()
 		, direction_()
 		, is_dir_key_pressed()
-		, is_arrow_up_pressed()
-		, is_arrow_left_pressed()
-		, is_arrow_down_pressed()
-		, is_arrow_right_pressed()
-		, frame_per_time_()
+		, pressed_key_()
+		, delay()
 		, shoot_type_()
-		, state_() {
+		, hp_() {
 	}
 	unit::~unit() noexcept {
 	}
@@ -30,26 +27,26 @@ namespace zee {
 		set_frame_size(coords[unit_default_frame]);
 		set_max_move_size(coords[unit_max_move_size]);
 		set_shoot_type((int)obj_shoot_type::straight);
-		set_state((int)obj_state::idle);
+		set_hp((int)obj_state::idle);
 	}
 
-	//app 실행 시 stage에서 호출
+	//stage에서 호출
 	void unit::init_bullet(const int& shoot_type) {
 		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-		spawned_bullet->set_size(coords[unit_bullet_size]);
+		spawned_bullet->set_size(coords[unit_bullet_straight_size]);
 		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
 		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
 		spawned_bullet->set_frame_size(coords[unit_bullet_frame]);
 		spawned_bullet->set_obj((int)obj_type::unit);
 		spawned_bullet->set_move_type(shoot_type);
-		spawned_bullet->set_spawn_state(false);
+		spawned_bullet->set_hp((int)obj_state::die);
 		bullets_.push_back(spawned_bullet);
 	}
 
 	void unit::tick(float delta_time) {
 		move(delta_time);
 		shoot(delta_time);
-		hit_to_idle(delta_time);
+		destroy(delta_time);
 	}
 
 	const bool unit::in_screen() const {
@@ -60,29 +57,26 @@ namespace zee {
 	void unit::move(const float& delta_time) {
 
 		is_dir_key_pressed = false;
-		is_arrow_up_pressed = false;
-		is_arrow_left_pressed = false;
-		is_arrow_down_pressed = false;
-		is_arrow_right_pressed = false;
+		pressed_key_ = (int)key_type::none;
 
 		if (key_state::is_down(keys::arrow_up) || key_state::is_down(keys::W)) {
 			is_dir_key_pressed = true;
-			is_arrow_up_pressed = true;
+			pressed_key_ = (int)key_type::arrow_up;
 			direction_ = 0;
 		}
 		else if (key_state::is_down(keys::arrow_left) || key_state::is_down(keys::A)) {
 			is_dir_key_pressed = true;
-			is_arrow_left_pressed = true;
+			pressed_key_ = (int)key_type::arrow_left;
 			direction_ = 1;
 		}
 		else if (key_state::is_down(keys::arrow_down) || key_state::is_down(keys::S)) {
 			is_dir_key_pressed = true;
-			is_arrow_down_pressed = true;
+			pressed_key_ = (int)key_type::arrow_down;
 			direction_ = 2;
 		}
 		else if (key_state::is_down(keys::arrow_right) || key_state::is_down(keys::D)) {
 			is_dir_key_pressed = true;
-			is_arrow_right_pressed = true;
+			pressed_key_ = (int)key_type::arrow_right;
 			direction_ = 3;
 		}
 
@@ -91,24 +85,28 @@ namespace zee {
 			//x축 이동
 			const float speed = 15.0f;
 			const float frame = 2.0f;
-			if (is_arrow_left_pressed || is_arrow_right_pressed) {
-				if (is_arrow_left_pressed) {
-					frame_per_time_ -= delta_time * speed;
+			if (pressed_key_ == (int)key_type::arrow_left
+				|| pressed_key_ == (int)key_type::arrow_right) {
+
+				if (pressed_key_ == (int)key_type::arrow_left) {
+					delay -= delta_time * speed;
 				}
-				else if (is_arrow_right_pressed) {
-					frame_per_time_ += delta_time * speed;
+				else if (pressed_key_ == (int)key_type::arrow_right) {
+					delay += delta_time * speed;
 				}
-				if (frame_per_time_ <= 0) {
-					frame_per_time_ = 0.0f;
+				if (delay <= 0) {
+					delay = 0.0f;
 				}
-				else if (frame_per_time_ >= frame) {
-					frame_per_time_ = frame;
+				else if (delay >= frame) {
+					delay = frame;
 				}
-				frame_x_ = { size_.x * (int)frame_per_time_, 0 };
+				frame_x_ = { size_.x * (int)delay, 0 };
 			}
 			//y축 이동
 			/*
-			if (is_arrow_up_pressed || is_arrow_down_pressed) {
+			if (pressed_key_ == (int)key_type::arrow_up 
+				|| pressed_key_ == (int)key_type::arrow_down) {
+
 				frame_per_time_ += delta_time * speed;
 				frame_per_time_ = (float)math::fmod(frame_per_time_, frame);
 				frame_y_ = { 0, size_.y * (int)frame_per_time_ };
@@ -161,11 +159,10 @@ namespace zee {
 			if (delay >= frame) {
 
 				for (auto& bullet_obj : bullets_) {
-					if (!bullet_obj->get_spawn_state()) {
-						bullet_obj->set_spawn_state(true);
-						bullet_obj->set_state((int)obj_state::idle);
+					if (!bullet_obj->get_hp()) {
+						bullet_obj->set_hp((int)obj_state::idle);
 						bullet_obj->set_now_pos_and_body(
-							{ now_pos_.x + size_.x / 2 - coords[unit_bullet_size].x / 2
+							{ now_pos_.x + size_.x / 2 - coords[unit_bullet_straight_size].x / 2
 							, now_pos_.y + size_.y / 2 }
 						);
 						break;
@@ -182,13 +179,14 @@ namespace zee {
 		}
 	}
 
-	void unit::hit_to_idle(const float& delta_time) {
-		if (state_ == (int)obj_state::hit) {
+	void unit::destroy(const float& delta_time) {
+		if (hp_ == (int)obj_state::die) {
+			//현재 반투명 상태 지연시간만 처리
 			static float delay = 0.0f;
 			const float frame = 0.8f;
 			delay += delta_time;
 			if (delay >= frame) {
-				state_ = (int)obj_state::idle;
+				hp_ = (int)obj_state::idle;
 			}
 
 			delay = (float)math::fmod(delay, frame);
@@ -198,7 +196,7 @@ namespace zee {
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
 			frame_image::get().render_destdc_to_backbuffer(dest_dc);
-			if (state_ == (int)obj_state::idle) {
+			if (hp_ == (int)obj_state::idle) {
 				frame_image::get().render_transparent(
 					dest_dc
 					, now_pos_
@@ -206,7 +204,7 @@ namespace zee {
 					, (int)obj_type::unit
 				);
 			}
-			if (state_ == (int)obj_state::hit) {
+			if (hp_ == (int)obj_state::die) {
 				frame_image::get().render_alphablend(
 					dest_dc
 					, now_pos_
@@ -243,14 +241,14 @@ namespace zee {
 	const int& unit::get_direction() const {
 		return direction_;
 	}
-	const bool& unit::get_is_pressed() const {
-		return is_dir_key_pressed;
-	}
 	const int& unit::get_shoot_type() const {
 		return shoot_type_;
 	}
-	const int& unit::get_state() const {
-		return state_;
+	const int& unit::get_hp() const {
+		return hp_;
+	}
+	const bool& unit::get_is_dir_key_pressed() const {
+		return is_dir_key_pressed;
 	}
 	const std::vector<std::shared_ptr<bullet>> unit::get_bullets() const {
 		return bullets_;
@@ -277,7 +275,7 @@ namespace zee {
 	void unit::set_shoot_type(const int& i) {
 		shoot_type_ = i;
 	}
-	void unit::set_state(const int& state) {
-		state_ = state;
+	void unit::set_hp(const int& hp) {
+		hp_ = hp;
 	}
 }

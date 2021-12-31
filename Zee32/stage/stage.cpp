@@ -30,10 +30,10 @@ namespace zee {
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_2_size]
 			, TEXT("assets/monster_3.bmp"), (int)obj_type::monster_3);
 		//∫Ê∑ø
-		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_bullet_size]
-			, TEXT("assets/unit_bullet.bmp"), (int)obj_type::unit_bullet);
-		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_size]
-			, TEXT("assets/monster_bullet.bmp"), (int)obj_type::monster_bullet);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_bullet_straight_size]
+			, TEXT("assets/unit_bullet.bmp"), (int)obj_type::unit_bullet_straight);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_straight_size]
+			, TEXT("assets/monster_bullet.bmp"), (int)obj_type::monster_bullet_straight);
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_circle_size]
 			, TEXT("assets/monster_bullet_circle.bmp"), (int)obj_type::monster_bullet_circle);
 		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_follow_size]
@@ -91,13 +91,13 @@ namespace zee {
 		for (auto& unit_obj : units_) {
 			unit_obj->init();
 			//¿Ø¥÷ ∫Ê∑ø √ ±‚»≠
-			for (int i = 0; i != (int)unit_max_bullet_num; i++) {
+			for (int i = 0; i != unit_bullet_max_num; i++) {
 				unit_obj->init_bullet(unit_obj->get_shoot_type());
 			}
 		}
 
 		//∏ÛΩ∫≈Õ Ω∫∆˘
-		for (int i = 0; i != (int)monster_spawn_num; i++) {
+		for (int i = 0; i != monster_spawn_num; i++) {
 			std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
 			monsters_.push_back(spawned_monster);
 		}
@@ -105,9 +105,19 @@ namespace zee {
 		for (auto& monster_obj : monsters_) {
 			monster_obj->init();
 			//∏ÛΩ∫≈Õ ∫Ê∑ø √ ±‚»≠
-			for (int i = 0; i != (int)monster_bullet_max_num; i++) {
+			for (int i = 0; i != monster_bullet_max_num; i++) {
 				monster_obj->init_bullet(monster_obj->get_shoot_type());
 			}
+		}
+
+		//¿Ã∆Â∆Æ
+		for (int i = 0; i != effect_bomb_max_num; i++) {
+			std::shared_ptr<bomb> spawned_bomb = std::make_shared<bomb>();
+			spawned_bomb->dest_pos_ = { 0.0f, 0.0f };
+			spawned_bomb->src_pos_ = { 0.0f, 0.0f };
+			spawned_bomb->src_size_ = coords[effect_bomb_size];
+			spawned_bomb->hp_ = (int)obj_state::die;
+			bombs_.push_back(spawned_bomb);
 		}
 	}
 
@@ -135,7 +145,7 @@ namespace zee {
 
 		case scroll: {
 			const int background_speed = 10;
-			if (units_[0]->get_is_pressed()) {
+			if (units_[0]->get_is_dir_key_pressed()) {
 				switch (units_[0]->get_direction()) {
 				//πË∞Ê ¡§¡ˆ ¿ÃπÃ¡ˆ
 				case 0:
@@ -177,7 +187,8 @@ namespace zee {
 
 			//¿˚ ¿Øµµ≈∫ ¿ß«— ∫§≈Õ
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (bullet_obj->get_spawn_state()
+				if (bullet_obj->in_screen()
+					&& bullet_obj->get_hp()
 					&& bullet_obj->get_move_type() == (int)obj_shoot_type::follow) {
 					//¿Ãµø πÊ«‚ ∫§≈Õ
 					math::vec2f v{
@@ -193,31 +204,57 @@ namespace zee {
 
 			//«√∑π¿ÃæÓ √—æÀ vs ¿˚ √Êµπ ∆Ω
 			for (auto& bullet_obj : units_[0]->get_bullets()) {
-				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) 
-					!= shape::collide_type::none) {
+				if (bullet_obj->in_screen()
+					&& shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) != shape::collide_type::none) {
 
-					mon_obj->set_state((int)obj_state::hit);
-					bullet_obj->set_state((int)obj_state::hit);
+					//∆¯πﬂ ¿Ã∆Â∆Æ ¿ßƒ° º≥¡§
+					for (auto& bomb_obj : bombs_) {
+						if (bomb_obj->hp_ == (int)obj_state::die) {
+							bomb_obj->hp_ = (int)obj_state::idle;
+							bomb_obj->dest_pos_ = mon_obj->get_now_pos();
+							bomb_obj->src_pos_ = {0, 0};
+							break;
+						}
+					}
+
+					//ªÁ∏¡√≥∏Æ
+					mon_obj->set_hp((int)obj_state::die);
+					bullet_obj->set_hp((int)obj_state::die);
+				}
+			}
+
+			//∆¯πﬂ ¿Ã∆Â∆Æ ∆Ω
+			static float delay = 0.0f;
+			const float speed = 2.0f;
+			const float frame = 3.0f;
+			delay += delta_time * speed;
+			
+			for (auto& bomb_obj : bombs_) {
+				if (bomb_obj->hp_ == (int)obj_state::idle) {
+					if (delay >= frame) {
+						delay = (float)math::fmod(delay, frame);
+						bomb_obj->hp_ = (int)obj_state::die;
+					}
+					bomb_obj->src_pos_.x = coords[effect_bomb_size].x * (int)delay;
+					break;
 				}
 			}
 
 			//¿˚ √—æÀ vs «√∑π¿ÃæÓ √Êµπ ∆Ω
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (shape::intersect(units_[0]->get_body(), bullet_obj->get_body())
-					!= shape::collide_type::none) {
+				if (bullet_obj->in_screen()
+					&& shape::intersect(units_[0]->get_body(), bullet_obj->get_body()) != shape::collide_type::none) {
 
-					units_[0]->set_state((int)obj_state::hit);
-					bullet_obj->set_state((int)obj_state::hit);
+					units_[0]->set_hp((int)obj_state::die);
+					bullet_obj->set_hp((int)obj_state::die);
 				}
 			}
 
 			//¿˚ vs «√∑π¿ÃæÓ √Êµπ ∆Ω
-			if (shape::intersect(mon_obj->get_body(), units_[0]->get_now_pos())
-				!= shape::collide_type::none) {
+			if (shape::intersect(mon_obj->get_body(), units_[0]->get_now_pos())	!= shape::collide_type::none) {
 
-				units_[0]->set_state((int)obj_state::hit);
+				units_[0]->set_hp((int)obj_state::die);
 			}
-
 		}
 	}
 
@@ -277,6 +314,18 @@ namespace zee {
 		//∏ÛΩ∫≈Õ
 		for (auto& mon_obj : monsters_) {
 			mon_obj->render(back_buffer_);
+		}
+
+		//∆¯πﬂ
+		for (auto& bomb_obj : bombs_) {
+			if (bomb_obj->hp_ == (int)obj_state::idle) {
+				frame_image::get().render_transparent(
+					back_buffer_
+					, bomb_obj->dest_pos_
+					, bomb_obj->src_pos_
+					, (int)obj_type::bomb
+				);
+			}
 		}
 
 		back_buffer_.print_text({ 0, 0 }, to_tstring(to_wstring(g_fps)));
