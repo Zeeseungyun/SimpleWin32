@@ -44,36 +44,71 @@ namespace zee {
 	};
 
 	enum const_var {
-		back_destroy_zone_x = 2048,			back_destroy_zone_y = 2048,
-		back_min_size_x = -200,				back_min_size_y = -200,
-		back_loop_max_size_x = 800,			back_loop_max_size_y = 1200,
-		back_scroll_max_size_x = 1152,		back_scroll_max_size_y = 2048,
-		back_scroll_default_unit_pos_x = 0,	back_scroll_default_unit_pos_y = 1100,
-		back_scroll_max_x = 390,			back_scroll_max_y = 1152,
-		back_scroll_unit_max_move_x = 705, back_scroll_unit_max_move_y = 770,
+		back_destroy_zone,
+		back_min_size,
+		back_loop_max_size,
+		back_scroll_max_size,
+		back_scroll_default_unit_pos,
+		back_scroll_max,
+		back_scroll_unit_max_move,
 
-		unit_size_x = 31,					unit_size_y = 48,
-		unit_default_pos_x = 350,			unit_default_pos_y = 650,
-		unit_default_frame_x = 60,			unit_default_frame_y = 0,
-		unit_max_move_size_x = 760,			unit_max_move_size_y = 940,
-		unit_bullet_size_x = 10,			unit_bullet_size_y = 10,
-		unit_bullet_follow_size_x = 12,		unit_bullet_follow_size_y = 20,
-		unit_bullet_frame_x = 0,			unit_bullet_frame_y = 0,
+		unit_size,
+		unit_default_pos,
+		unit_default_frame,
+		unit_max_move_size,
+		unit_bullet_size,
+		unit_bullet_follow_size,
+		unit_bullet_frame,
+		unit_bullet_next_frame,
+
+		monster_size,
+		monster_default_frame,
+		monster_min_pos,
+		monster_max_pos,
+		monster_bullet_size,
+		monster_bullet_follow_size,
+		monster_bullet_frame,
+
+		effect_bomb_size,
+		effect_bomb_final_frame,
+
 		unit_max_bullet_num = 20,
-		bullet_next_frame_x = 28,
-
-		monster_size_x = 32,				monster_size_y = 32,
-		monster_default_frame_x = 0,		monster_default_frame_y = 0,
-		monster_min_pos_x = -100,			monster_min_pos_y = -100,
-		monster_max_pos_x = 800,			monster_max_pos_y = 900,
-		monster_bullet_size_x = 10,			monster_bullet_size_y = 10,
-		monster_bullet_follow_size_x = 11,	monster_bullet_follow_size_y = 17,
-		monster_bullet_frame_x = 10,		monster_bullet_frame_y = 0,
-		monster_bullet_max_num = 100,
+		monster_bullet_max_num = 50,
 		monster_spawn_num = 4,
+	};
 
-		effect_bomb_size_x = 32,			effect_bomb_size_y = 32,
-		effect_bomb_final_frame_x = 128
+	static std::vector<math::vec2i> coords {
+		{2048, 2048},	//back_destroy_zone
+		{-200, -200},	//back_min_size
+		{800, 1200},	//back_loop_max_size
+		{1152, 2048},	//back_scroll_max_size
+		{0, 1100},		//back_scroll_default_unit_pos
+		{390, 1152},	//back_scroll_max
+		{705, 770},		//back_scroll_unit_max_move
+
+		{31, 48},		//unit_size
+		{350, 650},		//unit_default_pos
+		{60, 0},		//unit_default_frame
+		{760, 940},		//unit_max_move_size
+		{10, 10},		//unit_bullet_size
+		{12, 20},		//unit_bullet_follow_size
+		{0, 0},			//unit_bullet_frame
+		{28, 0},		//unit_bullet_next_frame
+						
+		{32, 32},		//monster_size
+		{0, 0},			//monster_default_frame
+		{0, -100},		//monster_min_pos
+		{800, 900},		//monster_max_pos
+		{10, 10},		//monster_bullet_size
+		{11, 17},		//monster_bullet_follow_size
+		{10, 0},		//monster_bullet_frame
+						
+		{32, 32},		//effect_bomb_size
+		{128, 0},		//effect_bomb_final_frame
+
+		{-1, -1},		//none
+		{-1, -1},		//none
+		{-1, -1},		//none
 	};
 
 	class stage : public interfaces::tickable, public std::enable_shared_from_this<stage> {

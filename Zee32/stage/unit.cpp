@@ -31,8 +31,8 @@ namespace zee {
 	}
 
 	const bool unit::in_screen() const {
-		return now_pos_.x > (int)back_min_size_x && now_pos_.x < (int)back_loop_max_size_x
-			&& now_pos_.y >(int)back_min_size_y && now_pos_.y < (int)back_loop_max_size_y;
+		return now_pos_.x > coords[back_min_size].x && now_pos_.x < coords[back_loop_max_size].x
+			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_loop_max_size].y;
 	}
 
 	void unit::move(const float& delta_time) {
@@ -142,7 +142,7 @@ namespace zee {
 						bullet_obj->set_spawn_state(true);
 						bullet_obj->set_state((int)obj_state::idle);
 						bullet_obj->set_now_pos_and_body(
-							{ now_pos_.x + size_.x / 2 - (int)unit_bullet_size_x / 2
+							{ now_pos_.x + size_.x / 2 - coords[unit_bullet_size].x / 2
 							, now_pos_.y + size_.y / 2 }
 						);
 						break;
@@ -208,10 +208,10 @@ namespace zee {
 	//app 실행 시 stage에서 호출
 	void unit::init_bullet(const int& shoot_type) {
 		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-		spawned_bullet->set_size({ (int)unit_bullet_size_x, (int)unit_bullet_size_y });
-		spawned_bullet->set_now_pos_and_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
-		spawned_bullet->set_max_move_size({ (int)back_loop_max_size_x, (int)back_loop_max_size_y });
-		spawned_bullet->set_frame_size({ (int)unit_bullet_frame_x, (int)unit_bullet_frame_y });
+		spawned_bullet->set_size(coords[unit_bullet_size]);
+		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
+		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
+		spawned_bullet->set_frame_size(coords[unit_bullet_frame]);
 		spawned_bullet->set_obj((int)obj_type::unit);
 		spawned_bullet->set_move_type(shoot_type);
 		spawned_bullet->set_spawn_state(false);

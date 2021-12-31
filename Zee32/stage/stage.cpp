@@ -16,27 +16,27 @@ namespace zee {
 
 		//이미지 로드
 		//배경
-		background_image::get().load_background_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }
-		, TEXT("assets/game_background_loop_vertical.bmp"));
-		background_image::get().load_background_image({ (int)back_scroll_max_size_x, (int)back_scroll_max_size_y }
-		, TEXT("assets/game_background_stop.bmp"));
+		background_image::get().load_background_image(coords[back_loop_max_size]
+			, TEXT("assets/game_background_loop_vertical.bmp"));
+		background_image::get().load_background_image(coords[back_scroll_max_size]
+			, TEXT("assets/game_background_stop.bmp"));
 		//유닛
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)unit_size_x, (int)unit_size_y }
-		, TEXT("assets/player.bmp"), (int)obj_type::unit);
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)monster_size_x, (int)monster_size_y }
-		, TEXT("assets/monster.bmp"), (int)obj_type::monster);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_size]
+			, TEXT("assets/player.bmp"), (int)obj_type::unit);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_size]
+			, TEXT("assets/monster.bmp"), (int)obj_type::monster);
 		//뷸렛
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)unit_bullet_size_x, (int)unit_bullet_size_y }
-		, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_unit);
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)unit_bullet_follow_size_x, (int)unit_bullet_follow_size_y }
-		, TEXT("assets/unit_bullet_follow.bmp"), (int)obj_type::bullet_follow_unit);
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)monster_bullet_size_x, (int)monster_bullet_size_y }
-		, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_monster);
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)monster_bullet_follow_size_x, (int)monster_bullet_follow_size_y }
-		, TEXT("assets/monster_bullet_follow.bmp"), (int)obj_type::bullet_follow_monster);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_bullet_size]
+			, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_unit);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[unit_bullet_follow_size]
+			, TEXT("assets/unit_bullet_follow.bmp"), (int)obj_type::bullet_follow_unit);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_size]
+			, TEXT("assets/bullet.bmp"), (int)obj_type::bullet_monster);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[monster_bullet_follow_size]
+			, TEXT("assets/monster_bullet_follow.bmp"), (int)obj_type::bullet_follow_monster);
 		//폭발
-		frame_image::get().load_frame_image({ (int)back_loop_max_size_x, (int)back_loop_max_size_y }, { (int)effect_bomb_size_x, (int)effect_bomb_size_y }
-		, TEXT("assets/bomb.bmp"), (int)obj_type::bomb);
+		frame_image::get().load_frame_image(coords[back_loop_max_size], coords[effect_bomb_size]
+			, TEXT("assets/bomb.bmp"), (int)obj_type::bomb);
 
 		//게임 초기화
 		init_game();
@@ -72,19 +72,19 @@ namespace zee {
 		switch (background_type_)	{
 		case loop:
 			background_src_pos_ = { 0.0f, 0.0f };
-			background_src_size_ = { (int)back_loop_max_size_x, (int)back_loop_max_size_y };
+			background_src_size_ = coords[back_loop_max_size];
 			break;
 		case scroll:
-			background_src_pos_ = { (float)back_scroll_default_unit_pos_x, (float)back_scroll_default_unit_pos_y };	//y축 시작위치 설정
+			background_src_pos_ = coords[back_scroll_default_unit_pos];	//y축 시작위치 설정
 			break;
 		}
 		
 		//유닛 스폰
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
-		spawned_unit->set_size({ (int)unit_size_x, (int)unit_size_y });
-		spawned_unit->set_now_pos_and_body({ (float)unit_default_pos_x, (float)unit_default_pos_y });
-		spawned_unit->set_frame_size({ (int)unit_default_frame_x, (int)unit_default_frame_y });
-		spawned_unit->set_max_move_size({ (int)unit_max_move_size_x, (int)unit_max_move_size_y });
+		spawned_unit->set_size(coords[unit_size]);
+		spawned_unit->set_now_pos_and_body(coords[unit_default_pos]);
+		spawned_unit->set_frame_size(coords[unit_default_frame]);
+		spawned_unit->set_max_move_size(coords[unit_max_move_size]);
 		spawned_unit->set_shoot_type((int)obj_shoot_type::straight);
 		spawned_unit->set_state((int)obj_state::idle);
 		units_.push_back(spawned_unit);
@@ -111,18 +111,18 @@ namespace zee {
 	//몬스터 스폰
 	void stage::spawn_monster() {
 		std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
-		spawned_monster->set_size({ (int)monster_size_x, (int)monster_size_y });
+		spawned_monster->set_size(coords[monster_size]);
 
-		int rx = rand((int)monster_min_pos_x, (int)monster_max_pos_x);
-		int ry = (int)monster_min_pos_y;
+		int rx = rand(coords[monster_max_pos].x, coords[monster_max_pos].x);
+		int ry = coords[monster_min_pos].y;
 		spawned_monster->set_now_pos_and_body({ (float)rx, (float)ry });
 
 		int rand_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
-		spawned_monster->set_shoot_type(rand_shoot_type);
+		spawned_monster->set_shoot_type(rand_shoot_type);	//테스트
 
 		spawned_monster->set_arrival_point({
-			rand((int)monster_min_pos_x, (int)monster_max_pos_x)
-			, (float)monster_max_pos_y });
+			rand(coords[monster_min_pos].x, coords[monster_max_pos].x)
+			, coords[monster_max_pos].y});
 
 		monsters_.push_back(spawned_monster);
 	}
@@ -165,12 +165,14 @@ namespace zee {
 					}
 					break;
 				case 2:
-					if (units_[0]->get_now_pos().y < (int)back_scroll_unit_max_move_y && background_src_pos_.y < (int)back_scroll_max_y) {
+					if (units_[0]->get_now_pos().y < coords[back_scroll_unit_max_move].y 
+						&& background_src_pos_.y < coords[back_scroll_max].y) {
 						background_src_pos_.y += background_speed;
 					}
 					break;
 				case 3:
-					if (units_[0]->get_now_pos().x < (int)back_scroll_unit_max_move_x && background_src_pos_.x < (int)back_scroll_max_x) {
+					if (units_[0]->get_now_pos().x < coords[back_scroll_unit_max_move].x 
+						&& background_src_pos_.x < coords[back_scroll_max].x) {
 						background_src_pos_.x += background_speed;
 					}
 					break;

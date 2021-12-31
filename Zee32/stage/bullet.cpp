@@ -31,8 +31,8 @@ namespace zee {
 	}
 
 	const bool bullet::in_screen() const {
-		return now_pos_.x > (int)back_min_size_x && now_pos_.x < (int)back_loop_max_size_x
-			&& now_pos_.y >(int)back_min_size_y && now_pos_.y < (int)back_loop_max_size_y;
+		return now_pos_.x > coords[back_min_size].x && now_pos_.x < coords[back_loop_max_size].x
+			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_loop_max_size].y;
 	}
 
 	void bullet::move(const float& delta_time) {
@@ -60,7 +60,7 @@ namespace zee {
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y - speed });
 		}
 		else if (obj_ = (int)obj_type::monster) {
-			const float speed = 3.0f;
+			const float speed = 4.0f;
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
 		}
 	}
@@ -90,7 +90,7 @@ namespace zee {
 
 	void bullet::destroy(const float& delta_time) {
 		if (state_ == (int)obj_state::hit || !(in_screen())) {
-			set_now_pos_and_body({ (int)back_destroy_zone_x, (int)back_destroy_zone_y });
+			set_now_pos_and_body(coords[back_destroy_zone]);
 			spawn_state_ = false;
 		}
 	}
@@ -100,6 +100,7 @@ namespace zee {
 			//플레이어
 			if (obj_ == (int)obj_type::unit) {
 				//유도탄
+
 				if (move_type_ == (int)obj_shoot_type::follow) {
 					frame_image::get().render_plg(
 						dest_dc
@@ -114,7 +115,7 @@ namespace zee {
 					frame_image::get().render_transparent(
 						dest_dc
 						, now_pos_
-						, { (int)bullet_next_frame_x, 0 }
+						, coords[unit_bullet_next_frame]
 						, (int)obj_type::bullet_unit
 					);
 				}
@@ -141,15 +142,16 @@ namespace zee {
 					);
 				}
 			}
-		}
 
-		if (in_screen()) {
-			//충돌범위 테스트
-			shape::circlef circle{ body_.origin, body_.radius };
-			if (key_state::is_toggle_on(keys::tab)) {
-				dest_dc.circle(circle);
+			if (in_screen()) {
+				//충돌범위 테스트
+				shape::circlef circle{ body_.origin, body_.radius };
+				if (key_state::is_toggle_on(keys::tab)) {
+					dest_dc.circle(circle);
+				}
 			}
 		}
+
 	}
 
 	const math::vec2f bullet::get_now_pos() const {
