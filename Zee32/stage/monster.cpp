@@ -186,9 +186,9 @@ namespace zee {
 			set_now_pos_and_body(coords[back_destroy_zone]);
 
 			//자기 총알 없애기
-			for (auto& bullet_obj : bullets_) {
+			/*for (auto& bullet_obj : bullets_) {
 				bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
-			}
+			}*/
 
 			init();
 		}

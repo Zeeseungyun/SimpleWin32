@@ -24,6 +24,28 @@ namespace zee {
 	unit::~unit() noexcept {
 	}
 
+	void unit::init() {
+		set_size(coords[unit_size]);
+		set_now_pos_and_body(coords[unit_default_pos]);
+		set_frame_size(coords[unit_default_frame]);
+		set_max_move_size(coords[unit_max_move_size]);
+		set_shoot_type((int)obj_shoot_type::straight);
+		set_state((int)obj_state::idle);
+	}
+
+	//app 실행 시 stage에서 호출
+	void unit::init_bullet(const int& shoot_type) {
+		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
+		spawned_bullet->set_size(coords[unit_bullet_size]);
+		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
+		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
+		spawned_bullet->set_frame_size(coords[unit_bullet_frame]);
+		spawned_bullet->set_obj((int)obj_type::unit);
+		spawned_bullet->set_move_type(shoot_type);
+		spawned_bullet->set_spawn_state(false);
+		bullets_.push_back(spawned_bullet);
+	}
+
 	void unit::tick(float delta_time) {
 		move(delta_time);
 		shoot(delta_time);
@@ -204,19 +226,6 @@ namespace zee {
 				dest_dc.circle(circle);
 			}
 		}
-	}
-
-	//app 실행 시 stage에서 호출
-	void unit::init_bullet(const int& shoot_type) {
-		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-		spawned_bullet->set_size(coords[unit_bullet_size]);
-		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
-		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
-		spawned_bullet->set_frame_size(coords[unit_bullet_frame]);
-		spawned_bullet->set_obj((int)obj_type::unit);
-		spawned_bullet->set_move_type(shoot_type);
-		spawned_bullet->set_spawn_state(false);
-		bullets_.push_back(spawned_bullet);
 	}
 
 	const math::vec2f unit::get_now_pos() const {

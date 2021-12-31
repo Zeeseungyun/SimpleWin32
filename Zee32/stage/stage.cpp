@@ -73,6 +73,7 @@ namespace zee {
 	}
 
 	void stage::init_game() {
+
 		switch (background_type_)	{
 		case loop:
 			background_src_pos_ = { 0.0f, 0.0f };
@@ -83,18 +84,13 @@ namespace zee {
 			break;
 		}
 		
-		//À¯´Ö ÃÊ±âÈ­
+		//À¯´Ö ½ºÆù
 		std::shared_ptr<unit> spawned_unit = std::make_shared<unit>();
-		spawned_unit->set_size(coords[unit_size]);
-		spawned_unit->set_now_pos_and_body(coords[unit_default_pos]);
-		spawned_unit->set_frame_size(coords[unit_default_frame]);
-		spawned_unit->set_max_move_size(coords[unit_max_move_size]);
-		spawned_unit->set_shoot_type((int)obj_shoot_type::straight);
-		spawned_unit->set_state((int)obj_state::idle);
 		units_.push_back(spawned_unit);
-
-		//À¯´Ö ºæ·¿
+		//À¯´Ö ÃÊ±âÈ­
 		for (auto& unit_obj : units_) {
+			unit_obj->init();
+			//À¯´Ö ºæ·¿ ÃÊ±âÈ­
 			for (int i = 0; i != (int)unit_max_bullet_num; i++) {
 				unit_obj->init_bullet(unit_obj->get_shoot_type());
 			}
@@ -106,12 +102,9 @@ namespace zee {
 			monsters_.push_back(spawned_monster);
 		}
 		//¸ó½ºÅÍ ÃÊ±âÈ­
-		for (auto& mon_obj : monsters_) {
-			mon_obj->init();
-		}
-
-		//¸ó½ºÅÍ ºæ·¿
 		for (auto& monster_obj : monsters_) {
+			monster_obj->init();
+			//¸ó½ºÅÍ ºæ·¿ ÃÊ±âÈ­
 			for (int i = 0; i != (int)monster_bullet_max_num; i++) {
 				monster_obj->init_bullet(monster_obj->get_shoot_type());
 			}
