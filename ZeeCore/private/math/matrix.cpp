@@ -132,7 +132,7 @@ namespace math {
 	void matrix::mul(const matrix& m) {
 		if (is_same_column_vs_row_size(m)) {
 			//mf_ = 3x2 -> 1x2
-			if (m.get_row_size() == 1 && m.get_column_size() == 2) {
+			if (m.get_row_size() == 1 && m.get_column_size() == 2 && mf_.size() > 2) {
 				mf_[0] = {
 					{ m.get_mf()[0][0] * mf_[0][0]
 					+ m.get_mf()[0][1] * mf_[1][0]
@@ -146,7 +146,7 @@ namespace math {
 				mf_[0].resize(2);
 			}
 			//mf_ = 4x3 -> 1x3
-			else if (m.get_row_size() == 1 && m.get_column_size() == 3) {
+			else if (m.get_row_size() == 1 && m.get_column_size() == 3 && mf_.size() > 3) {
 				mf_[0] = {
 					{ m.get_mf()[0][0] * mf_[0][0]
 					+ m.get_mf()[0][1] * mf_[1][0]

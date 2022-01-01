@@ -34,12 +34,14 @@ namespace zee {
 	void unit::init_bullet(const int& shoot_type) {
 		std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
 		spawned_bullet->set_size(coords[unit_bullet_straight_size]);
-		spawned_bullet->set_now_pos_and_body(coords[back_destroy_zone]);
-		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
+		spawned_bullet->set_now_pos_and_body(
+			{ now_pos_.x + size_.x / 2 - coords[unit_bullet_straight_size].x / 2
+			, now_pos_.y + size_.y / 2 }
+		);	//obj À§Ä¡
+		spawned_bullet->set_max_move_size(coords[back_max_size]);
 		spawned_bullet->set_frame_size(coords[unit_bullet_frame]);
 		spawned_bullet->set_obj((int)obj_type::unit);
 		spawned_bullet->set_move_type(shoot_type);
-		spawned_bullet->set_hp((int)obj_state::die);
 		bullets_.push_back(spawned_bullet);
 	}
 
@@ -50,8 +52,8 @@ namespace zee {
 	}
 
 	const bool unit::in_screen() const {
-		return now_pos_.x > coords[back_min_size].x && now_pos_.x < coords[back_loop_max_size].x
-			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_loop_max_size].y;
+		return now_pos_.x > coords[back_min_size].x && now_pos_.x < coords[back_max_size].x
+			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_max_size].y;
 	}
 
 	void unit::move(const float& delta_time) {
@@ -150,32 +152,23 @@ namespace zee {
 	}
 
 	void unit::shoot(const float& delta_time) {
-		//ÃÑ¾Ë ½î±â
+		//ºæ·¿ ½î±â
 		if (key_state::is_down(keys::space)) {
 
 			static float delay = 0.2f;
 			const float frame = 0.2f;
 			delay += delta_time;
 			if (delay >= frame) {
-
-				for (auto& bullet_obj : bullets_) {
-					if (!bullet_obj->get_hp()) {
-						bullet_obj->set_hp((int)obj_state::idle);
-						bullet_obj->set_now_pos_and_body(
-							{ now_pos_.x + size_.x / 2 - coords[unit_bullet_straight_size].x / 2
-							, now_pos_.y + size_.y / 2 }
-						);
-						break;
-					}
-				}
-
-				delay = (float)math::fmod(delay, frame);
+				init_bullet((int)obj_shoot_type::straight);
 			}
+			delay = (float)math::fmod(delay, frame);
 		}
 
-		//ÃÑ¾Ë Æ½
-		for (auto& bullet_obj : bullets_) {
-			bullet_obj->tick(delta_time);
+		//ºæ·¿ Æ½
+		if (!bullets_.empty()) {
+			for (auto& bullet_obj : bullets_) {
+				bullet_obj->tick(delta_time);
+			}
 		}
 	}
 
@@ -191,45 +184,53 @@ namespace zee {
 
 			delay = (float)math::fmod(delay, frame);
 		}
-	}
 
-	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
-		if (in_screen()) {
-			frame_image::get().render_destdc_to_backbuffer(dest_dc);
-			if (hp_ == (int)obj_state::idle) {
-				frame_image::get().render_transparent(
-					dest_dc
-					, now_pos_
-					, frame_x_ + frame_y_
-					, (int)obj_type::unit
-				);
+		//ºæ·¿ Á¦°Å
+		for (int i = 0; i != bullets_.size(); ) {
+			if (!(bullets_[i]->in_screen())) {
+				bullets_.erase(bullets_.begin() + i);
 			}
-			if (hp_ == (int)obj_state::die) {
-				frame_image::get().render_alphablend(
-					dest_dc
-					, now_pos_
-					, frame_x_ + frame_y_
-					, (int)obj_type::unit
-				);
-			}
-
-			//ÃÑ¾Ë
-			for (auto& bullet_obj : bullets_) {
-				bullet_obj->render(dest_dc);
-			}
-
-			//Ãæµ¹¹üÀ§ Å×½ºÆ®
-			shape::circlef circle{ body_.origin, body_.radius };
-			if (key_state::is_toggle_on(keys::tab)) {
-				dest_dc.circle(circle);
+			else {
+				i++;
 			}
 		}
 	}
 
-	const math::vec2f unit::get_now_pos() const {
+	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
+		frame_image::get().render_destdc_to_backbuffer(dest_dc);
+		if (hp_ == (int)obj_state::idle) {
+			frame_image::get().render_transparent(
+				dest_dc
+				, now_pos_
+				, frame_x_ + frame_y_
+				, (int)obj_type::unit
+			);
+		}
+		if (hp_ == (int)obj_state::die) {
+			frame_image::get().render_alphablend(
+				dest_dc
+				, now_pos_
+				, frame_x_ + frame_y_
+				, (int)obj_type::unit
+			);
+		}
+
+		//ºæ·¿ ·»´õ
+		for (auto& bullet_obj : bullets_) {
+			bullet_obj->render(dest_dc);
+		}
+
+		//Ãæµ¹¹üÀ§ Å×½ºÆ®
+		shape::circlef circle{ body_.origin, body_.radius };
+		if (key_state::is_toggle_on(keys::tab)) {
+			dest_dc.circle(circle);
+		}
+	}
+
+	const math::vec2f& unit::get_now_pos() const {
 		return now_pos_;
 	}
-	const shape::circlef unit::get_body() const {
+	const shape::circlef& unit::get_body() const {
 		return body_;
 	}
 	const math::vec2i& unit::get_frame_x() const {

@@ -22,8 +22,8 @@ namespace zee {
 		void destroy(const float& delta_time);
 		void render(win32gdi::device_context_dynamic& dest_dc);
 
-		const math::vec2f get_now_pos() const;
-		const shape::circlef get_body() const;
+		const math::vec2f& get_now_pos() const;
+		const shape::circlef& get_body() const;
 		const math::vec2i& get_frame_x() const;
 		const math::vec2i& get_frame_y() const;
 		const int& get_direction() const;

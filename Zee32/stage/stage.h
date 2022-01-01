@@ -27,10 +27,14 @@ namespace zee {
 		monster_1,
 		monster_2,
 		monster_3,
+		monster_4,
+		monster_5,
 		unit_bullet_straight,
 		monster_bullet_straight,
 		monster_bullet_circle,
-		monster_bullet_follow,
+		monster_bullet_homing,
+		monster_bullet_arround,
+		monster_bullet_wave,
 		bomb,
 		max
 	};
@@ -41,8 +45,9 @@ namespace zee {
 	enum class obj_shoot_type {
 		straight,
 		circle,
-		follow,
+		homing,
 		arround,
+		wave,
 		max
 	};
 	enum class key_type {
@@ -57,6 +62,7 @@ namespace zee {
 	enum const_var {
 		back_destroy_zone,
 		back_min_size,
+		back_max_size,
 		back_loop_max_size,
 		back_scroll_max_size,
 		back_scroll_default_unit_pos,
@@ -68,18 +74,23 @@ namespace zee {
 		unit_default_frame,
 		unit_max_move_size,
 		unit_bullet_straight_size,
-		unit_bullet_follow_size,
+		unit_bullet_homing_size,
 		unit_bullet_frame,
 
 		monster_1_size,
 		monster_2_size,
 		monster_3_size,
+		monster_4_size,
+		monster_5_size,
 		monster_default_frame,
 		monster_min_pos,
 		monster_max_pos,
+		monster_boss_pos,
 		monster_bullet_straight_size,
 		monster_bullet_circle_size,
-		monster_bullet_follow_size,
+		monster_bullet_homing_size,
+		monster_bullet_arround_size,
+		monster_bullet_wave_size,
 		monster_bullet_frame,
 
 		effect_bomb_size,
@@ -87,13 +98,14 @@ namespace zee {
 
 		unit_bullet_max_num = 20,
 		monster_bullet_max_num = 60,
-		monster_spawn_num = 4,
+		monster_spawn_num = 3,
 		effect_bomb_max_num = 10
 	};
 
 	static std::vector<math::vec2i> coords{
 		{2048, 2048},	//back_destroy_zone
 		{-150, -200},	//back_min_size
+		{720, 1000},	//back_max_size
 		{720, 1280},	//back_loop_max_size
 		{1152, 2048},	//back_scroll_max_size
 		{0, 1100},		//back_scroll_default_unit_pos
@@ -105,23 +117,29 @@ namespace zee {
 		{64, 0},		//unit_default_frame
 		{660, 940},		//unit_max_move_size
 		{16, 16},		//unit_bullet_straight_size
-		{13, 22},		//unit_bullet_follow_size
+		{13, 22},		//unit_bullet_homing_size
 		{0, 0},			//unit_bullet_frame
 
 		{64, 48},		//monster_1_size
-		{52, 62},		//monster_2_size
+		{64, 64},		//monster_2_size
 		{60, 64},		//monster_3_size
+		{52, 62},		//monster_4_size
+		{126, 62},		//monster_5_size
 		{0, 0},			//monster_default_frame
 		{0, -100},		//monster_min_pos
-		{660, 900},		//monster_max_pos
+		{500, 900},		//monster_max_pos
+		{350, 200},		//monster_boss_pos
 		{16, 16},		//monster_bullet_straight_size
 		{26, 26},		//monster_bullet_circle_size
-		{32, 32},		//monster_bullet_follow_size
+		{32, 32},		//monster_bullet_homing_size
+		{16, 30},		//monster_bullet_arround_size
+		{30, 30},		//monster_bullet_wave_size
 		{0, 0},			//monster_bullet_frame
 
 		{32, 32},		//effect_bomb_size
 		{96, 0},		//effect_bomb_final_frame
 
+		{-1, -1},		//none
 		{-1, -1},		//none
 		{-1, -1},		//none
 		{-1, -1},		//none
@@ -131,7 +149,7 @@ namespace zee {
 		bomb() noexcept : dest_pos_(), src_pos_(), src_size_(), hp_() {}
 		virtual ~bomb() noexcept {}
 		math::vec2f dest_pos_;
-		math::vec2f src_pos_;
+		math::vec2i src_pos_;
 		math::vec2i src_size_;
 		int hp_;
 	};
