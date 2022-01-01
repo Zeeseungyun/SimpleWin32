@@ -7,7 +7,7 @@
 #include "bullet.h"
 
 namespace zee {
-	class unit : public interfaces::tickable {
+	class unit {
 	public:
 		unit() noexcept;
 		virtual ~unit() noexcept;
@@ -15,7 +15,7 @@ namespace zee {
 		void init();
 		void init_bullet(const int& shoot_type);
 
-		virtual void tick(float delta_time) override;
+		virtual void tick(float delta_time);
 		const bool in_screen() const;
 		void move(const float& delta_time);
 		void shoot(const float& delta_time);

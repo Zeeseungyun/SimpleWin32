@@ -3,7 +3,7 @@
 #include "frame_image.h"
 
 namespace zee {
-	class monster : public interfaces::tickable {
+	class monster {
 	public:
 		monster() noexcept;
 		virtual ~monster() noexcept;
@@ -11,12 +11,11 @@ namespace zee {
 		void init();
 		void init_bullet(const int& shoot_type);
 
-		virtual void tick(float delta_time) override;
+		virtual void tick(float delta_time);
 		const bool in_screen() const;
 		void move(const float& delta_time);
 		void rotate(const float& delta_time);
 		void shoot(const float& delta_time);
-		void hit_to_idle(const float& delta_time);
 		void destroy(const float& delta_time);
 		void render(win32gdi::device_context_dynamic& dest_dc);
 

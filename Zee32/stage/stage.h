@@ -42,6 +42,7 @@ namespace zee {
 		straight,
 		circle,
 		follow,
+		arround,
 		max
 	};
 	enum class key_type {

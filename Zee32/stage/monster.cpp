@@ -16,10 +16,25 @@ namespace zee {
 	}
 
 	void monster::init() {
-		set_size(coords[monster_1_size]);
 
 		int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
-		shoot_type_ = random_shoot_type;
+		shoot_type_ = random_shoot_type;	//(int)obj_shoot_type::arround;	//Å×½ºÆ®		
+
+		switch (shoot_type_)
+		{
+		case (int)obj_shoot_type::straight:
+			set_size(coords[monster_1_size]);
+			break;
+		case (int)obj_shoot_type::circle:
+			set_size(coords[monster_2_size]);
+			break;
+		case (int)obj_shoot_type::follow:
+			set_size(coords[monster_3_size]);
+			break;
+		case (int)obj_shoot_type::arround:
+			set_size(coords[monster_1_size]);
+			break;
+		}
 
 		int rx = rand(coords[monster_min_pos].x, coords[monster_max_pos].x);
 		int ry = coords[monster_min_pos].y;
@@ -39,16 +54,24 @@ namespace zee {
 		switch (shoot_type)
 		{
 		case (int)obj_shoot_type::straight:
+			//Á÷¼±Åº
 			spawned_bullet->set_size(coords[monster_bullet_straight_size]);
 			spawned_bullet->set_obj((int)obj_type::monster_1);
 			break;
 		case (int)obj_shoot_type::circle:
+			//¿øÇüÅº
 			spawned_bullet->set_size(coords[monster_bullet_circle_size]);
 			spawned_bullet->set_obj((int)obj_type::monster_2);
 			break;
 		case (int)obj_shoot_type::follow:
+			//À¯µµÅº
 			spawned_bullet->set_size(coords[monster_bullet_follow_size]);
 			spawned_bullet->set_obj((int)obj_type::monster_3);
+			break;
+			//Å×½ºÆ® Åº
+		case (int)obj_shoot_type::arround:
+			spawned_bullet->set_size(coords[monster_bullet_straight_size]);
+			spawned_bullet->set_obj((int)obj_type::monster_1);
 			break;
 		}
 		spawned_bullet->set_max_move_size(coords[back_loop_max_size]);
@@ -90,7 +113,7 @@ namespace zee {
 
 	void monster::shoot(const float& delta_time) {
 		static float delay = 0.0f;
-		const float frame = 2.0f;
+		const float frame = 0.5f;
 		delay += delta_time;
 		if (delay >= frame) {
 			switch (shoot_type_)
@@ -98,7 +121,9 @@ namespace zee {
 			case (int)obj_shoot_type::straight:
 				//Á÷¼±Åº
 				for (auto& bullet_obj : bullets_) {
-					if (!bullet_obj->get_hp()) {
+					if (bullet_obj->get_move_type() == (int)obj_shoot_type::straight
+						&& bullet_obj->get_hp() == (int)obj_state::die)
+					{
 						bullet_obj->set_hp((int)obj_state::idle);
 						bullet_obj->set_now_pos_and_body(
 							{ now_pos_.x + size_.x / 2 - coords[monster_bullet_straight_size].x / 2
@@ -107,10 +132,13 @@ namespace zee {
 						break;
 					}
 				}
+				break;
 			case (int)obj_shoot_type::follow:
 				//À¯µµÅº
 				for (auto& bullet_obj : bullets_) {
-					if (!bullet_obj->get_hp()) {
+					if (bullet_obj->get_move_type() == (int)obj_shoot_type::follow
+						&& bullet_obj->get_hp() == (int)obj_state::die)
+					{
 						bullet_obj->set_hp((int)obj_state::idle);
 						bullet_obj->set_now_pos_and_body(
 							{ now_pos_.x + size_.x / 2 - coords[monster_bullet_follow_size].x / 2
@@ -120,26 +148,43 @@ namespace zee {
 					}
 				}
 				break;
-			case (int)obj_shoot_type::circle:
+			case (int)obj_shoot_type::circle: {
 				//¿øÇüÅº
 				float circle_angle = 0;
-				const int bullet_cnt = 10;
+				int bullet_cnt = 10;
 
-				for (int i = 0; i < bullet_cnt; ) {
-					for (auto& bullet_obj : bullets_) {
-						if (!bullet_obj->get_hp()) {
-							bullet_obj->set_hp((int)obj_state::idle);
-							bullet_obj->set_now_pos_and_body(
-								{ now_pos_.x + size_.x / 2 - coords[monster_bullet_straight_size].x/ 2
-								, now_pos_.y + size_.y / 2 }
-							);
-							circle_angle += math::pi() * 2 / (float)bullet_cnt;
-							bullet_obj->set_circle_angle(circle_angle);
-							i++;
-							break;
-						}
+				for (auto& bullet_obj : bullets_) {
+					if (bullet_obj->get_move_type() == (int)obj_shoot_type::circle
+						&& bullet_obj->get_hp() == (int)obj_state::die)
+					{
+						bullet_obj->set_hp((int)obj_state::idle);
+						bullet_obj->set_now_pos_and_body(
+							{ now_pos_.x + size_.x / 2 - coords[monster_bullet_straight_size].x / 2
+							, now_pos_.y + size_.y / 2 }
+						);
+						circle_angle += math::pi() * 2 / (float)bullet_cnt;
+						bullet_obj->set_circle_angle(circle_angle);
+						bullet_cnt--;
 					}
-
+					if (bullet_cnt <= 0) {
+						break;
+					}
+				}
+				break;
+			}
+			case (int)obj_shoot_type::arround:
+				//Å×½ºÆ® Åº
+				for (auto& bullet_obj : bullets_) {
+					if (bullet_obj->get_move_type() == (int)obj_shoot_type::arround
+						&& bullet_obj->get_hp() == (int)obj_state::die)
+					{
+						bullet_obj->set_hp((int)obj_state::idle);
+						bullet_obj->set_now_pos_and_body(
+							{ now_pos_.x + size_.x / 2 - coords[monster_bullet_straight_size].x / 2
+							, now_pos_.y + size_.y / 2 }
+						);
+						break;
+					}
 				}
 				break;
 			}
@@ -165,13 +210,13 @@ namespace zee {
 			const float frame = 4.0f;
 			delay += delta_time * speed;
 
-			if (delay >= frame) {
+			//if (delay >= frame) {
 				//¸î ÃÊ ÈÄ ½ºÆù 
 				delay = (float)math::fmod(delay, frame);
 				frame_x_.x %= coords[effect_bomb_final_frame].x;
 
 				init();
-			}
+			//}
 
 			//ÀÚ±â ÃÑ¾Ë ¾ø¾Ö±â
 			/*for (auto& bullet_obj : bullets_) {
@@ -201,6 +246,9 @@ namespace zee {
 					break;
 				case (int)obj_shoot_type::follow:
 					tmp_obj_type = (int)obj_type::monster_3;
+					break;
+				case (int)obj_shoot_type::arround:
+					tmp_obj_type = (int)obj_type::monster_1;
 					break;
 				}
 				frame_image::get().render_transparent(

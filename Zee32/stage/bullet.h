@@ -5,17 +5,18 @@
 #include "frame_image.h"
 
 namespace zee {
-	class bullet : public interfaces::tickable {
+	class bullet {
 	public:
 		bullet() noexcept;
 		virtual ~bullet() noexcept;
 
-		virtual void tick(float delta_time) override;
+		virtual void tick(float delta_time);
 		const bool in_screen() const;
 		void move(const float& delta_time);
 		void move_straight();
 		void move_circle();
 		void move_follow();
+		void move_arround();
 		void rotate();
 		void destroy(const float& delta_time);
 		void render(win32gdi::device_context_dynamic& dest_dc);

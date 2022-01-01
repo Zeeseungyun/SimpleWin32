@@ -47,15 +47,18 @@ namespace zee {
 			case (int)obj_shoot_type::follow:
 				move_follow();
 				break;
+			case (int)obj_shoot_type::arround:
+				move_arround();
+				break;
 			}
 		}
 	}
 	void bullet::move_straight() {
 		if (obj_ == (int)obj_type::unit) {
-			const float speed = 5.0f;
+			const float speed = 6.0f;
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y - speed });
 		}
-		else if (obj_ = (int)obj_type::monster_1) {
+		else {
 			const float speed = 4.0f;
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
 		}
@@ -75,6 +78,11 @@ namespace zee {
 	void bullet::move_follow() {
 		const float speed = 3.0f;
 		set_now_pos_and_body(now_pos_ + vec_for_player_ * speed);
+	}
+
+	void bullet::move_arround() {
+		const float speed = 8.0f;
+		set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
 	}
 
 	void bullet::rotate() {
@@ -136,6 +144,18 @@ namespace zee {
 				);
 				frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});
 			}
+
+			//테스트 탄
+			else if (obj_ == (int)obj_type::monster_1
+				&& move_type_ == (int)obj_shoot_type::arround) {
+				frame_image::get().render_transparent(
+					dest_dc
+					, now_pos_
+					, {}
+					, (int)obj_type::monster_bullet_straight
+				);
+			}
+
 
 			//충돌범위 테스트
 			if (in_screen()) {

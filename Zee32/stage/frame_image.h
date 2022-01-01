@@ -1,5 +1,4 @@
 #pragma once
-#include "../application/key_state.h"
 #include "../win32helper/win32helper.h"
 #include "../win32gdi/device_context.h"
 #include <vector>
