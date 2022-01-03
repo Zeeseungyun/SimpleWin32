@@ -3,7 +3,8 @@
 namespace zee {
 	using namespace math;
 
-	stage::stage() noexcept {
+	stage::stage() noexcept :
+		delay_bomb_() {
 	}
 	stage::~stage() noexcept {
 	}
@@ -37,7 +38,7 @@ namespace zee {
 		frame_image::get().load_frame_image(coords[back_max_size], coords[unit_bullet_straight_size]
 			, TEXT("assets/unit_bullet.bmp"), (int)obj_type::unit_bullet_straight);
 		frame_image::get().load_frame_image(coords[back_max_size], coords[monster_bullet_straight_size]
-			, TEXT("assets/monster_bullet.bmp"), (int)obj_type::monster_bullet_straight);
+			, TEXT("assets/monster_bullet_straight.bmp"), (int)obj_type::monster_bullet_straight);
 		frame_image::get().load_frame_image(coords[back_max_size], coords[monster_bullet_circle_size]
 			, TEXT("assets/monster_bullet_circle.bmp"), (int)obj_type::monster_bullet_circle);
 		frame_image::get().load_frame_image(coords[back_max_size], coords[monster_bullet_homing_size]
@@ -59,7 +60,7 @@ namespace zee {
 		m.set_m2f({ {2,3}, {4,6} });
 		m.determinant();
 		//항등행렬
-		m.set_m3f({ {1, 0, 0}, {0,1,0}, {0,0,1} });
+		m.set_m3f({ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} });
 		if (m.is_identity()) {
 			ZEE_LOG(normal, TEXT("항등행렬 임"), TEXT("-"));
 		}
@@ -143,30 +144,30 @@ namespace zee {
 		}//case loop
 
 		case scroll: {
-			const int background_speed = 10;
+			const float background_speed = 10.0f;
 			if (units_.front()->get_is_dir_key_pressed()) {
 				switch (units_.front()->get_direction()) {
 				//배경 정지 이미지
 				case 0:
 					if (units_.front()->get_now_pos().y > 0 && background_src_pos_.y > 0) {
-						background_src_pos_.y -= background_speed;
+						background_src_pos_.y -= delta_time * background_speed;
 					}
 					break;
 				case 1:
 					if (units_.front()->get_now_pos().x > 0 && background_src_pos_.x > 0) {
-						background_src_pos_.x -= background_speed;
+						background_src_pos_.x -= delta_time * background_speed;
 					}
 					break;
 				case 2:
 					if (units_.front()->get_now_pos().y < coords[back_scroll_unit_max_move].y 
 						&& background_src_pos_.y < coords[back_scroll_max].y) {
-						background_src_pos_.y += background_speed;
+						background_src_pos_.y += delta_time * background_speed;
 					}
 					break;
 				case 3:
 					if (units_.front()->get_now_pos().x < coords[back_scroll_unit_max_move].x 
 						&& background_src_pos_.x < coords[back_scroll_max].x) {
-						background_src_pos_.x += background_speed;
+						background_src_pos_.x += delta_time * background_speed;
 					}
 					break;
 				}
@@ -212,7 +213,6 @@ namespace zee {
 			}
 
 
-
 			//플레이어 총알 vs 적 충돌 틱
 			for (auto& bullet_obj : units_.front()->get_bullets()) {
 				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) != shape::collide_type::none) {
@@ -234,18 +234,17 @@ namespace zee {
 			}
 
 			//폭발 이펙트 틱
-			static float delay = 0.0f;
 			const float speed = 2.0f;
 			const float frame = 3.0f;
-			delay += delta_time * speed;
+			delay_bomb_ += delta_time * speed;
 			
 			for (auto& bomb_obj : bombs_) {
 				if (bomb_obj->hp_ == (int)obj_state::idle) {
-					if (delay >= frame) {
-						delay = (float)math::fmod(delay, frame);
+					if (delay_bomb_ >= frame) {
+						delay_bomb_ = (float)math::fmod(delay_bomb_, frame);
 						bomb_obj->hp_ = (int)obj_state::die;
 					}
-					bomb_obj->src_pos_.x = coords[effect_bomb_size].x * (int)delay;
+					bomb_obj->src_pos_.x = coords[effect_bomb_size].x * (int)delay_bomb_;
 					break;
 				}
 			}
@@ -268,7 +267,7 @@ namespace zee {
 		}//for (auto& mon_obj : monsters_)
 	}
 
-	void stage::render(win32gdi::device_context_base& dest_dc, const float& g_fps) {
+	void stage::render(win32gdi::device_context_base& dest_dc, const float g_fps) {
 		if (back_buffer_.is_valid()) {
 			switch (background_type_)	{
 			case loop:

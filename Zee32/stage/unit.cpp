@@ -16,7 +16,9 @@ namespace zee {
 		, pressed_key_()
 		, delay()
 		, shoot_type_()
-		, hp_() {
+		, hp_()
+		, delay_shoot_()
+		, delay_destroy_()  {
 	}
 	unit::~unit() noexcept {
 	}
@@ -28,6 +30,7 @@ namespace zee {
 		set_max_move_size(coords[unit_max_move_size]);
 		set_shoot_type((int)obj_shoot_type::straight);
 		set_hp((int)obj_state::idle);
+		set_delay(0.2f);
 	}
 
 	//stage에서 호출
@@ -56,7 +59,7 @@ namespace zee {
 			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_max_size].y;
 	}
 
-	void unit::move(const float& delta_time) {
+	void unit::move(const float delta_time) {
 
 		is_dir_key_pressed = false;
 		pressed_key_ = (int)key_type::none;
@@ -84,8 +87,8 @@ namespace zee {
 
 		//이미지상 프레임 애니메이션
 		if (is_dir_key_pressed) {
-			//x축 이동
-			const float speed = 15.0f;
+			//x축
+			const float speed = 12.0f;
 			const float frame = 2.0f;
 			if (pressed_key_ == (int)key_type::arrow_left
 				|| pressed_key_ == (int)key_type::arrow_right) {
@@ -104,7 +107,7 @@ namespace zee {
 				}
 				frame_x_ = { size_.x * (int)delay, 0 };
 			}
-			//y축 이동
+			//y축
 			/*
 			if (pressed_key_ == (int)key_type::arrow_up 
 				|| pressed_key_ == (int)key_type::arrow_down) {
@@ -112,38 +115,41 @@ namespace zee {
 				frame_per_time_ += delta_time * speed;
 				frame_per_time_ = (float)math::fmod(frame_per_time_, frame);
 				frame_y_ = { 0, size_.y * (int)frame_per_time_ };
-			}*/
+			}
+			*/
 
 			//walk 이미지
-			/*const float move_frame = 8.0f;
+			/*
+			const float move_frame = 8.0f;
 			frame_per_time_ = math::fmod(frame_per_time_, move_frame_x);
 			frame_x_ = { size_.x * (int)frame_per_time_, 0 };
-			frame_y_ = { 0, size_.y * direction_ };*/
+			frame_y_ = { 0, size_.y * direction_ };
+			*/
 		}
 
-		if (background_type_ != scroll) {
-			const float speed = 8.0f;
+		if (background_type_ == loop) {
+			const float speed = 400.0f;
 			if (is_dir_key_pressed) {
 				//위치 이동
 				switch (direction_) {
 				case 0:
 					if (now_pos_.y > 0) {
-						set_now_pos_and_body({ now_pos_.x, now_pos_.y - speed });
+						set_now_pos_and_body({ now_pos_.x, now_pos_.y - delta_time * speed });
 					}
 					break;
 				case 1:
 					if (now_pos_.x > 0) {
-						set_now_pos_and_body({ now_pos_.x - speed, now_pos_.y });
+						set_now_pos_and_body({ now_pos_.x - delta_time * speed, now_pos_.y });
 					}
 					break;
 				case 2:
 					if (now_pos_.y < max_move_size_.y) {
-						set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
+						set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
 					}
 					break;
 				case 3:
 					if (now_pos_.x < max_move_size_.x) {
-						set_now_pos_and_body({ now_pos_.x + speed, now_pos_.y });
+						set_now_pos_and_body({ now_pos_.x + delta_time * speed, now_pos_.y });
 					}
 					break;
 				}
@@ -151,17 +157,16 @@ namespace zee {
 		}
 	}
 
-	void unit::shoot(const float& delta_time) {
+	void unit::shoot(const float delta_time) {
 		//뷸렛 쏘기
 		if (key_state::is_down(keys::space)) {
 
-			static float delay = 0.2f;
 			const float frame = 0.2f;
-			delay += delta_time;
-			if (delay >= frame) {
+			delay_shoot_ += delta_time;
+			if (delay_shoot_ >= frame) {
 				init_bullet((int)obj_shoot_type::straight);
 			}
-			delay = (float)math::fmod(delay, frame);
+			delay_shoot_ = (float)math::fmod(delay_shoot_, frame);
 		}
 
 		//뷸렛 틱
@@ -172,17 +177,16 @@ namespace zee {
 		}
 	}
 
-	void unit::destroy(const float& delta_time) {
+	void unit::destroy(const float delta_time) {
 		if (hp_ == (int)obj_state::die) {
 			//현재 반투명 상태 지연시간만 처리
-			static float delay = 0.0f;
 			const float frame = 0.8f;
-			delay += delta_time;
-			if (delay >= frame) {
+			delay_destroy_ += delta_time;
+			if (delay_destroy_ >= frame) {
 				hp_ = (int)obj_state::idle;
 			}
 
-			delay = (float)math::fmod(delay, frame);
+			delay_destroy_ = (float)math::fmod(delay_destroy_, frame);
 		}
 
 		//뷸렛 제거
@@ -239,16 +243,16 @@ namespace zee {
 	const math::vec2i& unit::get_frame_y() const {
 		return frame_y_;
 	}
-	const int& unit::get_direction() const {
+	const int unit::get_direction() const {
 		return direction_;
 	}
-	const int& unit::get_shoot_type() const {
+	const int unit::get_shoot_type() const {
 		return shoot_type_;
 	}
-	const int& unit::get_hp() const {
+	const int unit::get_hp() const {
 		return hp_;
 	}
-	const bool& unit::get_is_dir_key_pressed() const {
+	const bool unit::get_is_dir_key_pressed() const {
 		return is_dir_key_pressed;
 	}
 	const std::vector<std::shared_ptr<bullet>> unit::get_bullets() const {
@@ -259,7 +263,7 @@ namespace zee {
 		now_pos_ = point;
 		set_body(now_pos_ + size_ / 2, (float)math::min(size_.x, size_.y) / 2);
 	}
-	void unit::set_body(const math::vec2f& origin, const float& r) {
+	void unit::set_body(const math::vec2f& origin, const float r) {
 		body_.origin = origin;
 		body_.radius = r;
 	}
@@ -273,10 +277,14 @@ namespace zee {
 	void unit::set_max_move_size(const math::vec2i& size) {
 		max_move_size_ = size;
 	}
-	void unit::set_shoot_type(const int& i) {
+	void unit::set_shoot_type(const int i) {
 		shoot_type_ = i;
 	}
-	void unit::set_hp(const int& hp) {
+	void unit::set_hp(const int hp) {
 		hp_ = hp;
+	}
+	void unit::set_delay(const float delay) {
+		delay_shoot_ = delay;
+		delay_destroy_ = delay;
 	}
 }

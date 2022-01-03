@@ -15,17 +15,15 @@ namespace zee {
 		return *inst;
 	}
 
-	void frame_image::load_frame_image(const math::vec2i& max_frame_size, const math::vec2i& frame_size, const TCHAR* filename, const int& i) {
+	void frame_image::load_frame_image(const math::vec2i& max_frame_size, const math::vec2i& frame_size, const TCHAR* filename, const int i) {
 		if (!frame_images_[i].is_valid()) {
 			frame_images_[i].load_image(filename);
 			max_frame_sizes_[i] = max_frame_size;
 			frame_sizes_[i] = frame_size;
+		}
 
-			static bool is_first_load = true;
-			if (is_first_load) {
-				back_buffer_.create_empty_image(max_frame_sizes_[i]);
-				is_first_load = false;
-			}
+		if (!back_buffer_.is_valid()) {
+			back_buffer_.create_empty_image(max_frame_sizes_[i]);
 		}
 	}
 
@@ -33,14 +31,14 @@ namespace zee {
 		dest_dc.bit_blt(back_buffer_, {});
 	}
 
-	void frame_image::render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int& i) {
+	void frame_image::render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int i) {
 		if (frame_images_[i].is_valid()) {
 			frame_images_[i].transparent_blt(back_buffer_, dest_pos, frame_sizes_[i], src_pos, frame_sizes_[i], RGB(255, 255, 255));
 			back_buffer_.alphablend(dest_dc, {}, 0.5f);
 		}
 	}
 
-	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int& i) {
+	void frame_image::render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int i) {
 		if (frame_images_[i].is_valid()) {
 			frame_images_[i].transparent_blt(back_buffer_, dest_pos, frame_sizes_[i], src_pos, frame_sizes_[i], RGB(255, 255, 255));
 			back_buffer_.bit_blt(dest_dc, {});
@@ -51,7 +49,7 @@ namespace zee {
 		back_buffer_.transparent_blt(dest_dc, dest_pos, RGB(255, 255, 255));
 	}
 
-	void frame_image::render_plg(win32gdi::device_context_dynamic& dest_dc, const math::vec2f& point, const float& angle, const int& i) {
+	void frame_image::render_plg(win32gdi::device_context_dynamic& dest_dc, const math::vec2f& point, const float angle, const int i) {
 		if (frame_images_[i].is_valid()) {
 			frame_images_[i].plg_blt(back_buffer_, point, angle, frame_sizes_[i]);
 		}

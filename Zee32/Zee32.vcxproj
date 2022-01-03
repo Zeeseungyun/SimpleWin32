@@ -73,9 +73,15 @@
     <Image Include="assets\monster_1.bmp" />
     <Image Include="assets\monster_2.bmp" />
     <Image Include="assets\monster_3.bmp" />
+    <Image Include="assets\monster_4.bmp" />
+    <Image Include="assets\monster_5.bmp" />
     <Image Include="assets\monster_bullet.bmp" />
+    <Image Include="assets\monster_bullet_arround.bmp" />
     <Image Include="assets\monster_bullet_circle.bmp" />
     <Image Include="assets\monster_bullet_follow.bmp" />
+    <Image Include="assets\monster_bullet_homing.bmp" />
+    <Image Include="assets\monster_bullet_straight.bmp" />
+    <Image Include="assets\monster_bullet_wave.bmp" />
     <Image Include="assets\player.bmp" />
     <Image Include="assets\unit_bullet.bmp" />
     <Image Include="assets\walk.bmp" />

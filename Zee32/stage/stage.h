@@ -165,7 +165,7 @@ namespace zee {
 		void init_game();
 
 		void tick(float delta_time) override;
-		void render(win32gdi::device_context_base& dest_dc, const float& g_fps);
+		void render(win32gdi::device_context_base& dest_dc, const float g_fps);
 
 		const math::vec2f get_background_src_pos() const;
 		const math::vec2f get_background_src_size() const;
@@ -182,6 +182,9 @@ namespace zee {
 		std::vector<std::shared_ptr<unit>> units_;
 		std::vector<std::shared_ptr<monster>> monsters_;
 		std::vector<std::shared_ptr<bomb>> bombs_;
+
+		//이펙트 많아지면 폭발도 나중에 클래스 헤더 분류
+		float delay_bomb_;
 	};
 }
 

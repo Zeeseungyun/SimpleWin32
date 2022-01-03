@@ -168,5 +168,23 @@
     <Image Include="assets\unit_bullet.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="assets\monster_4.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_5.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_arround.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_homing.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_straight.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_wave.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -31,36 +31,37 @@ namespace zee {
 			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_max_size].y;
 	}
 
-	void bullet::move(const float& delta_time) {
+	void bullet::move(const float delta_time) {
 		float speed;
 		switch (move_type_)
 		{
 		case (int)obj_shoot_type::straight: {
 			if (obj_ == (int)obj_type::unit) {
-				speed = 6.0f;
-				set_now_pos_and_body({ now_pos_.x, now_pos_.y - speed });
+				speed = 500.0f;
+				set_now_pos_and_body({ now_pos_.x, now_pos_.y - delta_time * speed });
 			}
 			else {
-				speed = 4.0f;
-				set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
+				speed = 200.0f;
+				set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
 			}
 			break;
 		}
 		case (int)obj_shoot_type::circle: {
-			speed = 2.0f;
+			speed = 80.0f;
 			//각도별 힘
 			float cosx = cos(circle_angle_);
 			float siny = sin(circle_angle_);
 
-			set_now_pos_and_body({ now_pos_.x + cosx * speed
-				, now_pos_.y + siny * speed });
+			set_now_pos_and_body({ now_pos_.x + cosx * delta_time * speed
+				, now_pos_.y + siny * delta_time * speed });
 			break;
 		}
 		case (int)obj_shoot_type::homing: {
 			//유도탄 이동
 			//stage tick 에서 얻은 vec
-			speed = 3.0f;
-			set_now_pos_and_body(now_pos_ + vec_for_player_ * speed);
+			speed = 150.0f;
+			set_now_pos_and_body({ now_pos_.x + vec_for_player_.x * delta_time * speed,
+				now_pos_.y + vec_for_player_.y * delta_time * speed });
 
 			//유도탄 회전각
 			if (move_type_ == (int)obj_shoot_type::homing) {
@@ -69,17 +70,17 @@ namespace zee {
 			break;
 		}
 		case (int)obj_shoot_type::arround: {
-			speed = 7.0f;
-			set_now_pos_and_body({ now_pos_.x, now_pos_.y + speed });
+			speed = 400.0f;
+			set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
 			break;
 		}
 		case (int)obj_shoot_type::wave: {
-			speed = 2.0f;
+			speed = 150.0f;
 			//각도별 힘
 			float cosx = cos(circle_angle_);
 			float siny = sin(circle_angle_);
-			set_now_pos_and_body({ now_pos_.x + cosx * speed
-				, now_pos_.y + siny * speed });
+			set_now_pos_and_body({ now_pos_.x + cosx * delta_time * speed
+				, now_pos_.y + siny * delta_time * speed });
 			break;
 		}//case
 		}//switch
@@ -144,7 +145,7 @@ namespace zee {
 				break;
 			}
 			case (int)obj_shoot_type::wave: {
-				//원형탄
+				//웨이브
 				frame_image::get().render_transparent(
 					dest_dc
 					, now_pos_
@@ -179,16 +180,16 @@ namespace zee {
 	const math::vec2i& bullet::get_frame_y() const {
 		return frame_y_;
 	}
-	const int& bullet::get_obj() const {
+	const int bullet::get_obj() const {
 		return obj_;
 	}
-	const float& bullet::get_homing_angle() const {
+	const float bullet::get_homing_angle() const {
 		return homing_angle_;
 	}
-	const float& bullet::get_circle_angle() const {
+	const float bullet::get_circle_angle() const {
 		return circle_angle_;
 	}
-	const int& bullet::get_move_type() const {
+	const int bullet::get_move_type() const {
 		return move_type_;
 	}
 	const math::vec2f& bullet::get_vec_for_player() const {
@@ -215,13 +216,13 @@ namespace zee {
 	void bullet::set_obj(const int& obj) {
 		obj_ = obj;
 	}
-	void bullet::set_homing_angle(const float& angle) {
+	void bullet::set_homing_angle(const float angle) {
 		homing_angle_ = angle;
 	}
-	void bullet::set_circle_angle(const float& angle) {
+	void bullet::set_circle_angle(const float angle) {
 		circle_angle_ = angle;
 	}
-	void bullet::set_move_type(const int& i) {
+	void bullet::set_move_type(const int i) {
 		move_type_ = i;
 	}
 	void bullet::set_vec_for_player(const math::vec2f& v) {

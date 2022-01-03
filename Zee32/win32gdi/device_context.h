@@ -80,8 +80,8 @@ namespace win32gdi {
 		void alphablend(device_context_base& dest_dc, const math::vec2i& dest_pos, float alpha) noexcept;
 
 		//@param points ÁÂ»ó ¿ì»ó ÁÂÇÏ ¹è¿­ ÇÊ¿ä
-		void plg_blt(device_context_base& dest_dc, math::vec2f point, const float& angle, const math::vec2i& src_pos, const math::vec2i& src_size) noexcept;
-		void plg_blt(device_context_base& dest_dc, math::vec2f point, const float& angle, const math::vec2i& src_size) noexcept;
+		void plg_blt(device_context_base& dest_dc, math::vec2f point, const float angle, const math::vec2i& src_pos, const math::vec2i& src_size) noexcept;
+		void plg_blt(device_context_base& dest_dc, math::vec2f point, const float angle, const math::vec2i& src_size) noexcept;
 
 		//font
 	public:

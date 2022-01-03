@@ -188,7 +188,7 @@ namespace zee {
 			alphablend(dest_dc, dest_pos, get_bitmap_size(), math::vec2i::constants::zero, get_bitmap_size(), alpha);
 		}
 
-		void device_context_base::plg_blt(device_context_base& dest_dc, math::vec2f point, const float& angle, const math::vec2i& src_pos, const math::vec2i& src_size) noexcept {
+		void device_context_base::plg_blt(device_context_base& dest_dc, math::vec2f point, const float angle, const math::vec2i& src_pos, const math::vec2i& src_size) noexcept {
 			if (this == &dest_dc) {
 				ZEE_LOG(warning, TEXT("device_context"), TEXT("dest dc is equal to this dc"));
 				return;
@@ -240,7 +240,7 @@ namespace zee {
 				);
 			}
 		}
-		void device_context_base::plg_blt(device_context_base& dest_dc, math::vec2f point, const float& angle, const math::vec2i& src_size) noexcept {
+		void device_context_base::plg_blt(device_context_base& dest_dc, math::vec2f point, const float angle, const math::vec2i& src_size) noexcept {
 			plg_blt(dest_dc, point, angle, {}, src_size);
 		}
 
