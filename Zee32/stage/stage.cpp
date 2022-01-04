@@ -56,8 +56,12 @@ namespace zee {
 
 		//행렬 테스트
 		/*matrix m;
+		//전치행렬
+		m.set_m3f({ { 0,1,2 }, { 3,4,5 } });
+		m.transposed();	
+		m.transposed();
 		//행렬식
-		m.set_m2f({ {2,3}, {4,6} });
+		m.set_m2f({{2,3}, {4,6}});
 		m.determinant();
 		//항등행렬
 		m.set_m3f({ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} });
@@ -214,7 +218,10 @@ namespace zee {
 					for (auto& bomb_obj : bombs_) {
 						if (bomb_obj->hp_ == (int)obj_state::die) {
 							bomb_obj->hp_ = (int)obj_state::idle;
-							bomb_obj->dest_pos_ = mon_obj->get_now_pos();
+							bomb_obj->dest_pos_ = {
+								mon_obj->get_body().origin.x - mon_obj->get_body().radius,
+								mon_obj->get_body().origin.y - mon_obj->get_body().radius
+							};
 							bomb_obj->src_pos_ = {0, 0};
 							break;
 						}

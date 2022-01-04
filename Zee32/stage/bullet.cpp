@@ -47,26 +47,28 @@ namespace zee {
 			break;
 		}
 		case (int)obj_shoot_type::circle: {
-			speed = 80.0f;
-			//각도별 힘
-			float cosx = cos(circle_angle_);
-			float siny = sin(circle_angle_);
-
-			set_now_pos_and_body({ now_pos_.x + cosx * delta_time * speed
-				, now_pos_.y + siny * delta_time * speed });
+			speed = 100.0f;
+			//이동 행렬 -> 곱
+			matrix m;
+			m.translation(circle_angle_, delta_time * speed, delta_time * speed);
+			m.mul(now_pos_);
+			set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });
 			break;
 		}
 		case (int)obj_shoot_type::homing: {
-			//유도탄 이동
-			//stage tick 에서 얻은 vec
 			speed = 150.0f;
-			set_now_pos_and_body({ now_pos_.x + vec_for_player_.x * delta_time * speed,
-				now_pos_.y + vec_for_player_.y * delta_time * speed });
-
 			//유도탄 회전각
 			if (move_type_ == (int)obj_shoot_type::homing) {
 				homing_angle_ = math::atan2(vec_for_player_.x, vec_for_player_.y);
 			}
+			//이동
+			//stage tick 에서 얻은 vec_for_player_
+			set_now_pos_and_body(now_pos_ + vec_for_player_ * delta_time * speed);
+			//아래 행렬 이동->곱과 같음
+			/*matrix m;
+			m.translation(vec_for_player_.x * delta_time * speed, vec_for_player_.y * delta_time * speed);
+			m.mul(now_pos_);
+			set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });*/
 			break;
 		}
 		case (int)obj_shoot_type::arround: {
@@ -76,11 +78,12 @@ namespace zee {
 		}
 		case (int)obj_shoot_type::wave: {
 			speed = 150.0f;
-			//각도별 힘
-			float cosx = cos(circle_angle_);
-			float siny = sin(circle_angle_);
-			set_now_pos_and_body({ now_pos_.x + cosx * delta_time * speed
-				, now_pos_.y + siny * delta_time * speed });
+			matrix m;
+			//이동 행렬 -> 곱
+			m.translation(circle_angle_, delta_time * speed, delta_time * speed);
+			m.mul(now_pos_);
+
+			set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });
 			break;
 		}//case
 		}//switch

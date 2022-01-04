@@ -202,25 +202,20 @@ namespace zee {
 				return;
 			}
 
+			//plg_blt는 회전할 점 3곳 주기
 			std::vector<math::matrix> vm(3);
-
 			const std::vector<math::vec2f> vv = {
 				{-src_size.x / 2, -src_size.y / 2}
 				, {src_size.x / 2, -src_size.y / 2}
 				, {-src_size.x / 2, src_size.y / 2}
 			};
-			
-			const std::vector<math::vec2f> vv_rotate{
-				{ cos(angle), -sin(angle) }
-				, { sin(angle), cos(angle) }
-				, { point.x, point.y }
-			};
 
 			for (int i = 0; i != 3; i++) {
-				vm[i].set_m2f(vv_rotate);
-				vm[i].mul(vv[i]);	//행렬곱
+				vm[i].rotation(angle, point.x, point.y);	//회전행렬 적용
+				vm[i].mul(vv[i]);	//회전행렬 * 회전할 점
 			}
 
+			//타입 변환
 			std::vector<POINT> v_point;
 			for (int i = 0; i != 3; i++) {
 				v_point.push_back({ (int)vm[i].get_mf()[0][0], (int)vm[i].get_mf()[0][1]});

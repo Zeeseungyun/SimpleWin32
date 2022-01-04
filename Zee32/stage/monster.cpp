@@ -2,6 +2,8 @@
 #include "stage.h"
 
 namespace zee {
+	using namespace math;
+
 	monster::monster() noexcept :
 		size_()
 		, now_pos_()
@@ -26,10 +28,11 @@ namespace zee {
 		int random_shoot_type = rand(0, (int)obj_shoot_type::max - 1);
 
 
-		//테스트	
+		//테스트	--------------------------------------------------------
 		//random_shoot_type;
 		//(int)obj_shoot_type::;
 		shoot_type_ = random_shoot_type;
+
 
 
 		switch (shoot_type_)
@@ -119,7 +122,6 @@ namespace zee {
 
 	void monster::move(const float delta_time) {
 		float speed;
-		float dist;
 		switch (shoot_type_) 
 		{
 		case (int)obj_shoot_type::straight:
@@ -132,26 +134,28 @@ namespace zee {
 			};
 			//내적->거리->단위화
 			arrival_vec_ =  arrival_vec_.normalize();
-			/*dist = sqrtf(arrival_vec_.x * arrival_vec_.x + arrival_vec_.y * arrival_vec_.y);
-			arrival_vec_ /= dist;*/
 			set_now_pos_and_body(now_pos_ + arrival_vec_ * delta_time * speed);
 			break;
 		}
 		case (int)obj_shoot_type::arround: {
 			//플레이어 따라오다가 y축 저점에서 그냥 아래로 사라지게 하자.
 			if (now_pos_.y < coords[back_max_size].y * 2 / 3) {
-				//플레이어 호밍
-				speed = 100.0f;
-				vec_for_player_ = vec_for_player_.normalize();
-				set_now_pos_and_body(now_pos_ + vec_for_player_ * delta_time * speed);
-
 				//회전각
 				if (shoot_type_ == (int)obj_shoot_type::arround) {
 					homing_angle_ = math::atan2(vec_for_player_.x, vec_for_player_.y);
 				}
+				//이동
+				speed = 150.0f;
+				vec_for_player_ = vec_for_player_.normalize();
+				set_now_pos_and_body(now_pos_ + vec_for_player_ * delta_time * speed);
+				//아래 행렬 이동->곱과 같음
+				/*matrix m;
+				m.translation(vec_for_player_.x * delta_time * speed, vec_for_player_.y * delta_time * speed);
+				m.mul(now_pos_);
+				set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });*/
 			}
 			else {
-				speed = 100.0f;
+				speed = 200.0f;
 				set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
 				homing_angle_ = 0.0f;
 			}
@@ -186,7 +190,7 @@ namespace zee {
 			delay_circle_ += delta_time;
 			if (delay_circle_ >= frame_circle) {
 				float circle_angle = 0;
-				int bullent_circle_cnt = 10;
+				const int bullent_circle_cnt = 10;
 
 				for (int i = 0; i != bullent_circle_cnt; i++) {
 					init_bullet((int)obj_shoot_type::circle);
@@ -236,7 +240,6 @@ namespace zee {
 		}//case
 		}//switch
 
-
 		//뷸렛 틱
 		for (auto& bullet_obj : bullets_) {
 			bullet_obj->tick(delta_time);
@@ -259,7 +262,6 @@ namespace zee {
 			if (delay_destroy_ >= frame) {
 				init();
 			}
-
 		}
 
 		//뷸렛 제거

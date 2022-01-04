@@ -5,12 +5,13 @@
 
 namespace zee{
 namespace math {
-	/*열 벡터 기준*/
+	/*행 기준 벡터 (x, y)*/
 	class matrix {
 	public:
 		static constexpr float npos = -1.0f;
 		//기본
 		matrix() noexcept;
+		explicit matrix(const size_t m, const size_t n) noexcept;
 		explicit matrix(const std::vector<vec2f>& vv) noexcept;
 		explicit matrix(const std::vector<vec3f>& vv) noexcept;
 		explicit matrix(const matrix& m) noexcept;
@@ -46,14 +47,21 @@ namespace math {
 		void mul(const vec3f& v);
 		void mul(const matrix& m);
 
+		//변환
+		void translation(const float dx, const float dy);
+		void translation(const float angle, const float dx, const float dy);
+		void scale(const float sx, const float sy);
+		void rotation(const float angle, const float dx, const float dy);
 		
 		//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
 		const float determinant();
 		//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a). 없으면 로그 띄우고 초기 행렬 반환.
 		const matrix& inverse(const std::vector<vec2f>& vv);
 		const matrix& inverse(const matrix& m);
-		//항등행렬 여부
+		//단위행렬: 여부
 		const bool is_identity();
+		//전치행렬: 행과 열을 교환
+		void transposed();
 
 		//get, set
 		const std::vector<std::vector<float>>& get_mf() const;

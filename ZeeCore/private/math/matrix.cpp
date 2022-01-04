@@ -5,6 +5,14 @@ namespace math {
 	//기본
 	matrix::matrix() noexcept : mf_{ { 0, 0 } }, row(1), column(1) {
 	}
+	matrix::matrix(const size_t m, const size_t n) noexcept {
+		mf_.resize(m);
+		for (int i = 0; i != m; i++) {
+			mf_[i].resize(n);
+		}
+		row = m;
+		column = n;
+	}
 	matrix::matrix(const std::vector<vec2f>& vv) noexcept {
 		set_m2f(vv);
 	}
@@ -172,10 +180,44 @@ namespace math {
 		}
 	}
 
+	//변환
+	void matrix::translation(const float dx, const float dy) {
+		set_m2f({
+			{ 1, 0 },
+			{ 0, 1 },
+			{ dx, dy }
+		});
+	}
+	void matrix::translation(const float angle, const float dx, const float dy) {
+		set_m2f({
+			{ 1, 0 },
+			{ 0, 1 },
+			{ cos(angle) * dx, sin(angle) * dy }
+		});
+	}
+
+	void matrix::scale(const float sx, const float sy) {
+		set_m2f({
+			{ sx, 0 },
+			{ 0, sy },
+			{ 0, 0 }
+		});
+	}
+
+	void matrix::rotation(const float angle, const float dx, const float dy) {
+		set_m2f({
+			{ cos(angle), -sin(angle) },
+			{ sin(angle), cos(angle) },
+			{ dx, dy }
+		});
+	}
+
 	//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
 	const float matrix::determinant() {
 		if (row == 2 && column == 2) {
-			return mf_[0][0] * mf_[1][1] - mf_[0][1] * mf_[1][0];
+			float a = mf_[0][0], b = mf_[0][1];
+			float c = mf_[1][0], d = mf_[1][1];
+			return a * d - b * c;
 		}
 		else if (row == 3 && column == 3) {
 			float a = mf_[0][0], b = mf_[0][1], c = mf_[0][2];
@@ -218,7 +260,7 @@ namespace math {
 		return ret;
 	}
 
-	//항등행렬 여부
+	//단위행렬: 여부
 	const bool matrix::is_identity() {
 		bool is_identity = false;
 		if (this->get_row_size() > 1 && this->get_column_size() > 1
@@ -247,6 +289,16 @@ namespace math {
 		return is_identity;
 	}
 
+	//전치행렬: 행과 열을 교환
+	void matrix::transposed() {
+		matrix m(mf_[0].size(), mf_.size());
+
+		for (int i = 0; i != m.get_mf().size(); i++) {
+			for (int j = 0; j != m.get_mf()[0].size(); j++) {
+				m.mf_[i][j] = mf_[j][i];
+			}
+		}
+	}
 
 	//get, set
 	const std::vector<std::vector<float>>& matrix::get_mf() const {
