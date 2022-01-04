@@ -124,22 +124,25 @@ namespace zee {
 		{
 		case (int)obj_shoot_type::straight:
 		case (int)obj_shoot_type::circle:
-		case (int)obj_shoot_type::homing:
+		case (int)obj_shoot_type::homing: {
 			speed = 100.0f;
 			//이동 방향 벡터는 첨에 스폰 시 생성
-			//단위화 위해 거리 구하기
-			dist = sqrtf(arrival_vec_.x * arrival_vec_.x + arrival_vec_.y * arrival_vec_.y);
-			//단위화
-			arrival_vec_ /= dist;
+			math::vec2f v{
+				body_.origin - arrival_vec_
+			};
+			//내적->거리->단위화
+			arrival_vec_ =  arrival_vec_.normalize();
+			/*dist = sqrtf(arrival_vec_.x * arrival_vec_.x + arrival_vec_.y * arrival_vec_.y);
+			arrival_vec_ /= dist;*/
 			set_now_pos_and_body(now_pos_ + arrival_vec_ * delta_time * speed);
 			break;
+		}
 		case (int)obj_shoot_type::arround: {
-			//플레이어 적당히 따라오다가 y축 저점에서 도착지로 노선 변경
+			//플레이어 따라오다가 y축 저점에서 그냥 아래로 사라지게 하자.
 			if (now_pos_.y < coords[back_max_size].y * 2 / 3) {
 				//플레이어 호밍
 				speed = 100.0f;
-				dist = sqrtf(vec_for_player_.x * vec_for_player_.x + vec_for_player_.y * vec_for_player_.y);
-				vec_for_player_ /= dist;
+				vec_for_player_ = vec_for_player_.normalize();
 				set_now_pos_and_body(now_pos_ + vec_for_player_ * delta_time * speed);
 
 				//회전각
@@ -149,22 +152,15 @@ namespace zee {
 			}
 			else {
 				speed = 100.0f;
-				dist = sqrtf(arrival_vec_.x * arrival_vec_.x + arrival_vec_.y * arrival_vec_.y);
-				arrival_vec_ /= dist;
-				set_now_pos_and_body(now_pos_ + arrival_vec_ * delta_time * speed);
-
-				//회전각
-				if (shoot_type_ == (int)obj_shoot_type::arround) {
-					homing_angle_ = math::atan2(arrival_vec_.x, arrival_vec_.y);
-				}
+				set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
+				homing_angle_ = 0.0f;
 			}
 			break;
 		}
 		case (int)obj_shoot_type::wave: {
 			if (now_pos_ != coords[monster_boss_pos]) {
 				speed = 100.0f;
-				static math::vec2f v = { 0.0f, 1.0f };
-				set_now_pos_and_body({ now_pos_.x, now_pos_.y + v.y * delta_time * speed });
+				set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
 			}
 			break;
 		}//case

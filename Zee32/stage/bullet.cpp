@@ -70,7 +70,7 @@ namespace zee {
 			break;
 		}
 		case (int)obj_shoot_type::arround: {
-			speed = 400.0f;
+			speed = 450.0f;
 			set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
 			break;
 		}
@@ -156,7 +156,6 @@ namespace zee {
 			}//case
 			}//switch
 		}
-
 
 		//충돌범위 테스트
 		shape::circlef circle{ body_.origin, body_.radius };

@@ -202,9 +202,9 @@ namespace zee {
 				return;
 			}
 
-			static std::vector<math::matrix> vm(3);
+			std::vector<math::matrix> vm(3);
 
-			static const std::vector<math::vec2f> vv = {
+			const std::vector<math::vec2f> vv = {
 				{-src_size.x / 2, -src_size.y / 2}
 				, {src_size.x / 2, -src_size.y / 2}
 				, {-src_size.x / 2, src_size.y / 2}

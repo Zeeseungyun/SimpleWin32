@@ -5,6 +5,7 @@
 
 namespace zee{
 namespace math {
+	/*ø≠ ∫§≈Õ ±‚¡ÿ*/
 	class matrix {
 	public:
 		static constexpr float npos = -1.0f;

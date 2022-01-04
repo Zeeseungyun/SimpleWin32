@@ -186,29 +186,22 @@ namespace zee {
 
 			//적 호밍
 			if (mon_obj->get_shoot_type() == (int)obj_shoot_type::arround) {
-				//플레이어 방향
-				math::vec2f v{
+				//플레이어와의 방향 벡터
+				math::vec2f v_mon_for_player{
 					units_.front()->get_body().origin - mon_obj->get_body().origin
 				};
-				//단위화 위해 거리 구하기
-				float dist = sqrtf(v.x * v.x + v.y * v.y);
-				//단위화
-				v /= dist;
-				mon_obj->set_vec_for_player(v);
+				mon_obj->set_vec_for_player(v_mon_for_player);
 			}
 
 			//적 유도탄 호밍
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
 				if (bullet_obj->get_move_type() == (int)obj_shoot_type::homing) {
-					//플레이어 방향
-					math::vec2f v{
+					//플레이어와의 방향 벡터 : 뷸렛 초기화 한 다음에 판단함. normalize를 여기서 해줘야 함
+					math::vec2f v_bullet_for_player{
 						units_.front()->get_body().origin - bullet_obj->get_body().origin
 					};
-					//단위화 위해 거리 구하기
-					float dist = sqrtf(v.x * v.x + v.y * v.y);
-					//단위화
-					v /= dist;
-					bullet_obj->set_vec_for_player(v);
+					v_bullet_for_player = v_bullet_for_player.normalize();
+					bullet_obj->set_vec_for_player(v_bullet_for_player);
 				}
 			}
 
