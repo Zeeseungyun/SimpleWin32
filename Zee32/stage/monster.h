@@ -1,53 +1,59 @@
 #pragma once
 #include "unit.h"
 #include "frame_image.h"
+#include "bullet.h"
 
 namespace zee {
-	class monster {
+	class monster : public unit {
 	public:
-		monster() noexcept;
-		virtual ~monster() noexcept;
+		monster() noexcept = default;
+		virtual ~monster() noexcept = default;
 
-		void init();
-		void init_bullet(const int& shoot_type);
+		virtual void load_image() override;
+		virtual void init() override;
 
-		virtual void tick(float delta_time);
-		const bool in_screen() const;
-		void move(const float delta_time);
+		virtual void move(const float delta_time) override;
 		void shoot(const float delta_time);
-		void destroy(const float delta_time);
-		void render(win32gdi::device_context_dynamic& dest_dc);
+		virtual void hit(const float delta_time) override;
+		virtual void destroy(const float delta_time) override;
+		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
-		const math::vec2f& get_now_pos() const;
-		const shape::circlef& get_body() const;
-		const math::vec2i& get_frame_x() const;
-		const math::vec2i& get_frame_y() const;
-		const int get_shoot_type() const;
 		const math::vec2f& get_arrival_vec() const;
-		const int get_hp() const;
 		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
 		const math::vec2f& get_vec_for_player() const;
-		void set_size(const math::vec2i& size);
-		void set_now_pos_and_body(const math::vec2f& point);
-		void set_shoot_type(const int i);
 		void set_arrival_vec(const math::vec2f& vec);
-		void set_hp(const int hp);
 		void set_vec_for_player(const math::vec2f& v);
 		void set_delay(const float delay);
 
 	private:
-		void set_body(const math::vec2f& origin, const float& r);
 
-		math::vec2i size_;
-		math::vec2f now_pos_;
-		shape::circlef body_;
-		math::vec2i frame_x_;
-		math::vec2i frame_y_;
+		enum const_var_ {
+			monster_straight_size,
+			monster_circle_size,
+			monster_homing_size,
+			monster_arround_size,
+			monster_wave_size,
+			monster_default_frame,
+			monster_min_pos,
+			monster_max_pos,
+			monster_boss_pos,
+
+			monster_bullet_max_num = 60,
+		};
+		const std::vector<math::vec2i> coords_{
+			{64, 48},		//monster_straight_size
+			{64, 64},		//monster_circle_size
+			{60, 64},		//monster_homing_size
+			{52, 62},		//monster_arround_size
+			{126, 62},		//monster_wave_size
+			{0, 0},			//monster_default_frame
+			{0, -100},		//monster_min_pos
+			{500, 900},		//monster_max_pos
+			{350, 200},		//monster_boss_pos
+		};
 
 		std::vector<std::shared_ptr<bullet>> bullets_;
-		int shoot_type_;
 		math::vec2f arrival_vec_;
-		int hp_;
 		math::vec2f vec_for_player_;
 		float homing_angle_;
 		float delay_straight_;

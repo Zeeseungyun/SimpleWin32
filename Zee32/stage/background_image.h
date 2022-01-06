@@ -11,7 +11,7 @@ namespace zee {
 
 
 	private:
-		background_image() noexcept;
+		background_image() noexcept = default;
 		background_image(const background_image&) = delete;
 		background_image& operator=(const background_image&) = delete;
 

@@ -1,11 +1,11 @@
 #include "frame_image.h"
-#include "stage.h"
 
 namespace zee {
-	frame_image::frame_image() noexcept {
-		frame_sizes_.resize((int)obj_type::max);
-		max_frame_sizes_.resize((int)obj_type::max);
-		frame_images_.resize((int)obj_type::max);
+	frame_image::frame_image() noexcept
+	{
+		frame_sizes_.resize(image_num_);
+		max_frame_sizes_.resize(image_num_);
+		frame_images_.resize(image_num_);
 	}
 	frame_image& frame_image::get() {
 		static std::unique_ptr<frame_image> inst;

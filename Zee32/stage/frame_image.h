@@ -1,7 +1,6 @@
 #pragma once
 #include "../win32helper/win32helper.h"
 #include "../win32gdi/device_context.h"
-#include <vector>
 
 namespace zee {
 	class frame_image {
@@ -24,5 +23,7 @@ namespace zee {
 		std::vector<win32gdi::device_context_dynamic> frame_images_;
 		std::vector<math::vec2i> frame_sizes_;
 		std::vector<math::vec2i> max_frame_sizes_;
+
+		const int image_num_  = 14;
 	};
 }

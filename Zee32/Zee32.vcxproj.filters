@@ -72,6 +72,12 @@
     <ClInclude Include="stage\bullet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="stage\player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\effect.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32gdi\device_context.cpp">
@@ -120,6 +126,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="stage\bullet.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\effect.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -184,6 +196,21 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="assets\monster_bullet_wave.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_circle.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_homing.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_arround.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_straight.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_wave.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

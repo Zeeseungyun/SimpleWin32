@@ -27,8 +27,10 @@
     <ClInclude Include="stage\frame_image.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stage\monster.h" />
+    <ClInclude Include="stage\player.h" />
     <ClInclude Include="stage\stage.h" />
     <ClInclude Include="stage\unit.h" />
+    <ClInclude Include="stage\effect.h" />
     <ClInclude Include="world\world.h" />
     <ClInclude Include="stat\simple_stat.h" />
     <ClInclude Include="win32gdi\color.h" />
@@ -46,8 +48,10 @@
     <ClCompile Include="application\output_debug.cpp" />
     <ClCompile Include="stage\background_image.cpp" />
     <ClCompile Include="stage\bullet.cpp" />
+    <ClCompile Include="stage\effect.cpp" />
     <ClCompile Include="stage\frame_image.cpp" />
     <ClCompile Include="stage\monster.cpp" />
+    <ClCompile Include="stage\player.cpp" />
     <ClCompile Include="stage\stage.cpp" />
     <ClCompile Include="stage\unit.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />
@@ -75,6 +79,7 @@
     <Image Include="assets\monster_3.bmp" />
     <Image Include="assets\monster_4.bmp" />
     <Image Include="assets\monster_5.bmp" />
+    <Image Include="assets\monster_arround.bmp" />
     <Image Include="assets\monster_bullet.bmp" />
     <Image Include="assets\monster_bullet_arround.bmp" />
     <Image Include="assets\monster_bullet_circle.bmp" />
@@ -82,6 +87,10 @@
     <Image Include="assets\monster_bullet_homing.bmp" />
     <Image Include="assets\monster_bullet_straight.bmp" />
     <Image Include="assets\monster_bullet_wave.bmp" />
+    <Image Include="assets\monster_circle.bmp" />
+    <Image Include="assets\monster_homing.bmp" />
+    <Image Include="assets\monster_straight.bmp" />
+    <Image Include="assets\monster_wave.bmp" />
     <Image Include="assets\player.bmp" />
     <Image Include="assets\unit_bullet.bmp" />
     <Image Include="assets\walk.bmp" />

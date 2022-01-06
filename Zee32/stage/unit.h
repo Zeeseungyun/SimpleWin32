@@ -1,62 +1,95 @@
 #pragma once
 #include "../win32helper/win32helper.h"
-#include "../application/key_state.h"
+#include "../win32gdi/device_context.h"
 #include <interfaces/tickable.h>
+#include "../application/key_state.h"
 #include <vector>
 #include "frame_image.h"
-#include "bullet.h"
 
 namespace zee {
+
 	class unit {
 	public:
-		unit() noexcept;
-		virtual ~unit() noexcept;
+		enum const_var {
+			back_destroy_zone,
+			back_min_size,
+			back_max_size,
+		};
+		const std::vector<math::vec2i> coords{
+			{2048, 2048},	//back_destroy_zone
+			{-150, -200},	//back_min_size
+			{720, 1000},	//back_max_size
+		};
 
-		void init();
-		void init_bullet(const int& shoot_type);
+		enum class obj_type {
+			player_straight,
 
-		virtual void tick(float delta_time);
-		const bool in_screen() const;
-		void move(const float delta_time);
-		void shoot(const float delta_time);
-		void destroy(const float delta_time);
-		void render(win32gdi::device_context_dynamic& dest_dc);
+			monster_straight,
+			monster_circle,
+			monster_homing,
+			monster_arround,
+			monster_wave,
 
+			player_bullet_straight,
+
+			monster_bullet_straight,
+			monster_bullet_circle,
+			monster_bullet_homing,
+			monster_bullet_arround,
+			monster_bullet_wave,
+
+			bomb,
+
+			max
+		};
+		enum class obj_state {
+			idle,
+			hit,
+			die
+		};
+
+		unit() noexcept = default;
+		virtual ~unit() noexcept = default;
+
+		virtual void load_image();
+		virtual const bool in_screen() const;
+
+		virtual void init();
+		virtual void move(const float delta_time);
+		virtual void hit(const float delta_time);
+		virtual void destroy(const float delta_time);
+		virtual void render(win32gdi::device_context_dynamic& dest_dc);
+
+		const math::vec2i& get_size() const;
 		const math::vec2f& get_now_pos() const;
 		const shape::circlef& get_body() const;
 		const math::vec2i& get_frame_x() const;
 		const math::vec2i& get_frame_y() const;
-		const int get_direction() const;
-		const int get_shoot_type() const;
 		const int get_hp() const;
-		const bool get_is_dir_key_pressed() const;
-		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
+		const int get_obj_type() const;
+		const int get_state() const;
+
 		void set_size(const math::vec2i& size);
 		void set_now_pos_and_body(const math::vec2f& point);
-		void set_frame_size(const math::vec2i& size);
-		void set_max_move_size(const math::vec2i& size);
-		void set_shoot_type(const int i);
-		void set_hp(const int hp);
-		void set_delay(const float delay);
-
-	private:
 		void set_body(const math::vec2f& origin, const float r);
+		void set_max_move_size(const math::vec2i& size);
+		void set_frame_size(const math::vec2i& size);
+		void set_obj_type(const int i);
+		void set_hp(const int hp);
+		void set_atk(const int atk);
+		void set_state(const int state);
 
+	protected:
 		math::vec2i size_;
 		math::vec2f now_pos_;
 		shape::circlef body_;
 		math::vec2i max_move_size_;
 		math::vec2i frame_x_;
 		math::vec2i frame_y_;
-		int direction_;
-		bool is_dir_key_pressed;
-		int pressed_key_;
-		float delay;
-
-		std::vector<std::shared_ptr<bullet>> bullets_;
-		int shoot_type_;
+		int obj_type_;
 		int hp_;
-		float delay_shoot_;
-		float delay_destroy_;
+		int atk_;
+		int state_;
+		float delay_hit_;
 	};
 }
