@@ -35,25 +35,30 @@ namespace zee {
 		init_game();
 
 		//행렬 테스트
-		/*matrix m;
+		matrix2f m2;
+		matrix3f m3;
+		//곱
+		//plg_blt 참고
 		//전치행렬
-		m.set_m3f({ { 0,1,2 }, { 3,4,5 } });
-		m.transposed();
-		m.transposed();
+		m2.set_vec({ { 0,1 }, { 3,4 } });
+		m2.transposed();
+		m2.transposed();
+		m3.set_vec({ { 0,1,2 }, { 3,4,5 }, {6,7,8} });
+		m3.transposed();
+		m3.transposed();
 		//행렬식
-		m.set_m2f({{2,3}, {4,6}});
-		m.determinant();
+		m2.set_vec({{2,3}, {4,6}});
+		float a2 = m2.determinant();
+		m3.set_vec({ {2,3,4}, {5,6,7}, {8,9,10} });
+		float a3 = m3.determinant();
 		//항등행렬
-		m.set_m3f({ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} });
-		if (m.is_identity()) {
-			ZEE_LOG(normal, TEXT("항등행렬 임"), TEXT("-"));
-		}
-		else {
-			ZEE_LOG(warning, TEXT("항등행렬 아니니니니"), TEXT("-"));
-		}
+		m2.set_vec({ {1,0}, {0,1} });
+		bool b2 = m2.is_identity();
+		m3.set_vec({ {1,0,0}, {0,1,0}, {0,0,1} });
+		bool b3 = m3.is_identity();
 		//역행렬
-		std::vector<math::vec2f> vv = { {2,3}, {4,5} };
-		m.inverse(vv);*/
+		std::vector<math::vec2f> vv2 = { {2,3}, {4,5} };
+		m2.inverse(vv2);
 	}
 
 	void stage::on_resize(const math::vec2i& client_size) {

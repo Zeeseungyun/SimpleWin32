@@ -94,10 +94,10 @@ namespace zee {
 		case (int)obj_type::monster_circle: {
 			speed = 100.0f;
 			//ÀÌµ¿ Çà·Ä -> °ö
-			matrix m;
+			matrix2f m;
 			m.translation(circle_angle_, delta_time * speed, delta_time * speed);
 			m.mul(now_pos_);
-			set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });
+			set_now_pos_and_body({ m.get_m()[0][0], m.get_m()[0][1] });
 			break;
 		}
 		case (int)obj_type::monster_homing: {
@@ -121,12 +121,12 @@ namespace zee {
 		}
 		case (int)obj_type::monster_wave: {
 			speed = 150.0f;
-			matrix m;
+			matrix2f m;
 			//ÀÌµ¿ Çà·Ä -> °ö
 			m.translation(circle_angle_, delta_time * speed, delta_time * speed);
 			m.mul(now_pos_);
 
-			set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });
+			set_now_pos_and_body({ m.get_m()[0][0], m.get_m()[0][1] });
 			break;
 		}//case
 		}//switch

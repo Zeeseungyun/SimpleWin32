@@ -203,7 +203,7 @@ namespace zee {
 			}
 
 			//plg_blt는 회전할 점 3곳 주기
-			std::vector<math::matrix> vm(3);
+			std::vector<math::matrix2f> vm(3);
 			const std::vector<math::vec2f> vv = {
 				{-src_size.x / 2, -src_size.y / 2}
 				, {src_size.x / 2, -src_size.y / 2}
@@ -218,7 +218,7 @@ namespace zee {
 			//타입 변환
 			std::vector<POINT> v_point;
 			for (int i = 0; i != 3; i++) {
-				v_point.push_back({ (int)vm[i].get_mf()[0][0], (int)vm[i].get_mf()[0][1]});
+				v_point.push_back({ (int)vm[i].get_m()[0][0], (int)vm[i].get_m()[0][1]});
 			}
 
 			if (!PlgBlt(

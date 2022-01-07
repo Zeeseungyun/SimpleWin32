@@ -2,106 +2,82 @@
 
 namespace zee {
 namespace math {
+	///////////////////////////////////////////////////////////////////////////
+	//행렬 2x2//////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+	
 	//기본
-	matrix::matrix() noexcept : mf_{ { 0, 0 } }, row(1), column(1) {
+	matrix2f::matrix2f() noexcept : 
+		m_{ { 0, 0 } }
+	{
 	}
-	matrix::matrix(const size_t m, const size_t n) noexcept {
-		mf_.resize(m);
-		for (int i = 0; i != m; i++) {
-			mf_[i].resize(n);
-		}
-		row = m;
-		column = n;
+	matrix2f::matrix2f(const size_t m, const size_t n) noexcept {
+		m_.resize(m);
 	}
-	matrix::matrix(const std::vector<vec2f>& vv) noexcept {
-		set_m2f(vv);
+	matrix2f::matrix2f(const std::vector<vec2f>& vv) noexcept {
+		set_vec(vv);
 	}
-	matrix::matrix(const std::vector<vec3f>& vv) noexcept {
-		set_m3f(vv);
-	}
-	matrix::matrix(const matrix& m) noexcept {
-		set_mf(m);
+	matrix2f::matrix2f(const matrix2f& m) noexcept {
+		set_m(m);
 	}
 	//2x2
-	matrix::matrix(const vec2f v0, const vec2f v1) noexcept {
-		set_m2f({ v0, v1 });
+	matrix2f::matrix2f(const vec2f v0, const vec2f v1) noexcept {
+		set_vec({ v0, v1 });
 	}
 	//3x2
-	matrix::matrix(const vec2f v0, const vec2f v1, const vec2f v2) noexcept {
-		set_m2f({ v0, v1, v2 });
-	}
-	//3x3
-	matrix::matrix(const vec3f v0, const vec3f v1, const vec3f v2) noexcept {
-		set_m3f({ v0, v1, v2 });
-	}
-	//4x3
-	matrix::matrix(const vec3f v0, const vec3f v1, const vec3f v2, const vec3f v3) noexcept {
-		set_m3f({ v0, v1, v2, v3 });
-	}
-	matrix::~matrix() noexcept {
+	matrix2f::matrix2f(const vec2f v0, const vec2f v1, const vec2f v2) noexcept {
+		set_vec({ v0, v1, v2 });
 	}
 
 	//행과 열 사이즈 검사
-	const bool matrix::is_same_size(const std::vector<vec2f>& vv) const {
-		if (row == vv.size() && column == vv[0].size()) {
-			return true;
-		}
-		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 사이즈 != 열 사이즈"));
-		}
-		return false;
+	const bool matrix2f::is_same_size(const std::vector<vec2f>& vv) const {
+		matrix2f m(vv);
+		return is_same_size(m);
 	}
-	const bool matrix::is_same_size(const std::vector<vec3f>& vv) const {
-		if (row == vv.size() && column == vv[0].size()) {
+	const bool matrix2f::is_same_size(const matrix2f& m) const {
+		if (get_row_size() == m.get_row_size() 
+			&& get_column_size() == m.get_column_size()) {
 			return true;
 		}
 		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 사이즈 != 열 사이즈"));
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 혹은 열 사이즈가 다릅니다."));
+			assert(false);
 		}
-		return false;
-	}
-	const bool matrix::is_same_size(const matrix& m) const {
-		if (row == m.get_row_size() && column == m.get_column_size()) {
-			return true;
-		}
-		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 사이즈 != 열 사이즈"));
-		}
-		return false;
 	}
 
-	//곱셈에서 앞행렬의 열과 뒷행렬의 행이 같아야 함 (+ 3x2 1x2 연산 위해 1 차이만큼을 인정함)
-	const bool matrix::is_same_column_vs_row_size(const matrix& m) const {
-		if (row == m.get_column_size() || row == m.get_column_size() + 1) {
+	//곱셈에서 앞행렬(인자)의 열과 뒷행렬(멤버)의 행이 같아야 함
+	const bool matrix2f::is_same_column_vs_row_size(const matrix2f& m) const {
+		if (m.get_column_size() == get_row_size()) {
 			return true;
 		}
 		else {
-			ZEE_LOG(warning, TEXT("matrix"), TEXT("첫 행렬의 열 사이즈 != 두번째 행렬의 행 사이즈"));
+			//3x2곱을 위해 없앰
+			//ZEE_LOG(warning, TEXT("matrix"), TEXT("첫 행렬(인자)의 열 사이즈 != 두번째 행렬(멤버)의 행 사이즈"));
+			//assert(false);
 		}
-		return false;
 	}
 
 	//연산자
-	const matrix& matrix::operator=(const matrix& m) {
-		set_mf(m);
+	const matrix2f& matrix2f::operator=(const matrix2f& m) {
+		set_m(m);
 		return *this;
 	}
 
-	const matrix& matrix::operator+=(const matrix& m) {
+	const matrix2f& matrix2f::operator+=(const matrix2f& m) {
 		if (is_same_size(m)) {
 			add(m);
 		}
 		return *this;
 	}
 
-	const matrix& matrix::operator-=(const matrix& m) {
+	const matrix2f& matrix2f::operator-=(const matrix2f& m) {
 		if (is_same_size(m)) {
 			sub(m);
 		}
 		return *this;
 	}
 
-	const matrix& matrix::operator*=(const matrix& m) {
+	const matrix2f& matrix2f::operator*=(const matrix2f& m) {
 		if (is_same_size(m)) {
 			mul(m);
 		}
@@ -109,244 +85,439 @@ namespace math {
 	}
 
 	//사칙연산
-	void matrix::add(const matrix& m) {
+	void matrix2f::add(const matrix2f& m) {
 		if (is_same_size(m)) {
-			for (int i = 0; i != row; i++) {
-				for (int j = 0; j != column; j++) {
-					mf_[i][j] += m.get_mf()[i][j];
-				}
+			for (int i = 0; i != get_row_size(); i++) {
+				m_[i] += m.get_m()[i];
 			}
 		}
 	}
 
-	void matrix::sub(const matrix& m) {
+	void matrix2f::sub(const matrix2f& m) {
 		if (is_same_size(m)) {
-			for (int i = 0; i != row; i++) {
-				for (int j = 0; j != column; j++) {
-					mf_[i][j] -= m.get_mf()[i][j];
-				}
+			for (int i = 0; i != get_row_size(); i++) {
+				m_[i] -= m.get_m()[i];
 			}
 		}
 	}
 
-	void matrix::mul(const vec2f& v) {
-		matrix m{ {v} };
+	void matrix2f::mul(const vec2f& v) {
+		matrix2f m{ {v} };
 		mul(m);
 	}
-	void matrix::matrix::mul(const vec3f& v) {
-		matrix m{ {v} };
-		mul(m);
-	}
-	void matrix::mul(const matrix& m) {
+	void matrix2f::mul(const matrix2f& m) {
+		//vec2f가 넘어왔다면 마지막 번째 1.0f 세팅
+		//변환(이동, 스케일, 회전) 행렬의 dx, dy와 곱셈을 위해 맞춰주기 위함임
+		std::vector<vec3f> v(3);
+		if (m.get_row_size() == 1 && m.get_column_size() == 2) {
+			v[0][0] = m.get_m()[0][0];
+			v[0][1] = m.get_m()[0][1];
+			v[0][2] = 1.0f;
+		}
+		//곱연산
 		if (is_same_column_vs_row_size(m)) {
-			//mf_ = 3x2 -> 1x2
-			if (m.get_row_size() == 1 && m.get_column_size() == 2 && mf_.size() > 2) {
-				mf_[0] = {
-					{ m.get_mf()[0][0] * mf_[0][0]
-					+ m.get_mf()[0][1] * mf_[1][0]
-								+ 1.0f * mf_[2][0]
-					,
-					m.get_mf()[0][0] * mf_[0][1]
-					+ m.get_mf()[0][1] * mf_[1][1]
-								+ 1.0f * mf_[2][1] }
-				};
-				mf_.resize(1);
-				mf_[0].resize(2);
+			matrix2f tmp(m.get_row_size(), m.get_column_size());
+
+			for (int i = 0; i != m.get_row_size(); i++) {
+				for (int j = 0; j != m_[0].size(); j++) {
+					for (int k = 0; k != m_.size(); k++) {
+						tmp.m_[i][j] += v[i][k] * m_[k][j];
+					}
+				}
 			}
-			//mf_ = 4x3 -> 1x3
-			else if (m.get_row_size() == 1 && m.get_column_size() == 3 && mf_.size() > 3) {
-				mf_[0] = {
-					{ m.get_mf()[0][0] * mf_[0][0]
-					+ m.get_mf()[0][1] * mf_[1][0]
-					+ m.get_mf()[0][2] * mf_[2][0]
-								+ 1.0f * mf_[3][0]
-					,
-					m.get_mf()[0][0] * mf_[0][1]
-					+ m.get_mf()[0][1] * mf_[1][1]
-					+ m.get_mf()[0][2] * mf_[2][1]
-								+ 1.0f * mf_[3][1]
-					,
-					m.get_mf()[0][0] * mf_[0][2]
-					+ m.get_mf()[0][1] * mf_[1][2]
-					+ m.get_mf()[0][2] * mf_[2][2]
-								+ 1.0f * mf_[3][2] }
-				};
-				mf_.resize(1);
-				mf_[0].resize(3);
-			}
-			else {
-				ZEE_LOG(warning, TEXT("matrix"), TEXT("현재 지원하지 않는 사이즈 곱입니다."));
-			}
+			m_ = tmp.get_m();
 		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("현재 지원하지 않는 사이즈 곱입니다."));
+			assert(false);
+		}
+
 	}
 
 	//변환
-	void matrix::translation(const float dx, const float dy) {
-		set_m2f({
+	void matrix2f::translation(const float dx, const float dy) {
+		set_vec({
 			{ 1, 0 },
 			{ 0, 1 },
 			{ dx, dy }
 		});
 	}
-	void matrix::translation(const float angle, const float dx, const float dy) {
-		set_m2f({
+	void matrix2f::translation(const float angle, const float dx, const float dy) {
+		set_vec({
 			{ 1, 0 },
 			{ 0, 1 },
 			{ cos(angle) * dx, sin(angle) * dy }
 		});
 	}
 
-	void matrix::scale(const float sx, const float sy) {
-		set_m2f({
+	void matrix2f::scale(const float sx, const float sy) {
+		set_vec({
 			{ sx, 0 },
 			{ 0, sy },
 			{ 0, 0 }
 		});
 	}
 
-	void matrix::rotation(const float angle, const float dx, const float dy) {
-		set_m2f({
+	void matrix2f::rotation(const float angle, const float dx, const float dy) {
+		set_vec({
 			{ cos(angle), -sin(angle) },
 			{ sin(angle), cos(angle) },
 			{ dx, dy }
 		});
 	}
 
-	//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
-	const float matrix::determinant() {
-		if (row == 2 && column == 2) {
-			float a = mf_[0][0], b = mf_[0][1];
-			float c = mf_[1][0], d = mf_[1][1];
+	//행렬식: 2x2 ad-bc
+	const float matrix2f::determinant() {
+		if (get_row_size() == 2) {
+			float a = m_[0][0], b = m_[0][1];
+			float c = m_[1][0], d = m_[1][1];
 			return a * d - b * c;
-		}
-		else if (row == 3 && column == 3) {
-			float a = mf_[0][0], b = mf_[0][1], c = mf_[0][2];
-			float d = mf_[1][0], e = mf_[1][1], f = mf_[1][2];
-			float g = mf_[2][0], h = mf_[2][1], i = mf_[2][2];
-			return d * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
 		}
 		else {
 			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
-			return npos;
+			assert(false);
 		}
 	}
 
 
-	//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a). 없으면 로그 띄우고 초기 행렬 반환.
-	const matrix& matrix::inverse(const std::vector<vec2f>& vv) {
-		if (vv.size() == 2 && vv[0].size() == 2) {
-			this->set_m2f(vv);
+	//역행렬: (1, 0; 0, 1) 항등행렬 나오는 식. 1/ad-bc * (d -b; -c a).
+	void matrix2f::inverse(const std::vector<vec2f>& vv) {
+		if (vv.size() == 2) {
+			set_vec(vv);
 		}
-		return inverse(*this);
+		inverse(*this);
 	}
-	const matrix& matrix::inverse(const matrix& m) {
-		matrix ret;
-		if (m.get_row_size() == 2 && m.get_column_size() == 2) {
-			if (m.get_mf()[0][0] * m.get_mf()[1][1] - m.get_mf()[0][1] * m.get_mf()[1][0]) {
-				float a = m.get_mf()[0][0], b = m.get_mf()[0][1];
-				float c = m.get_mf()[1][0], d = m.get_mf()[1][1];
-				ret.set_m2f({
+	void matrix2f::inverse(const matrix2f& m) {
+		if (m.get_row_size() == 2) {
+			if (m.get_m()[0][0] * m.get_m()[1][1] - m.get_m()[0][1] * m.get_m()[1][0]) {
+				float a = m.get_m()[0][0]; float b = m.get_m()[0][1];
+				float c = m.get_m()[1][0]; float d = m.get_m()[1][1];
+				set_vec({
 					{ 1 / (a * d - b * c) * d, 1 / (a * d - b * c) * -b },
 					{ 1 / (a * d - b * c) * -c, 1 / (a * d - b * c) * a }
 				});
 			}
 			else {
 				ZEE_LOG(warning, TEXT("matrix"), TEXT("ad - bc가 0이면 역행렬을 만들 수 없습니다."));
+				assert(false);
 			}
 		}
 		else {
 			ZEE_LOG(warning, TEXT("matrix"), TEXT("현재 지원하지 않는 사이즈 역행렬입니다."));
+			assert(false);
 		}
-		return ret;
 	}
 
 	//단위행렬: 여부
-	const bool matrix::is_identity() {
+	const bool matrix2f::is_identity() {
 		bool is_identity = false;
-		if (this->get_row_size() > 1 && this->get_column_size() > 1
-			&& this->get_row_size() == this->get_column_size()) {
-			for (int i = 0; i != this->get_row_size(); i++) {
-				for (int j = 0; j != this->get_column_size(); j++) {
-					if (i == j && this->get_mf()[i][j] == 1) {
-						is_identity = true;
+		if (get_row_size() > 1 
+			&& get_column_size() > 1
+			&& get_row_size() == get_column_size()) 
+		{
+			for (int i = 0; i != get_row_size(); i++) {
+				for (int j = 0; j != get_column_size(); j++) {
+
+					is_identity = (i == j) ? (get_m()[i][j] == 1) : (get_m()[i][j] == 0);
+
+					if (!is_identity) {
+						return is_identity;
 					}
-					else if (i != j && this->get_mf()[i][j] == 0) {
-						is_identity = true;
-					}
-					else {
-						is_identity = false;
-						break;
-					}
-				}
-				if (!is_identity) {
-					break;
 				}
 			}
+			return is_identity;
 		}
 		else {
 			ZEE_LOG(warning, TEXT("matrix"), TEXT("2x2 이상의 정방행렬만 항등행렬인지 판단할 수 있습니다."));
+			assert(false);
 		}
-		return is_identity;
 	}
 
 	//전치행렬: 행과 열을 교환
-	void matrix::transposed() {
-		matrix m(mf_[0].size(), mf_.size());
+	void matrix2f::transposed() {
+		matrix2f tmp(m_[0].size(), m_.size());
 
-		for (int i = 0; i != m.get_mf().size(); i++) {
-			for (int j = 0; j != m.get_mf()[0].size(); j++) {
-				m.mf_[i][j] = mf_[j][i];
+		for (int i = 0; i != tmp.get_m().size(); i++) {
+			for (int j = 0; j != tmp.get_m()[0].size(); j++) {
+				tmp.m_[i][j] = m_[j][i];
 			}
 		}
+
+		set_m(tmp);
 	}
 
 	//get, set
-	const std::vector<std::vector<float>>& matrix::get_mf() const {
-		return mf_;
+	const std::vector<vec2f>& matrix2f::get_m() const {
+		return m_;
 	}
-	const size_t matrix::get_row_size() const {
-		return mf_.size();
+	const size_t matrix2f::get_row_size() const {
+		return m_.size();
 	}
-	const size_t matrix::get_column_size() const {
-		return mf_[0].size();
+	const size_t matrix2f::get_column_size() const {
+		return m_[0].size();
 	}
-	void matrix::set_m2f(const std::vector<vec2f>& vv) {
-		row = vv.size();
-		column = vv[0].size();
-		mf_.resize(vv.size());
-		for (int i = 0; i != row; i++) {
-			mf_[i].resize(vv[i].size());
+	void matrix2f::set_vec(const std::vector<vec2f>& vv) {
+		m_.resize(vv.size());
+		for (int i = 0; i != get_row_size(); i++) {
+			m_[i] = vv[i];
 		}
-		//1x2, 2x2, 3x2
-		for (int i = 0; i != row; i++) {
-			for (int j = 0; j != column; j++) {
-				mf_[i][j] = vv[i][j];
+	}
+	void matrix2f::set_m(const matrix2f& m) {
+		m_.resize(m.get_row_size());
+		for (int i = 0; i != get_row_size(); i++) {
+			m_[i] = m.get_m()[i];
+		}
+	}
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////
+	//행렬 3x3//////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	//기본
+	matrix3f::matrix3f() noexcept :
+		m_{ { 0, 0, 0 } }
+	{
+	}
+	matrix3f::matrix3f(const size_t m, const size_t n) noexcept {
+		m_.resize(m);
+	}
+	matrix3f::matrix3f(const std::vector<vec3f>& vv) noexcept {
+		set_vec(vv);
+	}
+	matrix3f::matrix3f(const matrix3f& m) noexcept {
+		set_m(m);
+	}
+	//3x3
+	matrix3f::matrix3f(const vec3f v0, const vec3f v1, const vec3f v2) noexcept {
+		set_vec({ v0, v1 });
+	}
+	//4x3
+	matrix3f::matrix3f(const vec3f v0, const vec3f v1, const vec3f v2, const vec3f v3) noexcept {
+		set_vec({ v0, v1, v2, v3 });
+	}
+
+	//행과 열 사이즈 검사
+	const bool matrix3f::is_same_size(const std::vector<vec3f>& vv) const {
+		matrix3f m(vv);
+		return is_same_size(m);
+	}
+	const bool matrix3f::is_same_size(const matrix3f& m) const {
+		if (get_row_size() == m.get_row_size()
+			&& get_column_size() == m.get_column_size()) {
+			return true;
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행 혹은 열 사이즈가 다릅니다."));
+			assert(false);
+		}
+	}
+
+	//곱셈에서 앞행렬(인자)의 열과 뒷행렬(멤버)의 행이 같아야 함
+	const bool matrix3f::is_same_column_vs_row_size(const matrix3f& m) const {
+		if (m.get_column_size() == get_row_size()) {
+			return true;
+		}
+		else {
+			//4x3곱을 위해 없앰
+			//ZEE_LOG(warning, TEXT("matrix"), TEXT("첫 행렬(인자)의 열 사이즈 != 두번째 행렬(멤버)의 행 사이즈"));
+			//assert(false);
+		}
+	}
+
+	//연산자
+	const matrix3f& matrix3f::operator=(const matrix3f& m) {
+		set_m(m);
+		return *this;
+	}
+
+	const matrix3f& matrix3f::operator+=(const matrix3f& m) {
+		if (is_same_size(m)) {
+			add(m);
+		}
+		return *this;
+	}
+
+	const matrix3f& matrix3f::operator-=(const matrix3f& m) {
+		if (is_same_size(m)) {
+			sub(m);
+		}
+		return *this;
+	}
+
+	const matrix3f& matrix3f::operator*=(const matrix3f& m) {
+		if (is_same_size(m)) {
+			mul(m);
+		}
+		return *this;
+	}
+
+	//사칙연산
+	void matrix3f::add(const matrix3f& m) {
+		if (is_same_size(m)) {
+			for (int i = 0; i != get_row_size(); i++) {
+				m_[i] += m.get_m()[i];
 			}
 		}
 	}
-	void matrix::set_m3f(const std::vector<vec3f>& vv) {
-		row = vv.size();
-		column = vv[0].size();
-		mf_.resize(vv.size());
-		for (int i = 0; i != row; i++) {
-			mf_[i].resize(vv[i].size());
-		}
-		//1x3, 3x3, 4x3
-		for (int i = 0; i != row; i++) {
-			for (int j = 0; j != column; j++) {
-				mf_[i][j] = vv[i][j];
+
+	void matrix3f::sub(const matrix3f& m) {
+		if (is_same_size(m)) {
+			for (int i = 0; i != get_row_size(); i++) {
+				m_[i] -= m.get_m()[i];
 			}
 		}
 	}
-	void matrix::set_mf(const matrix& m) {
-		row = m.get_row_size();
-		column = m.get_column_size();
-		mf_.resize(m.get_row_size(), std::vector<float>(m.get_column_size(), npos));
-		//1x2, 2x2, 3x2, 1x3, 3x3, 4x3
-		for (int i = 0; i != row; i++) {
-			for (int j = 0; j != column; j++) {
-				mf_[i][j] = m.get_mf()[i][j];
+
+	void matrix3f::mul(const vec3f& v) {
+		matrix3f m{ {v} };
+		mul(m);
+	}
+	void matrix3f::mul(const matrix3f& m) {
+		//vec2f가 넘어왔다면 마지막 번째 1.0f 세팅
+		//변환(이동, 스케일, 회전) 행렬의 dx, dy와 곱셈을 위해 맞춰주기 위함임
+		std::vector<vec4f> v(4);
+		if (m.get_row_size() == 1 && m.get_column_size() == 3) {
+			v[0][0] = m.get_m()[0][0];
+			v[0][1] = m.get_m()[0][1];
+			v[0][2] = m.get_m()[0][2];
+			v[0][3] = 1.0f;
+		}
+		//곱연산
+		if (is_same_column_vs_row_size(m)) {
+			matrix3f tmp(m.get_row_size(), m.get_column_size());
+
+			for (int i = 0; i != m.get_row_size(); i++) {
+				for (int j = 0; j != m_[0].size(); j++) {
+					for (int k = 0; k != m_.size(); k++) {
+						tmp.m_[i][j] += v[i][k] * m_[k][j];
+					}
+				}
 			}
+			m_ = tmp.get_m();
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("현재 지원하지 않는 사이즈 곱입니다."));
+			assert(false);
+		}
+
+	}
+
+	//변환
+	void matrix3f::translation(const float dx, const float dy, const float dz) {
+		set_vec({
+			{ 1, 0, 0 },
+			{ 0, 1, 0 },
+			{ 0, 0, 1 },
+			{ dx, dy, dz }
+		});
+	}
+	void matrix3f::translation(const float angle, const float dx, const float dy, const float dz) {
+		set_vec({
+			{ 1, 0, 0 },
+			{ 0, 1, 0 },
+			{ 0, 0, 1 },
+			{ cos(angle) * dx, sin(angle) * dy, dz }
+		});
+	}
+
+	void matrix3f::scale(const float sx, const float sy, const float sz) {
+		//z축
+		set_vec({
+			{ sx, 0, 0 },
+			{ 0, sy, 0 },
+			{ 0, 0, sz },
+			{ 0, 0, 0 }
+		});
+	}
+
+	void matrix3f::rotation(const float angle, const float dx, const float dy, const float dz) {
+		set_vec({
+			{ cos(angle), -sin(angle), 0 },
+			{ sin(angle), cos(angle), 0 },
+			{ dx, dy, 1 },
+			{ 0, 0, 0 }
+			});
+	}
+
+	//행렬식: 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
+	const float matrix3f::determinant() {
+		if (get_row_size() == 3) {
+			float a = m_[0][0], b = m_[0][1], c = m_[0][2];
+			float d = m_[1][0], e = m_[1][1], f = m_[1][2];
+			float g = m_[2][0], h = m_[2][1], i = m_[2][2];
+			return d * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("행렬식 사이즈가 잘못되었습니다."));
+			assert(false);
+		}
+	}
+
+	//단위행렬: 여부
+	const bool matrix3f::is_identity() {
+		bool is_identity = false;
+		if (get_row_size() > 1
+			&& get_column_size() > 1
+			&& get_row_size() == get_column_size())
+		{
+			for (int i = 0; i != get_row_size(); i++) {
+				for (int j = 0; j != get_column_size(); j++) {
+
+					is_identity = (i == j) ? (get_m()[i][j] == 1) : (get_m()[i][j] == 0);
+
+					if (!is_identity) {
+						return is_identity;
+					}
+				}
+			}
+			return is_identity;
+		}
+		else {
+			ZEE_LOG(warning, TEXT("matrix"), TEXT("3x3 이상의 정방행렬만 항등행렬인지 판단할 수 있습니다."));
+			assert(false);
+		}
+	}
+
+	//전치행렬: 행과 열을 교환
+	void matrix3f::transposed() {
+		matrix3f tmp(m_[0].size(), m_.size());
+
+		for (int i = 0; i != tmp.get_m().size(); i++) {
+			for (int j = 0; j != tmp.get_m()[0].size(); j++) {
+				tmp.m_[i][j] = m_[j][i];
+			}
+		}
+
+		set_m(tmp);
+	}
+
+	//get, set
+	const std::vector<vec3f>& matrix3f::get_m() const {
+		return m_;
+	}
+	const size_t matrix3f::get_row_size() const {
+		return m_.size();
+	}
+	const size_t matrix3f::get_column_size() const {
+		return m_[0].size();
+	}
+	void matrix3f::set_vec(const std::vector<vec3f>& vv) {
+		m_.resize(vv.size());
+		for (int i = 0; i != get_row_size(); i++) {
+			m_[i] = vv[i];
+		}
+	}
+	void matrix3f::set_m(const matrix3f& m) {
+		m_.resize(m.get_row_size());
+		for (int i = 0; i != get_row_size(); i++) {
+			m_[i] = m.get_m()[i];
 		}
 	}
 }//math
