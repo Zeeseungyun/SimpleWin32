@@ -15,8 +15,9 @@ namespace zee {
 
 		virtual void move(const float delta_time) override;
 		void shoot(const float delta_time);
-		virtual void hit(const float delta_time) override;
+		virtual void hit_from(std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
+		void add_score(const int score);
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
 		const int get_direction() const;
@@ -57,7 +58,6 @@ namespace zee {
 		float delay_frame_ani;
 		float delay_shoot_;
 		float delay_destroy_;
-
 		std::vector<std::shared_ptr<bullet>> bullets_;
 	};
 }

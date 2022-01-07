@@ -3,6 +3,8 @@
 #include "frame_image.h"
 #include "bullet.h"
 
+class player;
+
 namespace zee {
 	class monster : public unit {
 	public:
@@ -14,7 +16,7 @@ namespace zee {
 
 		virtual void move(const float delta_time) override;
 		void shoot(const float delta_time);
-		virtual void hit(const float delta_time) override;
+		virtual void hit_from(std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
@@ -56,11 +58,7 @@ namespace zee {
 		math::vec2f arrival_vec_;
 		math::vec2f vec_for_player_;
 		float homing_angle_;
-		float delay_straight_;
-		float delay_circle_;
-		float delay_homing_;
-		float delay_arround_;
-		float delay_wave_;
+		float delay_shoot;
 		float delay_destroy_;
 	};
 }

@@ -132,8 +132,8 @@ namespace zee {
 		}//switch
 	}
 
-	void bullet::hit(const float delta_time) {
-		unit::hit(delta_time);
+	void bullet::hit_from(std::shared_ptr<unit> other, const float delta_time) {
+		unit::hit_from(other, delta_time);
 	}
 	void bullet::destroy(const float delta_time) {
 		unit::destroy(delta_time);

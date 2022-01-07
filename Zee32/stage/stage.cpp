@@ -96,6 +96,9 @@ namespace zee {
 	}
 
 	void stage::tick(float delta_time) {
+		//시간 틱
+		game_time_ += delta_time;
+
 		//배경 틱
 		switch (background_type) {
 		case loop: {
@@ -163,7 +166,9 @@ namespace zee {
 			mon_obj->destroy(delta_time);
 
 			//적 호밍
-			if (mon_obj->get_obj_type() == (int)unit::obj_type::monster_arround) {
+			if (mon_obj->get_obj_type() 
+				== (int)unit::obj_type::monster_arround) 
+			{
 				//플레이어와의 방향 벡터
 				math::vec2f v_mon_for_player{
 					players_.front()->get_body().origin - mon_obj->get_body().origin
@@ -171,9 +176,12 @@ namespace zee {
 				mon_obj->set_vec_for_player(v_mon_for_player);
 			}
 
-			//적 유도탄 호밍
+			//적 호밍탄(유도탄)
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (bullet_obj->get_obj_type() == (int)unit::obj_type::monster_bullet_homing) {
+				//호밍 로직
+				if (bullet_obj->get_obj_type() 
+					== (int)unit::obj_type::monster_bullet_homing) 
+				{
 					//플레이어와의 방향 벡터: normalize를 여기서 해줘야 함
 					math::vec2f v_bullet_for_player{
 						players_.front()->get_body().origin - bullet_obj->get_body().origin
@@ -181,18 +189,43 @@ namespace zee {
 					v_bullet_for_player = v_bullet_for_player.normalize();
 					bullet_obj->set_vec_for_player(v_bullet_for_player);
 				}
+
+				//적 뷸렛(특수한 뷸렛만) vs 플레이어 뷸렛 충돌 틱
+				if (bullet_obj->get_obj_type() == (int)unit::obj_type::monster_bullet_homing) {
+
+					for (auto& bullet_player_obj : players_.front()->get_bullets())
+					{
+						if (shape::intersect(bullet_player_obj->get_body(), bullet_obj->get_body())
+							!= shape::collide_type::none)
+						{
+							//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
+							std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
+							spawned_bomb->init();
+							spawned_bomb->set_now_pos_and_body(
+								{ bullet_obj->get_body().origin.x - bullet_obj->get_body().radius,
+								bullet_obj->get_body().origin.y - bullet_obj->get_body().radius }
+							);
+							bombs_.push_back(spawned_bomb);
+
+							//피격
+							//적 뷸렛은 플레이어 뷸렛에게 맞았다고 판단 (플레이어 뷸렛의 공격력만큼 피해입음)
+							//플레이어 뷸렛은 적 뷸렛에게 ~
+							bullet_obj->hit_from(bullet_player_obj, delta_time);
+							bullet_player_obj->hit_from(bullet_obj, delta_time);
+							bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
+							bullet_player_obj->set_now_pos_and_body(coords[back_destroy_zone]);
+						}//if
+					}//for
+				}//if
 			}
 
 
-			//플레이어 총알 vs 적 충돌 틱
+			//플레이어 뷸렛 vs 적 충돌 틱
 			for (auto& bullet_obj : players_.front()->get_bullets()) {
-				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) != shape::collide_type::none) {
-
-					//피격
-					mon_obj->hit(delta_time);
-					bullet_obj->hit(delta_time);
-
-					//폭발 이펙트
+				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body()) 
+					!= shape::collide_type::none) 
+				{
+					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
 					std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
 					spawned_bomb->init();
 					spawned_bomb->set_now_pos_and_body(
@@ -200,35 +233,54 @@ namespace zee {
 						mon_obj->get_body().origin.y - mon_obj->get_body().radius }
 					);
 					bombs_.push_back(spawned_bomb);
+
+					//피격
+					//적은 뷸렛이 아닌 플레이어에게 맞았다고 판단(점수 주기 위함)(플레이어의 공격력만큼 피해입음)
+					mon_obj->hit_from(players_.front(), delta_time);
+					bullet_obj->hit_from(mon_obj, delta_time);
 				}
 			}
 
-			//적 총알 vs 플레이어 충돌 틱
+			//적 뷸렛 vs 플레이어 충돌 틱
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (bullet_obj->in_screen()
-					&& shape::intersect(players_.front()->get_body(), bullet_obj->get_body())
-					!= shape::collide_type::none) {
-
-					//피격
-					players_.front()->set_hp(0);
-					bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
-
-					//폭발 이펙트
+				if (shape::intersect(players_.front()->get_body(), 
+					bullet_obj->get_body())
+					!= shape::collide_type::none) 
+				{
+					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
 					std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
 					spawned_bomb->init();
 					spawned_bomb->set_now_pos_and_body(
-						{ mon_obj->get_body().origin.x - mon_obj->get_body().radius,
-						mon_obj->get_body().origin.y - mon_obj->get_body().radius }
+						{ players_.front()->get_body().origin.x - players_.front()->get_body().radius,
+						players_.front()->get_body().origin.y - players_.front()->get_body().radius }
 					);
 					bombs_.push_back(spawned_bomb);
+
+					//피격
+					//플레이어는 적 뷸렛에게 맞았다고 판단 (뷸렛의 공격력만큼 피해입음)
+					players_.front()->hit_from(bullet_obj, delta_time);
+					bullet_obj->hit_from(players_.front(), delta_time);
+					bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
 				}
 			}
 
 			//적 vs 플레이어 충돌 틱
-			if (shape::intersect(mon_obj->get_body(), players_.front()->get_now_pos())
-				!= shape::collide_type::none) {
+			if (shape::intersect(mon_obj->get_body(), 
+				players_.front()->get_now_pos())
+				!= shape::collide_type::none) 
+			{
+				//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
+				std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
+				spawned_bomb->init();
+				spawned_bomb->set_now_pos_and_body(
+					{ players_.front()->get_body().origin.x - players_.front()->get_body().radius,
+					players_.front()->get_body().origin.y - players_.front()->get_body().radius }
+				);
+				bombs_.push_back(spawned_bomb);
 
-				players_.front()->set_hp(0);
+				//피격 (몬스터의 공격력만큼 피해입음)
+				players_.front()->hit_from(mon_obj, delta_time);
+
 			}
 		}//for (auto& mon_obj : monsters_)
 
@@ -307,18 +359,25 @@ namespace zee {
 			mon_obj->render(back_buffer_);
 		}
 
-		//뷸렛: 유닛과 몬스터 render
+		//뷸렛: 유닛과 몬스터 render에 포함함
 
 		//이펙트
 		for (auto& bomb_obj : bombs_) {
 			bomb_obj->render(back_buffer_);
 		}
 
+		//인포박스
+		shape::rectf box_info(830, 700, 1030, 880);
+		back_buffer_.rectangle(box_info);
+		back_buffer_.print_text({ 850, 740 }, TEXT("프레임: "));
+		back_buffer_.print_text({ 920, 740 }, to_tstring(to_wstring(g_fps)));
+		back_buffer_.print_text({ 850, 720 }, TEXT("시간: "));
+		back_buffer_.print_text({ 920, 720 }, to_tstring(to_wstring(static_cast<int>(game_time_))));
+		back_buffer_.print_text({ 850, 760 }, TEXT("점수: "));
+		back_buffer_.print_text({ 920, 760 }, to_tstring(to_wstring(players_.front()->get_my_score())));
+		back_buffer_.print_text({ 850, 800 }, TEXT("충돌범위:    Tab"));
+		back_buffer_.print_text({ 850, 820 }, TEXT("리스폰:        R"));
 
-		back_buffer_.print_text({ 850, 50 }, TEXT("충돌범위: Tab"));
-		back_buffer_.print_text({ 850, 70 }, TEXT("리스폰: R"));
-
-		back_buffer_.print_text({ 0, 0 }, to_tstring(to_wstring(g_fps)));
 		back_buffer_.bit_blt(dest_dc, {});
 	}
 

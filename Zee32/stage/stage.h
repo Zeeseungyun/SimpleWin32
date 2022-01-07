@@ -35,7 +35,6 @@ namespace zee {
 
 	class stage : public interfaces::tickable, public std::enable_shared_from_this<stage> {
 	public:
-		enum class obj_type;
 		enum const_var {
 			back_destroy_zone,
 			back_min_size,
@@ -77,13 +76,12 @@ namespace zee {
 
 	private:
 		win32gdi::device_context_dynamic back_buffer_;
-
 		math::vec2f background_src_pos_;
 		math::vec2i background_src_size_;
-
 		std::vector<std::shared_ptr<player>> players_;
 		std::vector<std::shared_ptr<monster>> monsters_;
 		std::vector<std::shared_ptr<effect>> bombs_;
+		float game_time_;
 	};
 }
 

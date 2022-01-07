@@ -20,10 +20,12 @@ namespace zee {
 	private:
 		enum const_var_ {
 			effect_bomb_size,
+			effect_bomb_default_frame,
 			effect_bomb_final_frame,
 		};
 		const std::vector<math::vec2i> coords_{
 			{32, 32},		//effect_bomb_size
+			{0, 0},			//effect_bomb_default_frame
 			{96, 0},		//effect_bomb_final_frame
 		};
 

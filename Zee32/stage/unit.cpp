@@ -16,9 +16,10 @@ namespace zee {
 
 	void unit::move(const float delta_time) {
 	}
-	void unit::hit(const float delta_time) {
-		hp_--;
+	void unit::hit_from(std::shared_ptr<unit> other, const float delta_time) {
+		hp_ -= other->atk_;
 
+		//Á¡¸ê µî Ã³¸® À§ÇÔ
 		if (state_ == (int)obj_state::hit && hp_ > 0) {
 			const float frame = 0.8f;
 			delay_hit_ += delta_time;
@@ -26,7 +27,13 @@ namespace zee {
 				state_ = (int)obj_state::idle;
 			}
 		}
+
+		if (hp_ <= 0) {
+			//ÆÄ±«
+			destroy(delta_time);
+		}
 	}
+
 	void unit::destroy(const float delta_time) {
 		if (hp_ <= 0 || !(in_screen())) {
 			hp_ = 0;
@@ -69,6 +76,9 @@ namespace zee {
 	const int unit::get_state() const {
 		return state_;
 	}
+	const int unit::get_my_score() const {
+		return my_score_;
+	}
 
 	void unit::set_now_pos_and_body(const math::vec2f& point) {
 		now_pos_ = point;
@@ -99,5 +109,8 @@ namespace zee {
 	}
 	void unit::set_state(const int state) {
 		state_ = state;
+	}
+	void unit::set_my_score(const int score) {
+		my_score_ = score;
 	}
 }

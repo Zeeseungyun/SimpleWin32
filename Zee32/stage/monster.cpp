@@ -1,4 +1,5 @@
 #include "monster.h"
+#include "player.h"
 
 namespace zee {
 	using namespace math;
@@ -69,8 +70,8 @@ namespace zee {
 		set_hp(1);
 		set_atk(1);
 		set_state((int)obj_state::idle);
-		
 		set_delay(0.0f);
+		set_my_score(1);
 	}
 
 	void monster::move(const float delta_time) {
@@ -130,20 +131,20 @@ namespace zee {
 		case (int)obj_type::monster_straight: {
 			//직선탄
 			const float frame_straight = 1.5f;
-			delay_straight_ += delta_time;
-			if (delay_straight_ >= frame_straight) {
+			delay_shoot += delta_time;
+			if (delay_shoot >= frame_straight) {
 				std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
 				spawned_bullet->init_bullet(obj_type_, now_pos_, size_);
 				bullets_.push_back(spawned_bullet);
 			}
-			delay_straight_ = (float)math::fmod(delay_straight_, frame_straight);
+			delay_shoot = (float)math::fmod(delay_shoot, frame_straight);
 			break;
 		}
 		case (int)obj_type::monster_circle: {
 			//원형탄
 			const float frame_circle = 3.0f;
-			delay_circle_ += delta_time;
-			if (delay_circle_ >= frame_circle) {
+			delay_shoot += delta_time;
+			if (delay_shoot >= frame_circle) {
 				float circle_angle = 0;
 				const int bullent_circle_cnt = 10;
 
@@ -156,38 +157,38 @@ namespace zee {
 					bullets_.push_back(spawned_bullet);
 				}
 			}
-			delay_circle_ = (float)math::fmod(delay_circle_, frame_circle);
+			delay_shoot = (float)math::fmod(delay_shoot, frame_circle);
 			break;
 		}
 		case (int)obj_type::monster_homing: {
 			//유도탄
 			const float frame_homing = 2.0f;
-			delay_homing_ += delta_time;
-			if (delay_homing_ >= frame_homing) {
+			delay_shoot += delta_time;
+			if (delay_shoot >= frame_homing) {
 				std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
 				spawned_bullet->init_bullet(obj_type_, now_pos_, size_);
 				bullets_.push_back(spawned_bullet);
 			}
-			delay_homing_ = (float)math::fmod(delay_homing_, frame_homing);
+			delay_shoot = (float)math::fmod(delay_shoot, frame_homing);
 			break;
 		}
 		case (int)obj_type::monster_arround: {
 			//어라운드
 			const float frame_arround = 1.5f;
-			delay_arround_ += delta_time;
-			if (delay_arround_ >= frame_arround) {
+			delay_shoot += delta_time;
+			if (delay_shoot >= frame_arround) {
 				std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
 				spawned_bullet->init_bullet(obj_type_, now_pos_, size_);
 				bullets_.push_back(spawned_bullet);
 			}
-			delay_arround_ = (float)math::fmod(delay_arround_, frame_arround);
+			delay_shoot = (float)math::fmod(delay_shoot, frame_arround);
 			break;
 		}
 		case (int)obj_type::monster_wave: {
 			//웨이브
 			const float frame_wave = 3.0f;
-			delay_wave_ += delta_time;
-			if (delay_wave_ >= frame_wave) {
+			delay_shoot += delta_time;
+			if (delay_shoot >= frame_wave) {
 				float circle_angle = 0;
 				int bullent_circle_cnt = 20;
 
@@ -200,7 +201,7 @@ namespace zee {
 					bullets_.push_back(spawned_bullet);
 				}
 			}
-			delay_wave_ = (float)math::fmod(delay_wave_, frame_wave);
+			delay_shoot = (float)math::fmod(delay_shoot, frame_wave);
 			break;
 		}//case
 		}//switch
@@ -211,14 +212,20 @@ namespace zee {
 			bullet_obj->destroy(delta_time);
 		}
 	}
-	void monster::hit(const float delta_time) {
-		unit::hit(delta_time);
+
+	void monster::hit_from(std::shared_ptr<unit> other, const float delta_time) {
+		unit::hit_from(other, delta_time);
+
+		//other이 player면서 nullptr이 아니면
+		if (std::shared_ptr<player> other_player = std::dynamic_pointer_cast<player>(other)) {
+			other_player->add_score(my_score_);
+		}
 	}
 
 	void monster::destroy(const float delta_time) {
 		unit::destroy(delta_time);
 		if (hp_ <= 0) {
-			set_now_pos_and_body(coords_[back_destroy_zone]);
+ 			set_now_pos_and_body(unit::coords[back_destroy_zone]);
 
 			//일정시간 후 스폰
 			const float speed = 2.0f;
@@ -230,7 +237,7 @@ namespace zee {
 			}
 		}
 
-		//뷸렛 제거
+		//뷸렛이 밖에 있으면 제거 (추후 다른 함수로 빼기)
 		for (int i = 0; i != bullets_.size(); ) {
 			if (!(bullets_[i]->in_screen())) {
 				bullets_.erase(bullets_.begin() + i);
@@ -303,11 +310,7 @@ namespace zee {
 		vec_for_player_ = v;
 	}
 	void monster::set_delay(const float delay) {
-		delay_straight_ = delay;
-		delay_circle_ = delay;
-		delay_homing_ = delay;
-		delay_arround_ = delay;
-		delay_wave_ = delay;
+		delay_shoot = delay;
 		delay_destroy_ = delay;
 	}
 }

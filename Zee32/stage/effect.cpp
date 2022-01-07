@@ -8,19 +8,19 @@ namespace zee {
 
 	void effect::init() {
 		set_size(coords_[effect_bomb_size]);
-		set_frame_size(coords_[effect_bomb_size]);
+		set_frame_size(coords_[effect_bomb_default_frame]);
 		set_state((int)unit::obj_state::idle);
 		set_delay(0.0f);
 	}
 
 	void effect::destroy(const float delta_time) {
-		//Æø¹ß ÀÌÆåÆ® Æ½
+		//Æø¹ß ÀÌÆåÆ® Æ½: Æø¹ßÀº ÇÃ·¹ÀÌ¾î³ª ÀûÀÌ Á×À» ¶§ state::die ==> state::idle
 		if (state_ == (int)obj_state::idle) {
-			const float speed = 3.0f;
+			const float speed = 8.0f;
 			const float frame = 3.0f;
 			delay_bomb_ += delta_time * speed;
 
-			set_frame_size(coords_[effect_bomb_size] * (int)delay_bomb_);
+			set_frame_size({ coords_[effect_bomb_size].x * (int)delay_bomb_, 0 });
 
 			if (delay_bomb_ >= frame) {
 				set_state((int)obj_state::die);

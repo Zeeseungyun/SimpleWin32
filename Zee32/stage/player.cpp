@@ -1,4 +1,5 @@
 #include "player.h"
+#include "bullet.h"
 
 namespace zee {
 	using namespace math;
@@ -14,8 +15,10 @@ namespace zee {
 		set_frame_size(coords_[player_default_frame]);
 		set_max_move_size(coords_[player_max_move_size]);
 		set_hp(1);
+		set_atk(1);
 		set_state((int)obj_state::idle);
 		set_delay(0.2f);
+		set_my_score(0);
 	}
 
 	void player::move(const float delta_time) {
@@ -47,7 +50,7 @@ namespace zee {
 		//이미지상 프레임 애니메이션
 		if (is_dir_key_pressed) {
 			//x축
-			const float speed = 12.0f;
+			const float speed = 9.0f;
 			const float frame = 2.0f;
 			if (pressed_key_ == (int)key_type_::arrow_left
 				|| pressed_key_ == (int)key_type_::arrow_right) {
@@ -135,14 +138,19 @@ namespace zee {
 			bullet_obj->destroy(delta_time);
 		}
 	}
-	void player::hit(const float delta_time) {
-		unit::hit(delta_time);
+	void player::hit_from(std::shared_ptr<unit> other, const float delta_time) {
+		unit::hit_from(other, delta_time);
 	}
 
 	void player::destroy(const float delta_time) {
 		unit::destroy(delta_time);
 
-		//뷸렛 제거
+		//리스폰
+		if (key_state::is_down(keys::R)) {
+			init();
+		}
+
+		//뷸렛이 밖에 있으면 제거 (추후 다른 함수로 빼기)
 		for (int i = 0; i != bullets_.size(); ) {
 			if (!(bullets_[i]->in_screen())) {
 				bullets_.erase(bullets_.begin() + i);
@@ -151,11 +159,9 @@ namespace zee {
 				i++;
 			}
 		}
-
-		//리스폰
-		if (key_state::is_down(keys::R)) {
-			init();
-		}
+	}
+	void player::add_score(const int score) {
+		my_score_ += score;
 	}
 
 	void player::render(win32gdi::device_context_dynamic& dest_dc) {

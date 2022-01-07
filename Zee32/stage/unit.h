@@ -56,7 +56,7 @@ namespace zee {
 
 		virtual void init();
 		virtual void move(const float delta_time);
-		virtual void hit(const float delta_time);
+		virtual void hit_from(std::shared_ptr<unit> other, const float delta_time);
 		virtual void destroy(const float delta_time);
 		virtual void render(win32gdi::device_context_dynamic& dest_dc);
 
@@ -68,6 +68,7 @@ namespace zee {
 		const int get_hp() const;
 		const int get_obj_type() const;
 		const int get_state() const;
+		const int get_my_score() const;
 
 		void set_size(const math::vec2i& size);
 		void set_now_pos_and_body(const math::vec2f& point);
@@ -78,6 +79,7 @@ namespace zee {
 		void set_hp(const int hp);
 		void set_atk(const int atk);
 		void set_state(const int state);
+		void set_my_score(const int score);
 
 	protected:
 		math::vec2i size_;
@@ -91,5 +93,6 @@ namespace zee {
 		int atk_;
 		int state_;
 		float delay_hit_;
+		int my_score_;
 	};
 }
