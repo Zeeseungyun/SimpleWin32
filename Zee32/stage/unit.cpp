@@ -16,10 +16,11 @@ namespace zee {
 
 	void unit::move(const float delta_time) {
 	}
-	void unit::hit_from(std::shared_ptr<unit> other, const float delta_time) {
+	void unit::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
+		//ÇÇ±ð
 		hp_ -= other->atk_;
 
-		//Á¡¸ê µî Ã³¸® À§ÇÔ
+		//Á¡¸ê µîÀ» À§ÇÑ µô·¹ÀÌ
 		if (state_ == (int)obj_state::hit && hp_ > 0) {
 			const float frame = 0.8f;
 			delay_hit_ += delta_time;

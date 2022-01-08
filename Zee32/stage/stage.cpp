@@ -30,6 +30,9 @@ namespace zee {
 		//이펙트
 		std::shared_ptr<effect> bomb_obj = std::make_shared<effect>();
 		bomb_obj->load_image();
+		//아이템
+		std::shared_ptr<item> item_obj = std::make_shared<item>();
+		item_obj->load_image();
 
 		//게임 초기화
 		init_game();
@@ -163,6 +166,16 @@ namespace zee {
 			player_obj->move(delta_time);
 			player_obj->shoot(delta_time);
 			player_obj->destroy(delta_time);
+
+			//아이템 vs 플레이어 충돌
+			for (auto& item_obj : items_) {
+				item_obj->destroy(delta_time);
+				if (shape::intersect(player_obj->get_body(), item_obj->get_body())
+					!= shape::collide_type::none) 
+				{
+					item_obj->hit_from(player_obj, delta_time);
+				}
+			}
 		}
 		for (auto& mon_obj : monsters_) {
 			//적 틱
@@ -204,13 +217,7 @@ namespace zee {
 							!= shape::collide_type::none)
 						{
 							//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-							std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
-							spawned_bomb->init();
-							spawned_bomb->set_now_pos_and_body(
-								{ bullet_obj->get_body().origin.x - bullet_obj->get_body().radius,
-								bullet_obj->get_body().origin.y - bullet_obj->get_body().radius }
-							);
-							bombs_.push_back(spawned_bomb);
+							spawn_bomb(bullet_obj);
 
 							//피격
 							//적 뷸렛은 플레이어 뷸렛에게 맞았다고 판단 (플레이어 뷸렛의 공격력만큼 피해입음)
@@ -231,13 +238,9 @@ namespace zee {
 					!= shape::collide_type::none) 
 				{
 					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-					std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
-					spawned_bomb->init();
-					spawned_bomb->set_now_pos_and_body(
-						{ mon_obj->get_body().origin.x - mon_obj->get_body().radius,
-						mon_obj->get_body().origin.y - mon_obj->get_body().radius }
-					);
-					bombs_.push_back(spawned_bomb);
+					spawn_bomb(mon_obj);
+					//아이템
+					spawn_item(mon_obj);
 
 					//피격
 					//적은 뷸렛이 아닌 플레이어에게 맞았다고 판단(점수 주기 위함)(플레이어의 공격력만큼 피해입음)
@@ -253,13 +256,7 @@ namespace zee {
 					!= shape::collide_type::none) 
 				{
 					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-					std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
-					spawned_bomb->init();
-					spawned_bomb->set_now_pos_and_body(
-						{ players_.front()->get_body().origin.x - players_.front()->get_body().radius,
-						players_.front()->get_body().origin.y - players_.front()->get_body().radius }
-					);
-					bombs_.push_back(spawned_bomb);
+					spawn_bomb(players_.front());
 
 					//피격
 					//플레이어는 적 뷸렛에게 맞았다고 판단 (뷸렛의 공격력만큼 피해입음)
@@ -275,13 +272,7 @@ namespace zee {
 				!= shape::collide_type::none) 
 			{
 				//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-				std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
-				spawned_bomb->init();
-				spawned_bomb->set_now_pos_and_body(
-					{ players_.front()->get_body().origin.x - players_.front()->get_body().radius,
-					players_.front()->get_body().origin.y - players_.front()->get_body().radius }
-				);
-				bombs_.push_back(spawned_bomb);
+				spawn_bomb(players_.front());
 
 				//피격 (몬스터의 공격력만큼 피해입음)
 				players_.front()->hit_from(mon_obj, delta_time);
@@ -304,7 +295,36 @@ namespace zee {
 				i++;
 			}
 		}
+
+		//아이템 제거
+		for (int i = 0; i != items_.size(); ) {
+			if (!(items_[i]->in_screen()) || items_[i]->get_state() == (int)unit::obj_state::die) {
+				items_.erase(items_.begin() + i);
+			}
+			else {
+				i++;
+			}
+		}
 	}
+	void stage::spawn_bomb(std::shared_ptr<unit> other) {
+		std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
+		spawned_bomb->init();
+		spawned_bomb->set_now_pos_and_body(
+			{ other->get_body().origin.x - other->get_body().radius,
+			other->get_body().origin.y - other->get_body().radius }
+		);
+		bombs_.push_back(spawned_bomb);
+	}
+	void stage::spawn_item(std::shared_ptr<unit> other) {
+		std::shared_ptr<item> spawned_item = std::make_shared<item>();
+		spawned_item->init();
+		spawned_item->set_now_pos_and_body(
+			{ other->get_body().origin.x - other->get_body().radius,
+			other->get_body().origin.y - other->get_body().radius }
+		);
+		items_.push_back(spawned_item);
+	}
+
 
 	void stage::render(win32gdi::device_context_base& dest_dc, const float g_fps) {
 		if (back_buffer_.is_valid()) {
@@ -371,13 +391,19 @@ namespace zee {
 			bomb_obj->render(back_buffer_);
 		}
 
+		//아이템
+		for (auto& item_obj : items_) {
+			item_obj->render(back_buffer_);
+		}
+
+
 		//인포박스
 		shape::rectf box_info(830, 700, 1030, 880);
 		back_buffer_.rectangle(box_info);
-		back_buffer_.print_text({ 850, 740 }, TEXT("프레임: "));
-		back_buffer_.print_text({ 920, 740 }, to_tstring(to_wstring(g_fps)));
-		back_buffer_.print_text({ 850, 720 }, TEXT("시간: "));
-		back_buffer_.print_text({ 920, 720 }, to_tstring(to_wstring(static_cast<int>(game_time_))));
+		back_buffer_.print_text({ 850, 720 }, TEXT("프레임: "));
+		back_buffer_.print_text({ 920, 720 }, to_tstring(to_wstring(g_fps)));
+		back_buffer_.print_text({ 850, 740 }, TEXT("시간: "));
+		back_buffer_.print_text({ 920, 740 }, to_tstring(to_wstring(static_cast<int>(game_time_))));
 		back_buffer_.print_text({ 850, 760 }, TEXT("점수: "));
 		back_buffer_.print_text({ 920, 760 }, to_tstring(to_wstring(players_.front()->get_my_score())));
 		back_buffer_.print_text({ 850, 800 }, TEXT("충돌범위:    Tab"));

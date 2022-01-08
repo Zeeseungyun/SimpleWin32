@@ -24,6 +24,9 @@ namespace zee {
 		std::vector<math::vec2i> frame_sizes_;
 		std::vector<math::vec2i> max_frame_sizes_;
 
-		const int image_num_  = 14;
+		/// <summary>
+		/// 이미지 개수
+		/// </summary>
+		const int image_num_  = 15;
 	};
 }

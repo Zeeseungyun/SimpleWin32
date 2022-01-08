@@ -39,6 +39,7 @@ namespace zee {
 			monster_bullet_wave,
 
 			bomb,
+			item,
 
 			max
 		};
@@ -56,7 +57,7 @@ namespace zee {
 
 		virtual void init();
 		virtual void move(const float delta_time);
-		virtual void hit_from(std::shared_ptr<unit> other, const float delta_time);
+		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time);
 		virtual void destroy(const float delta_time);
 		virtual void render(win32gdi::device_context_dynamic& dest_dc);
 

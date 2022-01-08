@@ -26,6 +26,7 @@
     <ClInclude Include="stage\bullet.h" />
     <ClInclude Include="stage\frame_image.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="stage\item.h" />
     <ClInclude Include="stage\monster.h" />
     <ClInclude Include="stage\player.h" />
     <ClInclude Include="stage\stage.h" />
@@ -50,6 +51,7 @@
     <ClCompile Include="stage\bullet.cpp" />
     <ClCompile Include="stage\effect.cpp" />
     <ClCompile Include="stage\frame_image.cpp" />
+    <ClCompile Include="stage\item.cpp" />
     <ClCompile Include="stage\monster.cpp" />
     <ClCompile Include="stage\player.cpp" />
     <ClCompile Include="stage\stage.cpp" />
@@ -74,6 +76,7 @@
     <Image Include="assets\game_background_loop_horizon.bmp" />
     <Image Include="assets\game_background_loop_vertical.bmp" />
     <Image Include="assets\game_background_stop.bmp" />
+    <Image Include="assets\item_score.bmp" />
     <Image Include="assets\monster_1.bmp" />
     <Image Include="assets\monster_2.bmp" />
     <Image Include="assets\monster_3.bmp" />

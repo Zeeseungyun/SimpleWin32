@@ -12,7 +12,7 @@ namespace zee {
 		void init_bullet(const int obj_type, const math::vec2f& now_pos, const math::vec2f& size);
 
 		virtual void move(const float delta_time) override;
-		virtual void hit_from(std::shared_ptr<unit> other, const float delta_time) override;
+		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 

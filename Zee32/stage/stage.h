@@ -15,6 +15,7 @@
 #include "monster.h"
 #include "bullet.h"
 #include "effect.h"
+#include "item.h"
 /*
 * 1. enum다 치운다. 2개 봐줌 obj_type, background_type
 * 2. 상속 활용 해본다. (*다형성 포함)
@@ -67,6 +68,8 @@ namespace zee {
 		void init_game();
 
 		void tick(float delta_time) override;
+		void spawn_bomb(std::shared_ptr<unit> other);
+		void spawn_item(std::shared_ptr<unit> other);
 		void render(win32gdi::device_context_base& dest_dc, const float g_fps);
 
 		const math::vec2f get_background_src_pos() const;
@@ -81,6 +84,7 @@ namespace zee {
 		std::vector<std::shared_ptr<player>> players_;
 		std::vector<std::shared_ptr<monster>> monsters_;
 		std::vector<std::shared_ptr<effect>> bombs_;
+		std::vector<std::shared_ptr<item>> items_;
 		float game_time_;
 	};
 }

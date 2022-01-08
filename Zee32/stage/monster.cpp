@@ -213,11 +213,10 @@ namespace zee {
 		}
 	}
 
-	void monster::hit_from(std::shared_ptr<unit> other, const float delta_time) {
-		unit::hit_from(other, delta_time);
-
-		//other이 player면서 nullptr이 아니면
+	void monster::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
+		//other이 player를 가리키고 nullptr이 아니면
 		if (std::shared_ptr<player> other_player = std::dynamic_pointer_cast<player>(other)) {
+			unit::hit_from(other, delta_time);
 			other_player->add_score(my_score_);
 		}
 	}

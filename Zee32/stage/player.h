@@ -15,7 +15,7 @@ namespace zee {
 
 		virtual void move(const float delta_time) override;
 		void shoot(const float delta_time);
-		virtual void hit_from(std::shared_ptr<unit> other, const float delta_time) override;
+		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
 		void add_score(const int score);
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;

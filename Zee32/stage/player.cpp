@@ -138,7 +138,7 @@ namespace zee {
 			bullet_obj->destroy(delta_time);
 		}
 	}
-	void player::hit_from(std::shared_ptr<unit> other, const float delta_time) {
+	void player::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
 		unit::hit_from(other, delta_time);
 	}
 
