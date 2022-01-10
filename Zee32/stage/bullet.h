@@ -60,6 +60,7 @@ namespace zee {
 		int subj_type_;	//ÃÑ¾Ë ½ð °´Ã¼
 		float homing_angle_;
 		float circle_angle_;
+		float wave_angle_;
 		math::vec2f vec_for_player_;
 	};
 }

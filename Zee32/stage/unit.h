@@ -70,6 +70,7 @@ namespace zee {
 		const int get_obj_type() const;
 		const int get_state() const;
 		const int get_my_score() const;
+		const int get_high_score() const;
 
 		void set_size(const math::vec2i& size);
 		void set_now_pos_and_body(const math::vec2f& point);
@@ -81,6 +82,7 @@ namespace zee {
 		void set_atk(const int atk);
 		void set_state(const int state);
 		void set_my_score(const int score);
+		void set_high_score(const int high_score);
 
 	protected:
 		math::vec2i size_;
@@ -95,5 +97,6 @@ namespace zee {
 		int state_;
 		float delay_hit_;
 		int my_score_;
+		int high_score_;
 	};
 }

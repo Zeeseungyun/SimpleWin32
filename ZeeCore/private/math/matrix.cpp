@@ -109,10 +109,15 @@ namespace math {
 		//vec2f가 넘어왔다면 마지막 번째 1.0f 세팅
 		//변환(이동, 스케일, 회전) 행렬의 dx, dy와 곱셈을 위해 맞춰주기 위함임
 		std::vector<vec3f> v(3);
-		if (m.get_row_size() == 1 && m.get_column_size() == 2) {
-			v[0][0] = m.get_m()[0][0];
-			v[0][1] = m.get_m()[0][1];
-			v[0][2] = 1.0f;
+		for (int i = 0; i != m.get_row_size(); i++) {
+			for (int j = 0; j != v[0].size(); j++) {
+				if (j == 2) {
+					v[i][j] = 1.0f;
+				}
+				else {
+					v[i][j] = m.get_m()[i][j];
+				}
+			}
 		}
 		//곱연산
 		if (is_same_column_vs_row_size(m)) {
@@ -296,7 +301,7 @@ namespace math {
 	}
 	//3x3
 	matrix3f::matrix3f(const vec3f v0, const vec3f v1, const vec3f v2) noexcept {
-		set_vec({ v0, v1 });
+		set_vec({ v0, v1, v2 });
 	}
 	//4x3
 	matrix3f::matrix3f(const vec3f v0, const vec3f v1, const vec3f v2, const vec3f v3) noexcept {
@@ -383,11 +388,15 @@ namespace math {
 		//vec2f가 넘어왔다면 마지막 번째 1.0f 세팅
 		//변환(이동, 스케일, 회전) 행렬의 dx, dy와 곱셈을 위해 맞춰주기 위함임
 		std::vector<vec4f> v(4);
-		if (m.get_row_size() == 1 && m.get_column_size() == 3) {
-			v[0][0] = m.get_m()[0][0];
-			v[0][1] = m.get_m()[0][1];
-			v[0][2] = m.get_m()[0][2];
-			v[0][3] = 1.0f;
+		for (int i = 0; i != m.get_row_size(); i++) {
+			for (int j = 0; j != v[0].size(); j++) {
+				if (j == 3) {
+					v[i][j] = 1.0f;
+				}
+				else {
+					v[i][j] = m.get_m()[i][j];
+				}
+			}
 		}
 		//곱연산
 		if (is_same_column_vs_row_size(m)) {

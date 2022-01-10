@@ -21,6 +21,7 @@ namespace zee {
 		hp_ -= other->atk_;
 
 		//Á¡¸ê µîÀ» À§ÇÑ µô·¹ÀÌ
+		/*
 		if (state_ == (int)obj_state::hit && hp_ > 0) {
 			const float frame = 0.8f;
 			delay_hit_ += delta_time;
@@ -28,6 +29,7 @@ namespace zee {
 				state_ = (int)obj_state::idle;
 			}
 		}
+		*/
 
 		if (hp_ <= 0) {
 			//ÆÄ±«
@@ -80,6 +82,9 @@ namespace zee {
 	const int unit::get_my_score() const {
 		return my_score_;
 	}
+	const int unit::get_high_score() const {
+		return high_score_;
+	}
 
 	void unit::set_now_pos_and_body(const math::vec2f& point) {
 		now_pos_ = point;
@@ -113,5 +118,8 @@ namespace zee {
 	}
 	void unit::set_my_score(const int score) {
 		my_score_ = score;
+	}
+	void unit::set_high_score(const int high_score) {
+		high_score_ = high_score;
 	}
 }
