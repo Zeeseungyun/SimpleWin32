@@ -8,6 +8,40 @@
 
 namespace zee {
 
+	/*
+	* TODO::
+	* 이게 왜 여기있음?
+	* 전역 속성을 따로 정의해야하는 것이 옳음.
+	* 게다가 stage::const_var과 겹침.
+	* 그리고 상수로 활용하는 것으로 보이는데 coords가 객체마다 만들어질 이유가 없음.
+	*
+	* bullet, effect, item, monster, player가 다 unit을 상속받음.
+	* 계층 구조가 좀 더 구체적이면 좋을 듯.
+	* ex)
+	*			unit(effect와 합쳐도 될듯?)
+	*				|
+	*		 _____effect____
+	*		|				|
+	*	 _plane_		projectile
+	*	|		|		|		|
+	*	player	monster	bullet	item
+	*
+	* set_hp나 score와 같은 모든 유닛들이 기본적으로 갖는 프로퍼티는
+	* 공통적으로 init이라는 함수를 통해서 설정해야 할 값들임.
+	* 
+	* hp_는 직접 참조해야 할때만 사용하는 것이 좋슴. (ex 수정)
+	* 그리고 수정하는 함수로 set_hp를 만들어두었는데 그저 init에서만 사용된건 바람직하지 못함.
+	* 
+	* 값의 반환을 굳이 const int로 할 필요까지는 없음 코드가 길어져서 피곤해짐.
+	* 어차피 레퍼런스가 아닌 타입으로 반환시 복사된 내용이 반환되므로 변하지가 않기 떄문.
+	* 
+	* 충돌처리가 아마 코스트가 클 것으로 예상이 됨.
+	* 무지성으로 짜면 O(N*N)이 되기때문..
+	* 그래서 충돌처리 로직은 따로 구성해서 그 부분만 보이도록 하는 것이 일반적.
+	* 한눈에 들어오지 않음.
+	* 충돌체 크기설정을 body라고 해놨는데 객체화시켜서 관리했으면 더 좋지 않았을까?
+	*/
+
 	class unit {
 	public:
 		enum const_var {
@@ -15,12 +49,18 @@ namespace zee {
 			back_min_size,
 			back_max_size,
 		};
+
 		const std::vector<math::vec2i> coords{
 			{2048, 2048},	//back_destroy_zone
 			{-150, -200},	//back_min_size
 			{720, 1000},	//back_max_size
 		};
 
+		/*
+		* TODO::
+		* unit을 상속받을 객체가 이 이넘 클래스를 통해 정해진 듯한 형태임.
+		* 이렇게 짜면 안됨.
+		*/
 		enum class obj_type {
 			player_straight,
 
@@ -43,6 +83,7 @@ namespace zee {
 
 			max
 		};
+
 		enum class obj_state {
 			idle,
 			hit,
@@ -66,6 +107,7 @@ namespace zee {
 		const shape::circlef& get_body() const;
 		const math::vec2i& get_frame_x() const;
 		const math::vec2i& get_frame_y() const;
+		
 		const int get_hp() const;
 		const int get_obj_type() const;
 		const int get_state() const;
@@ -94,6 +136,10 @@ namespace zee {
 		int obj_type_;
 		int hp_;
 		int atk_;
+		/*
+		* TODO::
+		* state를 굳이 int로 할 이유가 없음.
+		*/
 		int state_;
 		float delay_hit_;
 		int my_score_;

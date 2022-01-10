@@ -154,8 +154,7 @@ namespace zee {
 		for (int i = 0; i != bullets_.size(); ) {
 			if (!(bullets_[i]->in_screen())) {
 				bullets_.erase(bullets_.begin() + i);
-			}
-			else {
+			} else {
 				i++;
 			}
 		}

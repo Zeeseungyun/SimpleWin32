@@ -10,17 +10,24 @@
 #include "../../ZeeCore/public/shape/intersect.h"
 #include "background_image.h"
 #include "frame_image.h"
-#include "unit.h"
+#include "unit.h" 
 #include "player.h"
 #include "monster.h"
 #include "bullet.h"
 #include "effect.h"
 #include "item.h"
 /*
+* TODO:: 전방선언활용이 안됐음. 
+* 해당 헤더파일에서 player, monster, item, bullet 언급이 없음.
+* 그리고 unit도 전방선언을 써야했음.
+*/
+
+/*
 * 1. enum다 치운다. 2개 봐줌 obj_type, background_type
 * 2. 상속 활용 해본다. (*다형성 포함)
 * 3. 전역변수 정적변수들 최대한 신경써서 작성한다.
 * 4. 매트릭스 다시!
+*
 */
 
 namespace zee {
