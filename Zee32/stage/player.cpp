@@ -5,20 +5,17 @@ namespace zee {
 	using namespace math;
 
 	void player::load_image() {
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[player_size]
-			, TEXT("assets/player.bmp"), (int)unit::obj_type::player_straight);
+		frame_image::get().load_frame_image(coords_[player_size]
+			, TEXT("assets/player.bmp"), (int)obj_type::player_straight);
 	}
 	
 	void player::init() {
+		unit::init();
 		set_size(coords_[player_size]);
 		set_now_pos_and_body(coords_[player_default_pos]);
 		set_frame_size(coords_[player_default_frame]);
 		set_max_move_size(coords_[player_max_move_size]);
-		set_hp(1);
-		set_atk(1);
-		set_state((int)obj_state::idle);
 		set_delay(0.2f);
-		set_my_score(0);
 	}
 
 	void player::move(const float delta_time) {
@@ -28,6 +25,7 @@ namespace zee {
 		is_dir_key_pressed = false;
 		pressed_key_ = (int)key_type_::none;
 
+		//키 입력 이벤트
 		if (key_state::is_down(keys::arrow_up) || key_state::is_down(keys::W)) {
 			is_dir_key_pressed = true;
 			pressed_key_ = (int)key_type_::arrow_up;
@@ -102,9 +100,8 @@ namespace zee {
 			*/
 		}
 
-		//if (background_type == loop) {}
-		
 		//위치 이동
+		//if (background_type == loop) {}
 		if (is_dir_key_pressed) {
 			set_now_pos_and_body(velocity + now_pos_);
 		}
@@ -156,7 +153,7 @@ namespace zee {
 
 	void player::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
-			//frame_image::get().render_destdc_to_backbuffer(dest_dc, (int)obj_type::player_straight);
+			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
 
 			if (state_ == (int)obj_state::idle) {
 				frame_image::get().render_transparent(

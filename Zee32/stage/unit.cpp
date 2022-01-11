@@ -4,6 +4,10 @@ namespace zee {
 	using namespace math;
 
 	void unit::init() {
+		set_hp(1);
+		set_atk(1);
+		set_my_score(0);
+		set_state((int)obj_state::idle);
 	}
 
 	void unit::load_image() {
@@ -18,30 +22,19 @@ namespace zee {
 	}
 	void unit::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
 		//ÇÇ±ð
-		hp_ -= other->atk_;
+		set_hp(get_hp() - other->get_atk());
 
-		//Á¡¸ê µîÀ» À§ÇÑ µô·¹ÀÌ
-		/*
-		if (state_ == (int)obj_state::hit && hp_ > 0) {
-			const float frame = 0.8f;
-			delay_hit_ += delta_time;
-			if (delay_hit_ >= frame) {
-				state_ = (int)obj_state::idle;
-			}
-		}
-		*/
-
-		if (hp_ <= 0) {
+		if (get_hp() <= 0) {
 			//ÆÄ±«
 			destroy(delta_time);
 		}
 	}
 
 	void unit::destroy(const float delta_time) {
-		if (hp_ <= 0 || !(in_screen())) {
-			hp_ = 0;
+		if (get_hp() <= 0 || !(in_screen())) {
+			set_hp(0);
 			state_ = (int)obj_state::die;
-			set_now_pos_and_body(coords[back_max_size]);
+			set_now_pos_and_body(coords[back_destroy_zone]);
 		}
 	}
 
@@ -75,6 +68,9 @@ namespace zee {
 	}
 	int unit::get_hp() const {
 		return hp_;
+	}
+	int unit::get_atk() const {
+		return atk_;
 	}
 	int unit::get_state() const {
 		return state_;

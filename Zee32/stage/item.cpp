@@ -3,15 +3,15 @@
 
 namespace zee {
 	void item::load_image() {
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[item_size]
-			, TEXT("assets/item_score.bmp"), (int)unit::obj_type::item);
+		frame_image::get().load_frame_image(coords_[item_size]
+			, TEXT("assets/item_score.bmp"), (int)obj_type::item);
 	}
 
 	void item::init() {
-		set_size(coords_[item_size]);
-		set_state((int)unit::obj_state::idle);
-		set_hp(1);
+		unit::init();
 		set_my_score(3);
+		set_size(coords_[item_size]);
+		set_state((int)obj_state::idle);
 	}
 
 	void item::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
@@ -32,7 +32,7 @@ namespace zee {
 				dest_dc,
 				now_pos_,
 				{},
-				(int)unit::obj_type::item
+				(int)obj_type::item
 			);
 		}
 

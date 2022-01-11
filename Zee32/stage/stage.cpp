@@ -1,4 +1,5 @@
 #include "stage.h"
+#include "frame_image.h"
 #include "unit.h" 
 #include "player.h"
 #include "monster.h"
@@ -20,7 +21,7 @@ namespace zee {
 		//배경
 		background_image::get().load_background_image(coords[back_max_size]
 			, TEXT("assets/game_background_loop_vertical.bmp"));
-		background_image::get().load_background_image(coords[back_scroll_max_size]
+		background_image::get().load_background_image(coords_stage[back_scroll_max_size]
 			, TEXT("assets/game_background_stop.bmp"));
 
 		//유닛
@@ -88,10 +89,10 @@ namespace zee {
 		switch (background_type) {
 		case loop:
 			background_src_pos_ = { 0.0f, 0.0f };
-			background_src_size_ = coords[back_loop_max_size];
+			background_src_size_ = coords_stage[back_loop_max_size];
 			break;
 		case scroll:
-			background_src_pos_ = coords[back_scroll_default_unit_pos];	//y축 시작위치 설정
+			background_src_pos_ = coords_stage[back_scroll_default_unit_pos];	//y축 시작위치 설정
 			break;
 		}
 
@@ -158,14 +159,14 @@ namespace zee {
 					}
 					break;
 				case 2:
-					if (players_[0]->get_now_pos().y < coords[back_scroll_unit_max_move].y
-						&& background_src_pos_.y < coords[back_scroll_max].y) {
+					if (players_[0]->get_now_pos().y < coords_stage[back_scroll_unit_max_move].y
+						&& background_src_pos_.y < coords_stage[back_scroll_max].y) {
 						background_src_pos_.y += delta_time * background_speed;
 					}
 					break;
 				case 3:
-					if (players_[0]->get_now_pos().x < coords[back_scroll_unit_max_move].x
-						&& background_src_pos_.x < coords[back_scroll_max].x) {
+					if (players_[0]->get_now_pos().x < coords_stage[back_scroll_unit_max_move].x
+						&& background_src_pos_.x < coords_stage[back_scroll_max].x) {
 						background_src_pos_.x += delta_time * background_speed;
 					}
 					break;
@@ -175,177 +176,168 @@ namespace zee {
 		}//case scroll
 		}//switch (kind_of_background)
 
+		/*
 		{//이런식으로 스코프로 감싸서
 			simple_stat<> stat;//생성자 호출되면 여기서 초기화를하고.
-
-			//플레이어 틱
-			for (auto& player_obj : players_) {
-				player_obj->move(delta_time);
-				player_obj->shoot(delta_time);
-				player_obj->destroy(delta_time);
-
-				//아이템 vs 플레이어 충돌
-				for (auto& item_obj : items_) {
-					item_obj->destroy(delta_time);
-					if (shape::intersect(player_obj->get_body(), item_obj->get_body())
-						!= shape::collide_type::none)
-					{
-						item_obj->hit_from(player_obj, delta_time);
-					}
-				}
-			}
 			//포문 돌고나서 저기서 저 함수 호출하면 시간이 재지거든여? ㅇㅎㅇㅎ
 			ZEE_LOG(normal, TEXT("tick check"), TEXT("player tick : %f"), stat.mili_sec());
 		}
+		*/
 
-		{
-			simple_stat<> stat;//생성자 호출되면 여기서 초기화를하고.
-			for (auto& mon_obj : monsters_) {
-				//적 틱
-				mon_obj->move(delta_time);
-				mon_obj->shoot(delta_time);
-				mon_obj->destroy(delta_time);
+		//플레이어 틱
+		for (auto& player_obj : players_) {
+			player_obj->move(delta_time);
+			player_obj->shoot(delta_time);
+			player_obj->destroy(delta_time);
 
-				//적 호밍
-				if (mon_obj->get_obj_type()
-					== (int)unit::obj_type::monster_arround)
+			//아이템 vs 플레이어 충돌
+			for (auto& item_obj : items_) {
+				item_obj->destroy(delta_time);
+				if (shape::intersect(player_obj->get_body(), item_obj->get_body())
+					!= shape::collide_type::none)
 				{
-					//플레이어와의 방향 벡터
-					math::vec2f v_mon_for_player{
-						players_[0]->get_body().origin - mon_obj->get_body().origin
+					item_obj->hit_from(player_obj, delta_time);
+				}
+			}
+		}
+
+		//적 틱
+		for (auto& mon_obj : monsters_) {
+			//적 틱
+			mon_obj->move(delta_time);
+			mon_obj->shoot(delta_time);
+			mon_obj->destroy(delta_time);
+
+			//적 호밍
+			if (mon_obj->get_obj_type()
+				== (int)obj_type::monster_arround)
+			{
+				//플레이어와의 방향 벡터
+				math::vec2f v_mon_for_player{
+					players_[0]->get_body().origin - mon_obj->get_body().origin
+				};
+				mon_obj->set_vec_for_player(v_mon_for_player);
+			}
+
+			//적 호밍탄(유도탄)
+			for (auto& bullet_obj : mon_obj->get_bullets()) {
+				//호밍 로직
+				if (bullet_obj->get_obj_type()
+					== (int)obj_type::monster_bullet_homing)
+				{
+					//플레이어와의 방향 벡터: normalize를 여기서 해줘야 함
+					math::vec2f v_bullet_for_player{
+						players_[0]->get_body().origin - bullet_obj->get_body().origin
 					};
-					mon_obj->set_vec_for_player(v_mon_for_player);
+					v_bullet_for_player = v_bullet_for_player.normalize();
+					bullet_obj->set_vec_for_player(v_bullet_for_player);
 				}
 
-				//적 호밍탄(유도탄)
-				for (auto& bullet_obj : mon_obj->get_bullets()) {
-					//호밍 로직
-					if (bullet_obj->get_obj_type()
-						== (int)unit::obj_type::monster_bullet_homing)
+				//적 뷸렛(특수한 뷸렛만) vs 플레이어 뷸렛 충돌 틱
+				if (bullet_obj->get_obj_type() == (int)obj_type::monster_bullet_homing) {
+
+					for (auto& bullet_player_obj : players_[0]->get_bullets())
 					{
-						//플레이어와의 방향 벡터: normalize를 여기서 해줘야 함
-						math::vec2f v_bullet_for_player{
-							players_[0]->get_body().origin - bullet_obj->get_body().origin
-						};
-						v_bullet_for_player = v_bullet_for_player.normalize();
-						bullet_obj->set_vec_for_player(v_bullet_for_player);
-					}
-
-					//적 뷸렛(특수한 뷸렛만) vs 플레이어 뷸렛 충돌 틱
-					if (bullet_obj->get_obj_type() == (int)unit::obj_type::monster_bullet_homing) {
-
-						for (auto& bullet_player_obj : players_[0]->get_bullets())
+						if (shape::intersect(bullet_player_obj->get_body(), bullet_obj->get_body())
+							!= shape::collide_type::none)
 						{
-							if (shape::intersect(bullet_player_obj->get_body(), bullet_obj->get_body())
-								!= shape::collide_type::none)
-							{
-								//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-								spawn_bomb(bullet_obj);
+							//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
+							spawn_bomb(bullet_obj);
 
-								//피격
-								//적 뷸렛은 플레이어 뷸렛에게 맞았다고 판단 (플레이어 뷸렛의 공격력만큼 피해입음)
-								//플레이어 뷸렛은 적 뷸렛에게 ~
-								bullet_obj->hit_from(bullet_player_obj, delta_time);
-								bullet_player_obj->hit_from(bullet_obj, delta_time);
-								bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
-								bullet_player_obj->set_now_pos_and_body(coords[back_destroy_zone]);
-							}//if
-						}//for
-					}//if
+							//피격
+							//적 뷸렛은 플레이어 뷸렛에게 맞았다고 판단 (플레이어 뷸렛의 공격력만큼 피해입음)
+							//플레이어 뷸렛은 적 뷸렛에게 ~
+							bullet_obj->hit_from(bullet_player_obj, delta_time);
+							bullet_player_obj->hit_from(bullet_obj, delta_time);
+							bullet_obj->set_now_pos_and_body(coords_stage[back_destroy_zone]);
+							bullet_player_obj->set_now_pos_and_body(coords_stage[back_destroy_zone]);
+						}//if
+					}//for
+				}//if
+			}
+
+
+			//플레이어 뷸렛 vs 적 충돌 틱
+			for (auto& bullet_obj : players_[0]->get_bullets()) {
+				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body())
+					!= shape::collide_type::none)
+				{
+					//아이템
+					spawn_item(mon_obj);
+					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
+					spawn_bomb(mon_obj);
+
+					//피격
+					//적은 뷸렛이 아닌 플레이어에게 맞았다고 판단(점수 주기 위함)(플레이어의 공격력만큼 피해입음)
+					mon_obj->hit_from(players_[0], delta_time);
+					bullet_obj->hit_from(mon_obj, delta_time);
 				}
+			}
 
-
-				//플레이어 뷸렛 vs 적 충돌 틱
-				for (auto& bullet_obj : players_[0]->get_bullets()) {
-					if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body())
-						!= shape::collide_type::none)
-					{
-						//아이템
-						spawn_item(mon_obj);
-						//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-						spawn_bomb(mon_obj);
-
-						//피격
-						//적은 뷸렛이 아닌 플레이어에게 맞았다고 판단(점수 주기 위함)(플레이어의 공격력만큼 피해입음)
-						mon_obj->hit_from(players_[0], delta_time);
-						bullet_obj->hit_from(mon_obj, delta_time);
-					}
-				}
-
-				//적 뷸렛 vs 플레이어 충돌 틱
-				for (auto& bullet_obj : mon_obj->get_bullets()) {
-					if (shape::intersect(players_[0]->get_body(),
-						bullet_obj->get_body())
-						!= shape::collide_type::none)
-					{
-						//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-						spawn_bomb(players_[0]);
-
-						//피격
-						//플레이어는 적 뷸렛에게 맞았다고 판단 (뷸렛의 공격력만큼 피해입음)
-						players_[0]->hit_from(bullet_obj, delta_time);
-						bullet_obj->hit_from(players_[0], delta_time);
-						bullet_obj->set_now_pos_and_body(coords[back_destroy_zone]);
-					}
-				}
-
-				//적 vs 플레이어 충돌 틱
-				if (shape::intersect(mon_obj->get_body(),
-					players_[0]->get_now_pos())
+			//적 뷸렛 vs 플레이어 충돌 틱
+			for (auto& bullet_obj : mon_obj->get_bullets()) {
+				if (shape::intersect(players_[0]->get_body(),
+					bullet_obj->get_body())
 					!= shape::collide_type::none)
 				{
 					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
 					spawn_bomb(players_[0]);
 
-					//피격 (몬스터의 공격력만큼 피해입음)
-					players_[0]->hit_from(mon_obj, delta_time);
-
-				}
-			}//for (auto& mon_obj : monsters_)
-
-			ZEE_LOG(normal, TEXT("tick check"), TEXT("monster tick : % f"), stat.mili_sec());
-		}
-
-		{
-			simple_stat<> stat;//생성자 호출되면 여기서 초기화를하고.
-			//이펙트 틱
-			for (auto& bomb_obj : bombs_) {
-				bomb_obj->destroy(delta_time);
-			}
-			ZEE_LOG(normal, TEXT("tick check"), TEXT("effect tick : % f"), stat.mili_sec());
-		}
-		{
-			simple_stat<> stat;//생성자 호출되면 여기서 초기화를하고.
-			//이펙트 제거
-			for (int i = 0; i != bombs_.size(); ) {
-				if (!(bombs_[i]->in_screen()) || bombs_[i]->get_state() == (int)unit::obj_state::die) {
-					bombs_.erase(bombs_.begin() + i);
-				}
-				else {
-					i++;
+					//피격
+					//플레이어는 적 뷸렛에게 맞았다고 판단 (뷸렛의 공격력만큼 피해입음)
+					players_[0]->hit_from(bullet_obj, delta_time);
+					bullet_obj->hit_from(players_[0], delta_time);
+					bullet_obj->set_now_pos_and_body(coords_stage[back_destroy_zone]);
 				}
 			}
-			ZEE_LOG(normal, TEXT("tick check"), TEXT("effect remove tick : %f"), stat.mili_sec());
+
+			//적 vs 플레이어 충돌 틱
+			if (shape::intersect(mon_obj->get_body(),
+				players_[0]->get_now_pos())
+				!= shape::collide_type::none)
+			{
+				//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
+				spawn_bomb(players_[0]);
+
+				//피격 (몬스터의 공격력만큼 피해입음)
+				players_[0]->hit_from(mon_obj, delta_time);
+
+			}
+		}//for (auto& mon_obj : monsters_)
+
+
+		//이펙트 틱
+		for (auto& bomb_obj : bombs_) {
+			bomb_obj->destroy(delta_time);
 		}
 
-		{
-			simple_stat<> stat;//생성자 호출되면 여기서 초기화를하고.
-			//아이템 제거
-			for (int i = 0; i != items_.size(); ) {
-				if (!(items_[i]->in_screen()) || items_[i]->get_state() == (int)unit::obj_state::die) {
-					items_.erase(items_.begin() + i);
-				}
-				else {
-					i++;
-				}
+
+		//이펙트 제거
+		for (int i = 0; i != bombs_.size(); ) {
+			if (!(bombs_[i]->in_screen()) || bombs_[i]->get_state() == (int)obj_state::die) {
+				bombs_.erase(bombs_.begin() + i);
 			}
-			ZEE_LOG(normal, TEXT("tick check"), TEXT("item remove tick : % f"), stat.mili_sec());
+			else {
+				i++;
+			}
 		}
+
+		//아이템 제거
+		for (int i = 0; i != items_.size(); ) {
+			if (!(items_[i]->in_screen()) || items_[i]->get_state() == (int)obj_state::die) {
+				items_.erase(items_.begin() + i);
+			}
+			else {
+				i++;
+			}
+		}
+
 		//점수
 		if (players_[0]->get_high_score() < players_[0]->get_my_score()) {
 			players_[0]->set_high_score(players_[0]->get_my_score());
 		}
 	}
+
 	void stage::spawn_bomb(std::shared_ptr<unit> other) {
 		std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
 		spawned_bomb->init();
@@ -414,47 +406,28 @@ namespace zee {
 				break;
 			}
 		}
-		const bool bb = true;
-		{
-			simple_stat<> stat;
-			//유닛
-			for (auto& player_obj : players_) {
-				player_obj->render(back_buffer_);
-			}
-			ZEE_LOG(normal, TEXT("render check"), TEXT("player tick : %f"), stat.mili_sec());
-		}
-		if (bb)
-		{
-			simple_stat<> stat;
-			//몬스터
-			for (auto& mon_obj : monsters_) {
-				mon_obj->render(back_buffer_);
-			}
 
-			ZEE_LOG(normal, TEXT("render check"), TEXT("monster tick : %f"), stat.mili_sec());
+		//유닛
+		for (auto& player_obj : players_) {
+			player_obj->render(back_buffer_);
 		}
-		if(bb)
-		{
-			simple_stat<> stat;
-			//아이템
-			for (auto& item_obj : items_) {
-				item_obj->render(back_buffer_);
-			}
 
-			ZEE_LOG(normal, TEXT("render check"), TEXT("item tick : %f"), stat.mili_sec());
+		//몬스터
+		for (auto& mon_obj : monsters_) {
+			mon_obj->render(back_buffer_);
 		}
-		if (bb)
-		{
-			simple_stat<> stat;
-			//이펙트
-			for (auto& bomb_obj : bombs_) {
-				bomb_obj->render(back_buffer_);
-			}
-			ZEE_LOG(normal, TEXT("render check"), TEXT("effect tick : %f"), stat.mili_sec());
+
+		//아이템
+		for (auto& item_obj : items_) {
+			item_obj->render(back_buffer_);
 		}
+
+		//이펙트
+		for (auto& bomb_obj : bombs_) {
+			bomb_obj->render(back_buffer_);
+		}
+
 		//뷸렛: 유닛과 몬스터 render에 포함함
-
-
 
 
 		//인포박스
@@ -470,6 +443,7 @@ namespace zee {
 		back_buffer_.print_text({ 930, 780 }, to_tstring(to_wstring(players_[0]->get_high_score())));
 		back_buffer_.print_text({ 850, 820 }, TEXT("충돌범위:    Tab"));
 		back_buffer_.print_text({ 850, 840 }, TEXT("리스폰:        R"));
+
 
 		back_buffer_.bit_blt(dest_dc, {});
 	}

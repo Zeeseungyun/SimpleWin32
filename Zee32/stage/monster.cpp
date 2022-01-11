@@ -5,19 +5,21 @@ namespace zee {
 	using namespace math;
 
 	void monster::load_image() {
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_straight_size]
+		frame_image::get().load_frame_image(coords_[monster_straight_size]
 			, TEXT("assets/monster_straight.bmp"), (int)obj_type::monster_straight);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_circle_size]
+		frame_image::get().load_frame_image(coords_[monster_circle_size]
 			, TEXT("assets/monster_circle.bmp"), (int)obj_type::monster_circle);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_homing_size]
+		frame_image::get().load_frame_image(coords_[monster_homing_size]
 			, TEXT("assets/monster_homing.bmp"), (int)obj_type::monster_homing);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_arround_size]
+		frame_image::get().load_frame_image(coords_[monster_arround_size]
 			, TEXT("assets/monster_arround.bmp"), (int)obj_type::monster_arround);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_wave_size]
+		frame_image::get().load_frame_image(coords_[monster_wave_size]
 			, TEXT("assets/monster_wave.bmp"), (int)obj_type::monster_wave);
 	}
 
 	void monster::init() {
+
+		unit::init();
 
 		int random_shoot_type = rand(1, 5);	//monster_num
 		switch (random_shoot_type)
@@ -44,19 +46,15 @@ namespace zee {
 		{
 		case (int)obj_type::monster_straight:
 			set_size(coords_[monster_straight_size]);
-			set_hp(1);
 			break;
 		case (int)obj_type::monster_circle:
 			set_size(coords_[monster_circle_size]);
-			set_hp(1);
 			break;
 		case (int)obj_type::monster_homing:
 			set_size(coords_[monster_homing_size]);
-			set_hp(1);
 			break;
 		case (int)obj_type::monster_arround:
 			set_size(coords_[monster_arround_size]);
-			set_hp(1);
 			break;
 		case (int)obj_type::monster_wave:
 			set_size(coords_[monster_wave_size]);
@@ -72,8 +70,6 @@ namespace zee {
 		ry = coords_[monster_max_pos].y;
 		set_arrival_vec({ (float)rx, (float)ry });
 
-		set_atk(1);
-		set_state((int)obj_state::idle);
 		set_delay(0.0f);
 		set_my_score(1);
 	}
@@ -97,7 +93,7 @@ namespace zee {
 		}
 		case (int)obj_type::monster_arround: {
 			//플레이어 따라오다가 y축 저점에서 그냥 아래로 사라지게 하자.
-			if (now_pos_.y < unit::coords[back_max_size].y * 2 / 3) {
+			if (now_pos_.y < coords[back_max_size].y * 2 / 3) {
 				//회전각
 				if (obj_type_ == (int)obj_type::monster_arround) {
 					homing_angle_ = math::atan2(vec_for_player_.x, vec_for_player_.y);
@@ -227,8 +223,7 @@ namespace zee {
 
 	void monster::destroy(const float delta_time) {
 		unit::destroy(delta_time);
-		if (hp_ <= 0) {
- 			set_now_pos_and_body(unit::coords[back_destroy_zone]);
+		if (get_hp() <= 0) {
 
 			//일정시간 후 스폰
 			const float speed = 2.0f;

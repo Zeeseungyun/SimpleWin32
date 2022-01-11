@@ -4,33 +4,34 @@ namespace zee {
 	using namespace math;
 
 	void bullet::load_image() {
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[player_bullet_straight_size]
+		frame_image::get().load_frame_image(coords_[player_bullet_straight_size]
 			, TEXT("assets/unit_bullet.bmp"), (int)obj_type::player_bullet_straight);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_bullet_straight_size]
+		frame_image::get().load_frame_image(coords_[monster_bullet_straight_size]
 			, TEXT("assets/monster_bullet_straight.bmp"), (int)obj_type::monster_bullet_straight);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_bullet_circle_size]
+		frame_image::get().load_frame_image(coords_[monster_bullet_circle_size]
 			, TEXT("assets/monster_bullet_circle.bmp"), (int)obj_type::monster_bullet_circle);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_bullet_homing_size]
+		frame_image::get().load_frame_image(coords_[monster_bullet_homing_size]
 			, TEXT("assets/monster_bullet_homing.bmp"), (int)obj_type::monster_bullet_homing);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_bullet_arround_size]
+		frame_image::get().load_frame_image(coords_[monster_bullet_arround_size]
 			, TEXT("assets/monster_bullet_arround.bmp"), (int)obj_type::monster_bullet_arround);
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[monster_bullet_wave_size]
+		frame_image::get().load_frame_image(coords_[monster_bullet_wave_size]
 			, TEXT("assets/monster_bullet_wave.bmp"), (int)obj_type::monster_bullet_wave);
 	}
 
 	void bullet::init_bullet(const int obj_type, const math::vec2f& now_pos, const math::vec2f& size) {
+
+		unit::init();
+
 		if (obj_type == (int)obj_type::player_straight) {
 			set_size(coords_[player_bullet_straight_size]);
 			set_now_pos_and_body(
 				{ now_pos.x + size.x / 2 - coords_[player_bullet_straight_size].x / 2
 				, now_pos.y + size.y / 2 }
-			);	//뷸렛 주체 위치
-			set_max_move_size(unit::coords[back_max_size]);
+			);
+			set_max_move_size(coords[back_max_size]);
 			set_frame_size(coords_[player_bullet_frame]);
 			set_subj_type(obj_type);
 			set_obj_type((int)obj_type::player_bullet_straight);
-			set_hp(1);
-			set_atk(1);
 		}
 		else {
 			//적 공통
@@ -38,12 +39,9 @@ namespace zee {
 				{ now_pos.x + size.x / 2 - get_size().x / 2
 				, now_pos.y + size.y / 2 }
 			);
-			set_max_move_size(unit::coords[back_max_size]);
+			set_max_move_size(coords[back_max_size]);
 			set_frame_size(coords_[monster_bullet_frame]);
 			set_subj_type(obj_type);
-			set_hp(1);
-			set_atk(1);
-			set_state((int)obj_state::idle);
 			//적 탄별
 			switch (subj_type_)
 			{
@@ -143,8 +141,6 @@ namespace zee {
 
 	void bullet::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
-			//이거 왜하는거지?
-			// 이거 하나만 쳐도 많이 복구됐쥬? ㅇㅎ...
 			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
 
 			switch (subj_type_)

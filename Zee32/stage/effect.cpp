@@ -2,14 +2,13 @@
 
 namespace zee {
 	void effect::load_image() {
-		frame_image::get().load_frame_image(unit::coords[back_max_size], coords_[effect_bomb_size]
-			, TEXT("assets/bomb.bmp"), (int)unit::obj_type::bomb);
+		frame_image::get().load_frame_image(coords_[effect_bomb_size]
+			, TEXT("assets/bomb.bmp"), (int)obj_type::bomb);
 	}
 
 	void effect::init() {
 		set_size(coords_[effect_bomb_size]);
 		set_frame_size(coords_[effect_bomb_default_frame]);
-		set_state((int)unit::obj_state::idle);
 		set_delay(0.0f);
 	}
 
@@ -35,7 +34,7 @@ namespace zee {
 				dest_dc,
 				now_pos_,
 				frame_x_ + frame_y_,
-				(int)unit::obj_type::bomb
+				(int)obj_type::bomb
 			);
 		}
 
