@@ -43,20 +43,20 @@ namespace impl {
 }//namespace impl 
 	
 	template<typename Arg1T, typename Arg2T>
-	std::enable_if_t<impl::is_all_random_arg<Arg1T, Arg2T>::value, promotion_t<Arg1T, Arg2T>>
+	std::enable_if_t<zee::impl::is_all_random_arg<Arg1T, Arg2T>::value, promotion_t<Arg1T, Arg2T>>
 		rand(Arg1T first , Arg2T last) noexcept {
 		typedef promotion_t<Arg1T, Arg2T> promotion_t;
 		const promotion_t first_ = math::min(first, last);
 		const promotion_t last_ = math::max(first, last);
-		typename impl::uniform_distiribution_selector<promotion_t>::type dist(first_, last_);
-		return dist(impl::get_engine());
+		typename zee::impl::uniform_distiribution_selector<promotion_t>::type dist(first_, last_);
+		return dist(zee::impl::get_engine());
 	}
 	
 	template<typename T = int32>
-	std::enable_if_t<impl::is_random_arg<T>::value, T>
+	std::enable_if_t<zee::impl::is_random_arg<T>::value, T>
 		rand(T end = std::numeric_limits<T>::max()) noexcept {
-		typename impl::uniform_distiribution_selector<T>::type dist(end < 0 ? end : 0, end < 0 ? 0 : end);
-		return dist(impl::get_engine());
+		typename zee::impl::uniform_distiribution_selector<T>::type dist(end < 0 ? end : 0, end < 0 ? 0 : end);
+		return dist(zee::impl::get_engine());
 	}
 
 }//namespace zee

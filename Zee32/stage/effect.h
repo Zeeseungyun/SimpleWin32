@@ -18,6 +18,7 @@ namespace zee {
 		void set_delay(const float delay);
 
 	private:
+		//얘느 ㄴ적당한듯?
 		enum const_var_ {
 			effect_bomb_size,
 			effect_bomb_default_frame,

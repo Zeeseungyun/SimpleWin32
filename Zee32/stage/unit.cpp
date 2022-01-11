@@ -70,19 +70,19 @@ namespace zee {
 	const math::vec2i& unit::get_frame_y() const {
 		return frame_y_;
 	}
-	const int unit::get_obj_type() const {
+	int unit::get_obj_type() const {
 		return obj_type_;
 	}
-	const int unit::get_hp() const {
+	int unit::get_hp() const {
 		return hp_;
 	}
-	const int unit::get_state() const {
+	int unit::get_state() const {
 		return state_;
 	}
-	const int unit::get_my_score() const {
+	int unit::get_my_score() const {
 		return my_score_;
 	}
-	const int unit::get_high_score() const {
+	int unit::get_high_score() const {
 		return high_score_;
 	}
 

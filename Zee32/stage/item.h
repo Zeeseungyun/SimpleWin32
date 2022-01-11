@@ -2,9 +2,10 @@
 #include "unit.h"
 #include "frame_image.h"
 
-class player;
 
 namespace zee {
+	//이래야 했다.
+	class player;
 	class item : public unit {
 	public:
 		item() noexcept = default;

@@ -76,7 +76,9 @@ namespace zee {
 		}
 
 	}
-
+	/*
+	* 어디서 이렇게 부하가 걸리는지 좀 가늠이 안가네
+	*/
 	void bullet::move(const float delta_time) {
 		float speed;
 		switch (subj_type_)
@@ -141,13 +143,16 @@ namespace zee {
 
 	void bullet::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
-			frame_image::get().render_destdc_to_backbuffer(dest_dc);
+			//이거 왜하는거지?
+			// 이거 하나만 쳐도 많이 복구됐쥬? ㅇㅎ...
+			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
 
 			switch (subj_type_)
 			{
 			case (int)obj_type::player_straight:
 			case (int)obj_type::monster_straight:
 			case (int)obj_type::monster_circle:
+
 			case (int)obj_type::monster_arround:
 			case (int)obj_type::monster_wave: {
 				frame_image::get().render_transparent(
@@ -158,6 +163,7 @@ namespace zee {
 				);
 				break;
 			}
+
 			case (int)obj_type::monster_homing: {
 				//유도탄
 				frame_image::get().render_plg(
@@ -166,9 +172,10 @@ namespace zee {
 					homing_angle_,
 					(int)obj_type::monster_bullet_homing
 				);
-				frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});
+				frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {}, (int)obj_type::monster_bullet_homing);
 				break;
 			}//case
+
 			}//switch
 		}
 

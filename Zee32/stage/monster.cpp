@@ -44,18 +44,23 @@ namespace zee {
 		{
 		case (int)obj_type::monster_straight:
 			set_size(coords_[monster_straight_size]);
+			set_hp(1);
 			break;
 		case (int)obj_type::monster_circle:
 			set_size(coords_[monster_circle_size]);
+			set_hp(1);
 			break;
 		case (int)obj_type::monster_homing:
 			set_size(coords_[monster_homing_size]);
+			set_hp(1);
 			break;
 		case (int)obj_type::monster_arround:
 			set_size(coords_[monster_arround_size]);
+			set_hp(1);
 			break;
 		case (int)obj_type::monster_wave:
 			set_size(coords_[monster_wave_size]);
+			set_hp(3);
 			break;
 		}
 
@@ -67,7 +72,6 @@ namespace zee {
 		ry = coords_[monster_max_pos].y;
 		set_arrival_vec({ (float)rx, (float)ry });
 
-		set_hp(1);
 		set_atk(1);
 		set_state((int)obj_state::idle);
 		set_delay(0.0f);
@@ -147,7 +151,6 @@ namespace zee {
 			if (delay_shoot >= frame_circle) {
 				float circle_angle = 0;
 				const int bullent_circle_cnt = 10;
-
 				for (int i = 0; i != bullent_circle_cnt; i++) {
 					circle_angle += math::pi() * 2 / (float)bullent_circle_cnt;
 
@@ -190,8 +193,9 @@ namespace zee {
 			delay_shoot += delta_time;
 			if (delay_shoot >= frame_wave) {
 				float circle_angle = 0;
-				int bullent_circle_cnt = 20;
+				int bullent_circle_cnt = 50;
 
+				//얘여
 				for (int i = 0; i != bullent_circle_cnt; i++) {
 					circle_angle += math::pi() * 2 / (float)bullent_circle_cnt;
 
@@ -246,10 +250,11 @@ namespace zee {
 			}
 		}
 	}
-
+	//어디임 총알 스폰?
 	void monster::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
-			frame_image::get().render_destdc_to_backbuffer(dest_dc);
+			//백버퍼 관리가 이상하게 되고있는건데
+
 
 			//몸체
 			if (state_ != (int)obj_state::die) {
@@ -274,9 +279,10 @@ namespace zee {
 						homing_angle_,
 						obj_type_
 					);
-					frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {});
+					frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {}, obj_type_);
 					break;
 				}//case
+
 				}//switch
 			}//if
 		}//if

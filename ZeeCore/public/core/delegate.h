@@ -165,7 +165,7 @@ namespace impl {
 		delegate_handle_t make_new_handle() const {
 			delegate_handle_t ret = invalid_delegate_handle_v;
 			while (ret == invalid_delegate_handle_v) {
-				ret = impl::generate_handle_value();
+				ret = zee::impl::generate_handle_value();
 				if (end(invoker_list_) != invoker_list_.find(ret)) {
 					ret = invalid_delegate_handle_v;
 				}

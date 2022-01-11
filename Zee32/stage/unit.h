@@ -108,11 +108,11 @@ namespace zee {
 		const math::vec2i& get_frame_x() const;
 		const math::vec2i& get_frame_y() const;
 		
-		const int get_hp() const;
-		const int get_obj_type() const;
-		const int get_state() const;
-		const int get_my_score() const;
-		const int get_high_score() const;
+		int get_hp() const;
+		int get_obj_type() const;
+		int get_state() const;
+		int get_my_score() const;
+		int get_high_score() const;
 
 		void set_size(const math::vec2i& size);
 		void set_now_pos_and_body(const math::vec2f& point);

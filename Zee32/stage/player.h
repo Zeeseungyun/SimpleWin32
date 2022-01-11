@@ -26,14 +26,14 @@ namespace zee {
 		void set_delay(const float delay);
 
 	private:
-
+		//1. 회전하는애 회전시키지말아봐여.
 		enum const_var_ {
 			player_size,
 			player_default_pos,
 			player_default_frame,
 			player_max_move_size,
 
-			player_bullet_max_num = 20
+			player_bullet_max_num = 100
 		};
 		const std::vector<math::vec2i> coords_ = {
 			{ 64, 58 },		//player_size

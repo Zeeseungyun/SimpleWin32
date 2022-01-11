@@ -387,25 +387,25 @@ namespace impl {
 	template<typename TraitsT = std::char_traits<char>, typename AllocT = std::allocator<char>>
 	std::basic_string<char, TraitsT, AllocT>
 		to_string(const wchar_t* str) noexcept {
-		return impl::string_conversion_<char, wchar_t, TraitsT, AllocT>::convert_raw(str);
+		return zee::impl::string_conversion_<char, wchar_t, TraitsT, AllocT>::convert_raw(str);
 	}
 
 	template<typename TraitsT = std::char_traits<wchar_t>, typename AllocT = std::allocator<wchar_t>>
 	std::basic_string<wchar_t, TraitsT, AllocT>
 		to_wstring(const char* str) noexcept {
-		return impl::string_conversion_<wchar_t, char, TraitsT, AllocT>::convert_raw(str);
+		return zee::impl::string_conversion_<wchar_t, char, TraitsT, AllocT>::convert_raw(str);
 	}
 
 	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
 	std::basic_string<TCHAR, TraitsT, AllocT>
 		to_tstring(const char* str) noexcept {
-		return impl::string_conversion_<TCHAR, char, TraitsT, AllocT>::convert_raw(str);
+		return zee::impl::string_conversion_<TCHAR, char, TraitsT, AllocT>::convert_raw(str);
 	}
 
 	template<typename TraitsT = std::char_traits<TCHAR>, typename AllocT = std::allocator<TCHAR>>
 	std::basic_string<TCHAR, TraitsT, AllocT>
 		to_tstring(const wchar_t* str) noexcept {
-		return impl::string_conversion_<TCHAR, wchar_t, TraitsT, AllocT>::convert_raw(str);
+		return zee::impl::string_conversion_<TCHAR, wchar_t, TraitsT, AllocT>::convert_raw(str);
 	}
 
 	//
@@ -415,13 +415,13 @@ namespace impl {
 	template<typename FromTraitsT, typename FromAllocT>
 	std::basic_string<char, FromTraitsT, FromAllocT>
 		to_string(const std::basic_string<char, FromTraitsT, FromAllocT>& str) noexcept {
-		return impl::string_conversion_<char, char, FromTraitsT, FromAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+		return zee::impl::string_conversion_<char, char, FromTraitsT, FromAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
 	std::basic_string<char, ToTraitsT, ToAllocT>
 		to_string(const std::basic_string<wchar_t, FromTraitsT, FromAllocT>& str) noexcept {
-		return impl::string_conversion_<char, wchar_t, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+		return zee::impl::string_conversion_<char, wchar_t, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 	//
@@ -431,13 +431,13 @@ namespace impl {
 	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
 	std::basic_string<wchar_t, ToTraitsT, ToAllocT>
 		to_wstring(const std::basic_string<char, FromTraitsT, FromAllocT>& str) noexcept {
-		return impl::string_conversion_<wchar_t, char, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+		return zee::impl::string_conversion_<wchar_t, char, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 	template<typename FromTraitsT, typename FromAllocT>
 	std::basic_string<wchar_t, FromTraitsT, FromAllocT>
 		to_wstring(const std::basic_string<wchar_t, FromTraitsT, FromAllocT>& str) noexcept {
-		return impl::string_conversion_<wchar_t, wchar_t, FromTraitsT, FromAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+		return zee::impl::string_conversion_<wchar_t, wchar_t, FromTraitsT, FromAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 
@@ -448,13 +448,13 @@ namespace impl {
 	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
 	std::basic_string<TCHAR, ToTraitsT, ToAllocT>
 		to_tstring(const std::basic_string<char, FromTraitsT, FromAllocT>& str) noexcept {
-		return impl::string_conversion_<TCHAR, char, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+		return zee::impl::string_conversion_<TCHAR, char, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 	template<typename ToTraitsT, typename ToAllocT, typename FromTraitsT, typename FromAllocT>
 	std::basic_string<TCHAR, ToTraitsT, ToAllocT>
 		to_tstring(const std::basic_string<wchar_t, FromTraitsT, FromAllocT>& str) noexcept {
-		return impl::string_conversion_<TCHAR, wchar_t, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
+		return zee::impl::string_conversion_<TCHAR, wchar_t, ToTraitsT, ToAllocT, FromTraitsT, FromAllocT>::convert_str(str);
 	}
 
 	inline tstring to_tstring(bool b) noexcept {

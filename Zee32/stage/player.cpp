@@ -23,6 +23,8 @@ namespace zee {
 
 	void player::move(const float delta_time) {
 
+		vec2f velocity;
+		const float speed = 400.0f;
 		is_dir_key_pressed = false;
 		pressed_key_ = (int)key_type_::none;
 
@@ -30,21 +32,32 @@ namespace zee {
 			is_dir_key_pressed = true;
 			pressed_key_ = (int)key_type_::arrow_up;
 			direction_ = 0;
+
+			velocity -= vec2f::constants::unit_y * delta_time * speed;
 		}
-		else if (key_state::is_down(keys::arrow_left) || key_state::is_down(keys::A)) {
+		
+		if (key_state::is_down(keys::arrow_left) || key_state::is_down(keys::A)) {
 			is_dir_key_pressed = true;
 			pressed_key_ = (int)key_type_::arrow_left;
 			direction_ = 1;
+			
+			velocity -= vec2f::constants::unit_x * delta_time * speed;
+
 		}
-		else if (key_state::is_down(keys::arrow_down) || key_state::is_down(keys::S)) {
+		
+		if (key_state::is_down(keys::arrow_down) || key_state::is_down(keys::S)) {
 			is_dir_key_pressed = true;
 			pressed_key_ = (int)key_type_::arrow_down;
 			direction_ = 2;
+
+			velocity += vec2f::constants::unit_y * delta_time * speed;
 		}
-		else if (key_state::is_down(keys::arrow_right) || key_state::is_down(keys::D)) {
+		
+		if (key_state::is_down(keys::arrow_right) || key_state::is_down(keys::D)) {
 			is_dir_key_pressed = true;
 			pressed_key_ = (int)key_type_::arrow_right;
-			direction_ = 3;
+			direction_ = 3;//이넘으로 했으면 좋았을거같슴. 
+			velocity += vec2f::constants::unit_x * delta_time * speed;
 		}
 
 		//이미지상 프레임 애니메이션
@@ -89,37 +102,15 @@ namespace zee {
 			*/
 		}
 
-		//if (background_type == loop)
-		const float speed = 400.0f;
+		//if (background_type == loop) {}
+		
+		//위치 이동
 		if (is_dir_key_pressed) {
-			//위치 이동
-			switch (direction_) {
-			case 0:
-				if (now_pos_.y > 0) {
-					set_now_pos_and_body({ now_pos_.x, now_pos_.y - delta_time * speed });
-				}
-				break;
-			case 1:
-				if (now_pos_.x > 0) {
-					set_now_pos_and_body({ now_pos_.x - delta_time * speed, now_pos_.y });
-				}
-				break;
-			case 2:
-				if (now_pos_.y < max_move_size_.y) {
-					set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
-				}
-				break;
-			case 3:
-				if (now_pos_.x < max_move_size_.x) {
-					set_now_pos_and_body({ now_pos_.x + delta_time * speed, now_pos_.y });
-				}
-				break;
-			}
+			set_now_pos_and_body(velocity + now_pos_);
 		}
 	}
 
 	void player::shoot(const float delta_time) {
-		//뷸렛 쏘기
 		if (key_state::is_down(keys::space)) {
 
 			const float frame = 0.2f;
@@ -165,7 +156,8 @@ namespace zee {
 
 	void player::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
-			frame_image::get().render_destdc_to_backbuffer(dest_dc);
+			//frame_image::get().render_destdc_to_backbuffer(dest_dc, (int)obj_type::player_straight);
+
 			if (state_ == (int)obj_state::idle) {
 				frame_image::get().render_transparent(
 					dest_dc,

@@ -10,13 +10,14 @@
 #include "../../ZeeCore/public/shape/intersect.h"
 #include "background_image.h"
 #include "frame_image.h"
-#include "unit.h" 
-#include "player.h"
-#include "monster.h"
-#include "bullet.h"
-#include "effect.h"
-#include "item.h"
+
 /*
+1. 상속 구조 개편 (좀 더 예쁘게 해보자!)
+2. 이동 - > 충돌 - > 후처리 -> 렌더
+3. 전방 선언
+4. 풀링
+
+
 * TODO:: 전방선언활용이 안됐음. 
 * 해당 헤더파일에서 player, monster, item, bullet 언급이 없음.
 * 그리고 unit도 전방선언을 써야했음.
@@ -30,7 +31,23 @@
 *
 */
 
+/*
+* 퍼포먼스가 떨어질때 확인하는 방법은
+* 코드로 보고 판단하기도 하는데 
+* 그러긴 존나게 힘들고
+* 시간을 잽니다
+* 어디서 시간을 제일 많이 잡아 먹나 이걸 봐여
+* 넥 그거 배우고싶었어여
+*/
+
 namespace zee {
+	class unit;
+	class player;
+	class monster;
+	class bullet;
+	class effect;
+	class item;
+
 	//전역 enum
 	enum background_type {
 		loop, scroll
@@ -55,6 +72,10 @@ namespace zee {
 
 			monster_spawn_num = 3,
 		};
+		//이건 이미 피듭개 했으니까..
+		//흐름을 파악하기 쉽게 
+		//이동 -> 충돌처리 -> 렌더
+		//식으로 하는게 좋을거구.
 		const std::vector<math::vec2i> coords{
 			{2048, 2048},	//back_destroy_zone
 			{-150, -200},	//back_min_size
@@ -83,7 +104,8 @@ namespace zee {
 		const math::vec2f get_background_src_size() const;
 		void set_background_src_pos(const math::vec2f& src_pos);
 		void set_background_src_size(const math::vec2f& size);
-
+		//여기 frame image를 쓰는 곳이 없쥬? 네
+		//그럼? 필요 없겠쥬? 네
 	private:
 		win32gdi::device_context_dynamic back_buffer_;
 		math::vec2f background_src_pos_;
