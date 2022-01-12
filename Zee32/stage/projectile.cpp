@@ -16,13 +16,4 @@ namespace zee {
 	void projectile::spawn_from(const int obj_type, const shape::circlef& obj_body) {
 		unit::init((int)obj_state::idle);
 	}
-
-	void projectile::destroy(const float delta_time) {
-		unit::destroy(delta_time);
-	}
-	void projectile::render(win32gdi::device_context_dynamic& dest_dc) {
-	}
-
-	void projectile::set_delay(const float delay) {
-	}
 }

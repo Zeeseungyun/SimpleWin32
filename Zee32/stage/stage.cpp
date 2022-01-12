@@ -211,10 +211,12 @@ namespace zee {
 		//발사
 		get_players()[0]->shoot(delta_time);
 
-		//아이템 vs 플레이어 충돌 
+		//충돌: 아이템 vs 플레이어
 		for (auto& item_obj : get_items()) {
 			if (item_obj->get_state() == (int)obj_state::idle) {
-				if (shape::intersect(get_players()[0]->get_body(), item_obj->get_body())
+				if (shape::intersect(
+					get_players()[0]->get_body()
+					, item_obj->get_body())
 					!= shape::collide_type::none) 
 				{
 					item_obj->hit_from(get_players()[0], delta_time);
@@ -222,12 +224,12 @@ namespace zee {
 			}
 		}
 
-		//사망판단
+		//플레이어 사망판단
 		if (get_players()[0]->get_hp() == 0 || !(get_players()[0]->in_screen())) {
 			get_players()[0]->destroy(delta_time);
 		}
 
-		//뷸렛 사망판단
+		//플레이어 뷸렛 사망판단
 		for (auto& bullet_player_obj : get_players()[0]->get_bullets()) {
 			if (bullet_player_obj->get_hp() == 0 || !(bullet_player_obj->in_screen())) {
 				bullet_player_obj->destroy(delta_time);
@@ -235,18 +237,12 @@ namespace zee {
 		}
 
 
+
 		///////
 		//적 틱
 		///////
 		for (auto& mon_obj : get_monsters()) {
-			//적 이동
-			mon_obj->move(delta_time);
-
-			//적 뷸렛 쏘기
-			mon_obj->shoot(delta_time);
-
-
-			//적 어라운드 타입이 플레이어를 추적
+			//먼저, 적 어라운드 타입이라면 플레이어 추적 위치 설정
 			if (mon_obj->get_obj_type()
 				== (int)obj_type::monster_arround)
 			{
@@ -257,8 +253,17 @@ namespace zee {
 				mon_obj->set_vec_for_player(v_mon_for_player);
 			}
 
-			//적 호밍 뷸렛(유도탄) 타입
+
+			//적 이동
+			mon_obj->move(delta_time);
+
+			//적 발사
+			mon_obj->shoot(delta_time);
+
+
+			//적 뷸렛
 			for (auto& bullet_monster_obj : mon_obj->get_bullets()) {
+				//적 호밍 뷸렛(유도탄) 타입
 				//호밍 뷸렛이 플레이어를 추적
 				if (bullet_monster_obj->get_obj_type()
 					== (int)obj_type::monster_bullet_homing)
@@ -272,12 +277,14 @@ namespace zee {
 				}
 
 
-				//호밍 뷸렛 vs 플레이어 뷸렛 충돌 틱
+				//충돌: 호밍 뷸렛 vs 플레이어 뷸렛
 				if (bullet_monster_obj->get_obj_type() == (int)obj_type::monster_bullet_homing) {
 
 					for (auto& bullet_player_obj : get_players()[0]->get_bullets())
 					{
-						if (shape::intersect(bullet_player_obj->get_body(), bullet_monster_obj->get_body())
+						if (shape::intersect(
+							bullet_player_obj->get_body(),
+							bullet_monster_obj->get_body())
 							!= shape::collide_type::none)
 						{
  							//이펙트: 피격 판정 전에 먼저 위치 기록
@@ -297,21 +304,22 @@ namespace zee {
 						}//if
 					}//for
 				}//if
+
+
+				//적 뷸렛 사망판단
+				if (bullet_monster_obj->get_hp() == 0 || !(bullet_monster_obj->in_screen())) {
+					bullet_monster_obj->destroy(delta_time);
+				}
 			}
 
 
-			//플레이어 뷸렛 vs 적 충돌 틱
+			//충돌: 플레이어 뷸렛 vs 적
 			for (auto& bullet_player_obj : get_players()[0]->get_bullets()) {
-				if (shape::intersect(mon_obj->get_body(), bullet_player_obj->get_body())
+				if (shape::intersect(
+					mon_obj->get_body(),
+					bullet_player_obj->get_body())
 					!= shape::collide_type::none)
 				{
-					//아이템: 피격 판정 전에 먼저 위치 기록
-					for (auto& item_obj : get_items()) {
-						if (item_obj->get_state() == (int)obj_state::die) {
-							item_obj->spawn_from(bullet_player_obj);
-							break;
-						}
-					}
 					//이펙트: 피격 판정 전에 먼저 위치 기록
 					for (auto& effect_obj : get_effects()) {
 						if (effect_obj->get_state() == (int)obj_state::die) {
@@ -327,9 +335,10 @@ namespace zee {
 				}
 			}
 
-			//적 뷸렛 vs 플레이어 충돌 틱
+			//충돌: 적 뷸렛 vs 플레이어
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (shape::intersect(get_players()[0]->get_body(),
+				if (shape::intersect(
+					get_players()[0]->get_body(),
 					bullet_obj->get_body())
 					!= shape::collide_type::none)
 				{
@@ -348,9 +357,10 @@ namespace zee {
 				}
 			}
 
-			//적 vs 플레이어 충돌 틱
-			if (shape::intersect(mon_obj->get_body(),
-				get_players()[0]->get_now_pos())
+			//충돌: 적 vs 플레이어
+			if (shape::intersect(
+				mon_obj->get_body(),
+				get_players()[0]->get_body())
 				!= shape::collide_type::none)
 			{
 				//이펙트: 피격 판정 전에 먼저 위치 기록
@@ -363,19 +373,28 @@ namespace zee {
 
 				//피격 (몬스터의 공격력만큼 피해입음)
 				get_players()[0]->hit_from(mon_obj, delta_time);
-
 			}
 
 
 			//몬스터 사망판단
 			if (mon_obj->get_hp() == 0 || !(mon_obj->in_screen())) {
+
+				//아이템: 피격 판정 전에 먼저 위치 기록
+				for (auto& item_obj : get_items()) {
+					if (item_obj->get_state() == (int)obj_state::die) {
+						item_obj->spawn_from(mon_obj);
+						break;
+					}
+				}
+
+				//사망
 				mon_obj->destroy(delta_time);
 			}
 
 		}//for (auto& mon_obj : monsters_)
 
 
-		//이펙트 지연시간 후 사망
+		//이펙트 지연시간 다 되면 사망
 		for (auto& effect_obj : get_effects()) {
 			if (effect_obj->get_state() == (int)obj_state::idle) {
 				effect_obj->destroy(delta_time);
@@ -385,6 +404,29 @@ namespace zee {
 		//점수
 		if (get_players()[0]->get_high_score() < get_players()[0]->get_my_score()) {
 			get_players()[0]->set_high_score(get_players()[0]->get_my_score());
+		}
+
+
+
+		//리스폰
+		if (key_state::is_down(keys::R)) {
+			for (auto& monster_obj : get_monsters()) {
+				monster_obj->destroy(delta_time);
+				for (auto& bullet_obj : monster_obj->get_bullets()) {
+					bullet_obj->destroy(delta_time);
+				}
+			}
+			for (auto& effect_obj : get_effects()) {
+				effect_obj->destroy(delta_time);
+			}
+			for (auto& item_obj : get_items()) {
+				item_obj->destroy(delta_time);
+			}
+
+			get_players()[0]->spawn();
+
+			get_players()[0]->set_my_score(0);
+			set_game_time(0.0f);
 		}
 	}
 

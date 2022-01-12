@@ -32,6 +32,9 @@ namespace zee {
 	void unit::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
 		//피깎
 		set_hp(get_hp() - other->get_atk());
+		if (get_hp() <= 0) {
+			set_hp(0);
+		}
 	}
 
 	void unit::destroy(const float delta_time) {
@@ -41,7 +44,7 @@ namespace zee {
 	}
 
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
-		if (in_screen()) {
+		if (in_screen() && get_state() == (int)obj_state::idle) {
 			//충돌범위 테스트
 			shape::circlef circle{ get_body().origin, get_body().radius};
 			if (key_state::is_toggle_on(keys::tab)) {

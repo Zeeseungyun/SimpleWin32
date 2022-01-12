@@ -20,6 +20,7 @@ namespace zee {
 
 	void bullet::init(const int obj_state) {
 		projectile::init((int)obj_state::die);
+		set_atk(1);
 	}
 
 	void bullet::spawn_from(const int obj_type, const shape::circlef& obj_body) {
@@ -159,7 +160,7 @@ namespace zee {
 
 
 	void bullet::render(win32gdi::device_context_dynamic& dest_dc) {
-		if (in_screen()) {
+		if (in_screen() && get_state() == (int)obj_state::idle) {
 			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
 
 			switch (get_subj_type())
@@ -190,6 +191,7 @@ namespace zee {
 			}//case
 
 			}//switch
+
 		}
 
 		//충돌범위 테스트

@@ -24,10 +24,11 @@ namespace zee {
 	}
 
 	void player::spawn() {
-		set_now_pos_and_body({ coords_[player_default_pos].x + get_body().radius,
-			coords_[player_default_pos].y + get_body().radius });
-		set_hp(1);
-		set_state((int)obj_state::idle);
+		plane::init((int)obj_state::idle);
+		set_now_pos_and_body(
+			{ coords_[player_default_pos].x + get_body().radius,
+			coords_[player_default_pos].y + get_body().radius }
+		);
 		set_delay(0.2f);
 	}
 
@@ -44,15 +45,19 @@ namespace zee {
 			set_pressed_key((int)key_type_::arrow_up);
 			set_direction((int)obj_dir::up);
 
-			velocity -= vec2f::constants::unit_y * delta_time * speed;
+			if (get_now_pos().y > 0) {	//스크린 안에 있을 때만
+				velocity -= vec2f::constants::unit_y * delta_time * speed;
+			}
 		}
 		
 		if (key_state::is_down(keys::arrow_left) || key_state::is_down(keys::A)) {
 			set_is_dir_key_pressed(true);
 			set_pressed_key((int)key_type_::arrow_left);
 			set_direction((int)obj_dir::left);
-			
-			velocity -= vec2f::constants::unit_x * delta_time * speed;
+
+			if (get_now_pos().x > -10.0f) {
+				velocity -= vec2f::constants::unit_x * delta_time * speed;
+			}
 
 		}
 		
@@ -61,15 +66,27 @@ namespace zee {
 			set_pressed_key((int)key_type_::arrow_down);
 			set_direction((int)obj_dir::down);
 
-			velocity += vec2f::constants::unit_y * delta_time * speed;
+			if (get_now_pos().y + get_size().y < coords[back_max_size].y) {
+				velocity += vec2f::constants::unit_y * delta_time * speed;
+			}
 		}
 		
 		if (key_state::is_down(keys::arrow_right) || key_state::is_down(keys::D)) {
 			set_is_dir_key_pressed(true);
 			set_pressed_key((int)key_type_::arrow_right);
 			set_direction((int)obj_dir::right);
-			velocity += vec2f::constants::unit_x * delta_time * speed;
+
+			if (get_now_pos().x + get_size().x < coords[back_max_size].x) {
+				velocity += vec2f::constants::unit_x * delta_time * speed;
+			}
 		}
+
+		//위치 이동
+		//if (background_type == loop) {}
+		if (get_is_dir_key_pressed()) {
+			set_now_pos_and_body(velocity + get_now_pos());
+		}
+
 
 		//이미지상 프레임 애니메이션
 		if (get_is_dir_key_pressed()) {
@@ -112,19 +129,6 @@ namespace zee {
 			frame_y_ = { 0, size_.y * direction_ };
 			*/
 		}
-
-		//위치 이동
-		//if (background_type == loop) {}
-		if (get_is_dir_key_pressed()) {
-			set_now_pos_and_body(velocity + get_now_pos());
-		}
-
-
-		//리스폰
-		if (key_state::is_down(keys::R)) {
-			set_my_score(0);
-			spawn();
-		}
 	}
 
 	void player::shoot(const float delta_time) {
@@ -148,13 +152,13 @@ namespace zee {
 			bullet_obj->move(delta_time);
 		}
 	}
-	void player::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
+	void player::hit_from(const std::shared_ptr<unit> other, const	 float delta_time) {
 		unit::hit_from(other, delta_time);
 	}
 
 	void player::destroy(const float delta_time) {
 		//공통
-		plane::destroy(delta_time);
+		unit::destroy(delta_time);
 	}
 	void player::add_score(const int score) {
 		set_my_score(get_my_score() + score);
@@ -182,13 +186,13 @@ namespace zee {
 			}
 		}
 
+		//충돌범위 렌더
+		unit::render(dest_dc);
+
 		//플레이어 뷸렛
 		for (auto& bullet_obj : get_bullets()) {
 			bullet_obj->render(dest_dc);
 		}
-
-		//플레인 렌더
-		plane::render(dest_dc);
 	}
 
 	const int player::get_direction() const {

@@ -11,9 +11,6 @@ namespace zee {
 
 		virtual void init(const int obj_state) override;
 		virtual void spawn();	//plane 전용 스폰
-		virtual void destroy(const float delta_time) override;
-
-		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
 
 	protected:

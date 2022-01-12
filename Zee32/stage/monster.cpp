@@ -33,6 +33,8 @@ namespace zee {
 
 	void monster::spawn() {
 		plane::init((int)obj_state::idle);
+		set_my_score(1);
+		set_delay(0.0f);
 
 		int random_shoot_type = rand(1, 5);	//monster_num
 		switch (random_shoot_type)
@@ -50,7 +52,8 @@ namespace zee {
 		}
 
 		//Å×½ºÆ®	--------------------------------------------------------
-		//obj_type_ = (int)obj_shoot_type::;
+		set_obj_type((int)obj_type::monster_arround);
+
 
 		switch (get_obj_type())
 		{
@@ -79,8 +82,6 @@ namespace zee {
 		rx = rand(coords_[monster_min_pos].x, coords_[monster_max_pos].x);
 		ry = coords_[monster_max_pos].y;
 		set_arrival_vec({ (float)rx, (float)ry });
-
-		set_delay(0.0f);
 	}
 
 	void monster::move(const float delta_time) {
@@ -217,13 +218,12 @@ namespace zee {
 					float circle_angle = 0;
 					int bullent_circle_cnt = 30;
 
-					//¾ê¿©
 					for (int i = 0; i != bullent_circle_cnt; i++) {
 
 						circle_angle += math::pi() * 2 / (float)bullent_circle_cnt;
 
 						for (auto& bullet_obj : get_bullets()) {
-							if (bullet_obj->get_state() == (int)obj_state::idle) {
+							if (bullet_obj->get_state() == (int)obj_state::die) {
 								bullet_obj->spawn_from(get_obj_type(), get_body());
 								bullet_obj->set_circle_angle(circle_angle);
 								break;
@@ -233,13 +233,15 @@ namespace zee {
 				}
 				set_delay_shoot((float)math::fmod(get_delay_shoot(), frame_wave));
 				break;
+
 			}//case
+
 			}//switch
+
 
 			//ºæ·¿ Æ½
 			for (auto& bullet_obj : get_bullets()) {
 				bullet_obj->move(delta_time);
-				bullet_obj->destroy(delta_time);
 			}
 		}
 	}
@@ -255,13 +257,13 @@ namespace zee {
 
 	void monster::destroy(const float delta_time) {
 		//°øÅë
-		plane::destroy(delta_time);
+		unit::destroy(delta_time);
 		spawn();
 	}
 	
 
 	void monster::render(win32gdi::device_context_dynamic& dest_dc) {
-		if (in_screen()) {
+		if (in_screen() && get_state() == (int)obj_state::idle) {
 
 			//¸öÃ¼
 			if (get_state() != (int)obj_state::die) {
@@ -293,14 +295,14 @@ namespace zee {
 			}//if
 		}//if
 
+		//Ãæµ¹¹üÀ§ ·»´õ
+		unit::render(dest_dc);
+
 
 		//ÇÃ·¹ÀÌ¾î ºæ·¿
 		for (auto& bullet_obj : get_bullets()) {
 			bullet_obj->render(dest_dc);
 		}
-
-		//ÇÃ·¹ÀÎ ·»´õ
-		plane::render(dest_dc);
 	}
 
 	const math::vec2f& monster::get_arrival_vec() const {

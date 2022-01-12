@@ -1,6 +1,6 @@
 #pragma once
-#include "projectile.h"
 #include "frame_image.h"
+#include "projectile.h"
 
 namespace zee {
 	class effect : public projectile {

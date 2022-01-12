@@ -15,6 +15,7 @@
 2. 이동 - > 충돌 - > 후처리 -> 렌더
 3. 전방 선언
 4. 풀링
+5. plg_blt
 
 /*
 * 1. enum다 치운다. 2개 봐줌 obj_type, background_type

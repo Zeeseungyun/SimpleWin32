@@ -99,7 +99,7 @@ namespace zee {
 	protected:
 		math::vec2i size_;
 		math::vec2f now_pos_;
-		shape::circlef body_;
+		shape::circlef body_;	//@param body_ : 충돌범위를 의미
 		math::vec2i frame_x_;
 		math::vec2i frame_y_;
 		int obj_type_;
