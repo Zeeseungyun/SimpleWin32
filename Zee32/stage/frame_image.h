@@ -8,6 +8,7 @@ namespace zee {
 		static frame_image& get();
 
 		void load_frame_image(const math::vec2i& frame_size, const TCHAR* filename, const int i);
+
 		void render_destdc_to_backbuffer(win32gdi::device_context_dynamic& dest_dc);
 		void render_alphablend(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int i);
 		void render_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int i);

@@ -1,43 +1,53 @@
 #pragma once
-#include "unit.h"
 #include "frame_image.h"
-#include "bullet.h"
+#include "plane.h"
 
 namespace zee {
-	class player : public unit {
+	class player : public plane {
 	public:
 		player() noexcept = default;
 		virtual ~player() noexcept = default;
 
 		virtual void load_image() override;
 
-		virtual void init() override;
-
+		virtual void init(const int obj_state) override;
+		virtual void spawn() override;
 		virtual void move(const float delta_time) override;
 		void shoot(const float delta_time);
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
 		void add_score(const int score);
+
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
+
 
 		const int get_direction() const;
 		const bool get_is_dir_key_pressed() const;
+		const int get_pressed_key() const;
+		const float get_delay_frame_ani() const;
+		const float get_delay_shoot() const;
 		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
+
+		virtual void set_now_pos_and_body(const math::vec2f& point) override;
+		void set_direction(int direction);
 		void set_delay(const float delay);
+		void set_is_dir_key_pressed(int is_dir_key_pressed);
+		void set_pressed_key(int pressed_key);
+		void set_delay_frame_ani(float delay_frame_ani);
+		void set_delay_shoot(float delay_shoot);
 
 	private:
-		//1. 회전하는애 회전시키지말아봐여.
 		enum const_var_ {
 			player_size,
 			player_default_pos,
 			player_default_frame,
 			player_max_move_size,
 
-			player_bullet_max_num = 100
+			player_bullet_max_num = 50
 		};
 		const std::vector<math::vec2i> coords_ = {
 			{ 64, 58 },		//player_size
-			{ 350, 650 },	//player_default_pos
+			{ 320, 650 },	//player_default_pos
 			{ 64, 0 },		//player_default_frame
 			{ 660, 940 },	//player_max_move_size
 		};
@@ -53,11 +63,9 @@ namespace zee {
 
 
 		int direction_;
-		bool is_dir_key_pressed;
+		bool is_dir_key_pressed_;
 		int pressed_key_;
-		float delay_frame_ani;
-		float delay_shoot_;
-		float delay_destroy_;
+		float delay_frame_ani_;
 		std::vector<std::shared_ptr<bullet>> bullets_;
 	};
 }

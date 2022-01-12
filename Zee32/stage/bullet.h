@@ -1,19 +1,20 @@
 #pragma once
-#include "unit.h"
 #include "frame_image.h"
+#include "projectile.h"
 
 namespace zee {
-	class bullet : public unit {
+	class bullet : public projectile {
 	public:
 		bullet() noexcept = default;
 		virtual ~bullet() noexcept = default;
 
 		virtual void load_image();
-		void init_bullet(const int obj_type, const math::vec2f& now_pos, const math::vec2f& size);
 
+		virtual void init(const int obj_state) override;
+		virtual void spawn_from(const int obj_type, const shape::circlef& obj_body) override;
 		virtual void move(const float delta_time) override;
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
-		virtual void destroy(const float delta_time) override;
+
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
 		const int get_subj_type() const;

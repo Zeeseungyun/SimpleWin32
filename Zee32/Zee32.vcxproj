@@ -28,7 +28,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stage\item.h" />
     <ClInclude Include="stage\monster.h" />
+    <ClInclude Include="stage\plane.h" />
     <ClInclude Include="stage\player.h" />
+    <ClInclude Include="stage\projectile.h" />
     <ClInclude Include="stage\stage.h" />
     <ClInclude Include="stage\unit.h" />
     <ClInclude Include="stage\effect.h" />
@@ -53,7 +55,9 @@
     <ClCompile Include="stage\frame_image.cpp" />
     <ClCompile Include="stage\item.cpp" />
     <ClCompile Include="stage\monster.cpp" />
+    <ClCompile Include="stage\plane.cpp" />
     <ClCompile Include="stage\player.cpp" />
+    <ClCompile Include="stage\projectile.cpp" />
     <ClCompile Include="stage\stage.cpp" />
     <ClCompile Include="stage\unit.cpp" />
     <ClCompile Include="win32gdi\device_context.cpp" />

@@ -1,31 +1,43 @@
 #pragma once
-#include "unit.h"
 #include "frame_image.h"
-#include "bullet.h"
+#include "plane.h"
 
-class player;
 
 namespace zee {
-	class monster : public unit {
+	
+	class player;
+	class item;
+
+	class monster : public plane {
 	public:
 		monster() noexcept = default;
 		virtual ~monster() noexcept = default;
 
 		virtual void load_image() override;
-		virtual void init() override;
 
+		virtual void init(const int obj_state) override;
+		virtual void spawn() override;
 		virtual void move(const float delta_time) override;
 		void shoot(const float delta_time);
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
+
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
+
 		const math::vec2f& get_arrival_vec() const;
-		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
 		const math::vec2f& get_vec_for_player() const;
+		const float get_homing_angle() const;
+		const float get_delay_shoot() const;
+		const float get_delay_destroy() const;
+		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
+
 		void set_arrival_vec(const math::vec2f& vec);
 		void set_vec_for_player(const math::vec2f& v);
 		void set_delay(const float delay);
+		void set_delay_shoot(const float delay);
+		void set_delay_destroy(const float delay);
+		void set_homing_angle(const float angle);
 
 	private:
 
@@ -40,7 +52,7 @@ namespace zee {
 			monster_max_pos,
 			monster_boss_pos,
 
-			monster_bullet_max_num = 60,
+			monster_bullet_max_num = 300
 		};
 		const std::vector<math::vec2i> coords_{
 			{64, 48},		//monster_straight_size
@@ -54,11 +66,9 @@ namespace zee {
 			{350, 200},		//monster_boss_pos
 		};
 
-		std::vector<std::shared_ptr<bullet>> bullets_;
 		math::vec2f arrival_vec_;
 		math::vec2f vec_for_player_;
 		float homing_angle_;
-		float delay_shoot;
-		float delay_destroy_;
+		std::vector<std::shared_ptr<bullet>> bullets_;
 	};
 }

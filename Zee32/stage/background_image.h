@@ -9,7 +9,6 @@ namespace zee {
 		void load_background_image(const math::vec2i& background_size, const TCHAR* filename);
 		void render(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& src_pos);
 
-
 	private:
 		background_image() noexcept = default;
 		background_image(const background_image&) = delete;

@@ -1,22 +1,24 @@
 #pragma once
-#include "unit.h"
 #include "frame_image.h"
+#include "projectile.h"
 
 
 namespace zee {
-	//이래야 했다.
+
 	class player;
-	class item : public unit {
+
+	class item : public projectile {
 	public:
 		item() noexcept = default;
 		virtual ~item() noexcept = default;
 
 		virtual void load_image() override;
 
-		virtual void init() override;
-
+		virtual void init(const int obj_state) override;
+		virtual void spawn_from(const std::shared_ptr<unit> other) override;
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
+
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
 	private:

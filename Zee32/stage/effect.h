@@ -1,24 +1,25 @@
 #pragma once
-#include "unit.h"
+#include "projectile.h"
 #include "frame_image.h"
 
 namespace zee {
-	class effect : public unit {
+	class effect : public projectile {
 	public:
 		effect() noexcept = default;
 		virtual ~effect() noexcept = default;
 
 		virtual void load_image() override;
 
-		virtual void init() override;
-
+		virtual void init(const int obj_state) override;
+		virtual void spawn_from(const std::shared_ptr<unit> other) override;
 		virtual void destroy(const float delta_time) override;
+
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
-		void set_delay(const float delay);
+		const float get_delay_bomb() const;
+		void set_delay_bomb(const float delay);
 
 	private:
-		//얘느 ㄴ적당한듯?
 		enum const_var_ {
 			effect_bomb_size,
 			effect_bomb_default_frame,

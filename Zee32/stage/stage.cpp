@@ -1,11 +1,10 @@
 #include "stage.h"
 #include "frame_image.h"
-#include "unit.h" 
 #include "player.h"
 #include "monster.h"
 #include "bullet.h"
-#include "effect.h"
 #include "item.h"
+#include "effect.h"
 #include "../stat/simple_stat.h"
 
 namespace zee {
@@ -19,10 +18,14 @@ namespace zee {
 
 		//이미지 로드
 		//배경
-		background_image::get().load_background_image(coords[back_max_size]
-			, TEXT("assets/game_background_loop_vertical.bmp"));
-		background_image::get().load_background_image(coords_stage[back_scroll_max_size]
-			, TEXT("assets/game_background_stop.bmp"));
+		if (background_type == loop) {
+			background_image::get().load_background_image(coords[back_max_size]
+				, TEXT("assets/game_background_loop_vertical.bmp"));
+		}
+		else if (background_type == scroll) {
+			background_image::get().load_background_image(coords_stage[back_scroll_max_size]
+				, TEXT("assets/game_background_stop.bmp"));
+		}
 
 		//유닛
 		//플레이어
@@ -34,10 +37,9 @@ namespace zee {
 		//뷸렛
 		std::shared_ptr<bullet> bullet_obj = std::make_shared<bullet>();
 		bullet_obj->load_image();
-
 		//이펙트
-		std::shared_ptr<effect> bomb_obj = std::make_shared<effect>();
-		bomb_obj->load_image();
+		std::shared_ptr<effect> effect_obj = std::make_shared<effect>();
+		effect_obj->load_image();
 		//아이템
 		std::shared_ptr<item> item_obj = std::make_shared<item>();
 		item_obj->load_image();
@@ -47,6 +49,7 @@ namespace zee {
 
 
 		//행렬 테스트
+		/*
 		matrix2f m2;
 		matrix3f m3;
 		//전치행렬
@@ -73,6 +76,7 @@ namespace zee {
 		matrix3f m4{ {1,2,3},{4,5,6},{7,8,9} };
 		matrix3f m5{ {2,3,4},{5,6,7},{8,9,10} };
 		m4.mul(m5);
+		*/
 	}
 
 	void stage::on_resize(const math::vec2i& client_size) {
@@ -86,41 +90,54 @@ namespace zee {
 
 	void stage::init_game() {
 
+		//배경
 		switch (background_type) {
 		case loop:
-			background_src_pos_ = { 0.0f, 0.0f };
-			background_src_size_ = coords_stage[back_loop_max_size];
+			set_background_src_pos({});
+			set_background_src_size(coords_stage[back_loop_max_size]);
 			break;
 		case scroll:
-			background_src_pos_ = coords_stage[back_scroll_default_unit_pos];	//y축 시작위치 설정
+			set_background_src_size(coords_stage[back_scroll_default_unit_pos]);	//y축 시작위치 설정
 			break;
 		}
 
-		//유닛 스폰
-		std::shared_ptr<player> spawned_player = std::make_shared<player>();
-		players_.push_back(spawned_player);
-		//유닛 초기화
-		players_[0]->init();
 
-		//몬스터 스폰
-		//for (int i = 0; i != 1; i++) {	//테스트
+		///obj 초기화
+
+		//플레이어
+		std::shared_ptr<player> spawned_player = std::make_shared<player>();
+		spawned_player->init((int)obj_state::idle);
+		players_.push_back(spawned_player);
+
+
+		//몬스터
 		for (int i = 0; i != monster_spawn_num; i++) {
 			std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
+			spawned_monster->init((int)obj_state::idle);
 			monsters_.push_back(spawned_monster);
 		}
 
-		get_log().turn_off_category(TEXT("tick check"));
-		get_log().turn_off_category(TEXT("render check"));
-		//몬스터 초기화
-		for (auto& monster_obj : monsters_) {
-			monster_obj->init();
+
+		//이펙트
+		for (int i = 0; i != effect_spawn_num; i++) {
+			std::shared_ptr<effect> spawned_effect = std::make_shared<effect>();
+			spawned_effect->init((int)obj_state::die);
+			effects_.push_back(spawned_effect);
+		}
+
+
+		//아이템
+		for (int i = 0; i != item_spawn_num; i++) {
+			std::shared_ptr<item> spawned_item = std::make_shared<item>();
+			spawned_item->init((int)obj_state::die);
+			items_.push_back(spawned_item);
 		}
 	}
 
 	void stage::tick(float delta_time) {
 
 		//시간 틱
-		game_time_ += delta_time;
+		set_game_time(get_game_time() + delta_time);
 
 		//배경 틱
 		switch (background_type) {
@@ -128,16 +145,16 @@ namespace zee {
 			const float speed = 120.0f;
 			switch (background_direction) {//이런게 좀 아쉬움 enum으로 쓰면 좋을법한 값임.
 				//배경 루프 이미지
-				//direction 이미지 기준 0: 좌->우.. 1: 우->좌.. 2: 상->하.. 3: 하->상
-			case 0:
-			case 1:
-				background_src_pos_.x += delta_time * speed;
-				background_src_pos_.x = (float)math::fmod(background_src_pos_.x, background_src_size_.x);
+			case (int)background_dir::left:
+			case (int)background_dir::right:
+				set_background_src_pos_x(get_background_src_pos().x + delta_time * speed);
+				set_background_src_pos_x((float)math::fmod(get_background_src_pos().x, get_background_src_size().x));
+
 				break;
-			case 2:
-			case 3:
-				background_src_pos_.y += delta_time * speed;
-				background_src_pos_.y = (float)math::fmod(background_src_pos_.y, background_src_size_.y);
+			case (int)background_dir::up:
+			case (int)background_dir::down:
+				set_background_src_pos_y(get_background_src_pos().y + delta_time * speed);
+				set_background_src_pos_y((float)math::fmod(get_background_src_pos().y, get_background_src_size().y));
 				break;
 			}
 			break;
@@ -145,29 +162,29 @@ namespace zee {
 
 		case scroll: {
 			const float background_speed = 10.0f;
-			if (players_[0]->get_is_dir_key_pressed()) {
-				switch (players_[0]->get_direction()) {//얘도 마찬가지고
+			if (get_players()[0]->get_is_dir_key_pressed()) {
+				switch (get_players()[0]->get_direction()) {
 					//배경 정지 이미지
 				case 0:
-					if (players_[0]->get_now_pos().y > 0 && background_src_pos_.y > 0) {
-						background_src_pos_.y -= delta_time * background_speed;
+					if (get_players()[0]->get_now_pos().y > 0 && get_background_src_pos().y > 0) {
+						set_background_src_pos_y(get_background_src_pos().y - delta_time * background_speed);
 					}
 					break;
 				case 1:
-					if (players_[0]->get_now_pos().x > 0 && background_src_pos_.x > 0) {
-						background_src_pos_.x -= delta_time * background_speed;
+					if (get_players()[0]->get_now_pos().x > 0 && get_background_src_pos().x > 0) {
+						set_background_src_pos_x(get_background_src_pos().x - delta_time * background_speed);
 					}
 					break;
 				case 2:
-					if (players_[0]->get_now_pos().y < coords_stage[back_scroll_unit_max_move].y
-						&& background_src_pos_.y < coords_stage[back_scroll_max].y) {
-						background_src_pos_.y += delta_time * background_speed;
+					if (get_players()[0]->get_now_pos().y < coords_stage[back_scroll_unit_max_move].y
+						&& get_background_src_pos().y < coords_stage[back_scroll_max].y) {
+						set_background_src_pos_y(get_background_src_pos().y + delta_time * background_speed);
 					}
 					break;
 				case 3:
-					if (players_[0]->get_now_pos().x < coords_stage[back_scroll_unit_max_move].x
-						&& background_src_pos_.x < coords_stage[back_scroll_max].x) {
-						background_src_pos_.x += delta_time * background_speed;
+					if (get_players()[0]->get_now_pos().x < coords_stage[back_scroll_unit_max_move].x
+						&& get_background_src_pos().x < coords_stage[back_scroll_max].x) {
+						set_background_src_pos_x(get_background_src_pos().x + delta_time * background_speed);
 					}
 					break;
 				}
@@ -184,73 +201,99 @@ namespace zee {
 		}
 		*/
 
-		//플레이어 틱
-		for (auto& player_obj : players_) {
-			player_obj->move(delta_time);
-			player_obj->shoot(delta_time);
-			player_obj->destroy(delta_time);
 
-			//아이템 vs 플레이어 충돌
-			for (auto& item_obj : items_) {
-				item_obj->destroy(delta_time);
-				if (shape::intersect(player_obj->get_body(), item_obj->get_body())
-					!= shape::collide_type::none)
+		///////
+		//플레이어 틱
+		///////
+		//이동
+		get_players()[0]->move(delta_time);
+
+		//발사
+		get_players()[0]->shoot(delta_time);
+
+		//아이템 vs 플레이어 충돌 
+		for (auto& item_obj : get_items()) {
+			if (item_obj->get_state() == (int)obj_state::idle) {
+				if (shape::intersect(get_players()[0]->get_body(), item_obj->get_body())
+					!= shape::collide_type::none) 
 				{
-					item_obj->hit_from(player_obj, delta_time);
+					item_obj->hit_from(get_players()[0], delta_time);
 				}
 			}
 		}
 
-		//적 틱
-		for (auto& mon_obj : monsters_) {
-			//적 틱
-			mon_obj->move(delta_time);
-			mon_obj->shoot(delta_time);
-			mon_obj->destroy(delta_time);
+		//사망판단
+		if (get_players()[0]->get_hp() == 0 || !(get_players()[0]->in_screen())) {
+			get_players()[0]->destroy(delta_time);
+		}
 
-			//적 호밍
+		//뷸렛 사망판단
+		for (auto& bullet_player_obj : get_players()[0]->get_bullets()) {
+			if (bullet_player_obj->get_hp() == 0 || !(bullet_player_obj->in_screen())) {
+				bullet_player_obj->destroy(delta_time);
+			}
+		}
+
+
+		///////
+		//적 틱
+		///////
+		for (auto& mon_obj : get_monsters()) {
+			//적 이동
+			mon_obj->move(delta_time);
+
+			//적 뷸렛 쏘기
+			mon_obj->shoot(delta_time);
+
+
+			//적 어라운드 타입이 플레이어를 추적
 			if (mon_obj->get_obj_type()
 				== (int)obj_type::monster_arround)
 			{
 				//플레이어와의 방향 벡터
 				math::vec2f v_mon_for_player{
-					players_[0]->get_body().origin - mon_obj->get_body().origin
+					get_players()[0]->get_body().origin - mon_obj->get_body().origin
 				};
 				mon_obj->set_vec_for_player(v_mon_for_player);
 			}
 
-			//적 호밍탄(유도탄)
-			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				//호밍 로직
-				if (bullet_obj->get_obj_type()
+			//적 호밍 뷸렛(유도탄) 타입
+			for (auto& bullet_monster_obj : mon_obj->get_bullets()) {
+				//호밍 뷸렛이 플레이어를 추적
+				if (bullet_monster_obj->get_obj_type()
 					== (int)obj_type::monster_bullet_homing)
 				{
 					//플레이어와의 방향 벡터: normalize를 여기서 해줘야 함
 					math::vec2f v_bullet_for_player{
-						players_[0]->get_body().origin - bullet_obj->get_body().origin
+						get_players()[0]->get_body().origin - bullet_monster_obj->get_body().origin
 					};
 					v_bullet_for_player = v_bullet_for_player.normalize();
-					bullet_obj->set_vec_for_player(v_bullet_for_player);
+					bullet_monster_obj->set_vec_for_player(v_bullet_for_player);
 				}
 
-				//적 뷸렛(특수한 뷸렛만) vs 플레이어 뷸렛 충돌 틱
-				if (bullet_obj->get_obj_type() == (int)obj_type::monster_bullet_homing) {
 
-					for (auto& bullet_player_obj : players_[0]->get_bullets())
+				//호밍 뷸렛 vs 플레이어 뷸렛 충돌 틱
+				if (bullet_monster_obj->get_obj_type() == (int)obj_type::monster_bullet_homing) {
+
+					for (auto& bullet_player_obj : get_players()[0]->get_bullets())
 					{
-						if (shape::intersect(bullet_player_obj->get_body(), bullet_obj->get_body())
+						if (shape::intersect(bullet_player_obj->get_body(), bullet_monster_obj->get_body())
 							!= shape::collide_type::none)
 						{
-							//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-							spawn_bomb(bullet_obj);
+ 							//이펙트: 피격 판정 전에 먼저 위치 기록
+ 							for (auto& effect_obj : get_effects()) {
+								if (effect_obj->get_state() == (int)obj_state::die) {
+									effect_obj->spawn_from(bullet_monster_obj);
+									break;
+								}
+							}
 
 							//피격
 							//적 뷸렛은 플레이어 뷸렛에게 맞았다고 판단 (플레이어 뷸렛의 공격력만큼 피해입음)
-							//플레이어 뷸렛은 적 뷸렛에게 ~
-							bullet_obj->hit_from(bullet_player_obj, delta_time);
-							bullet_player_obj->hit_from(bullet_obj, delta_time);
-							bullet_obj->set_now_pos_and_body(coords_stage[back_destroy_zone]);
-							bullet_player_obj->set_now_pos_and_body(coords_stage[back_destroy_zone]);
+							//플레이어 뷸렛은 적 뷸렛에게 맞았다고 판단 (적 뷸렛의 공격력만큼 피해입음)
+							bullet_monster_obj->hit_from(bullet_player_obj, delta_time);
+							bullet_player_obj->hit_from(bullet_monster_obj, delta_time);
+
 						}//if
 					}//for
 				}//if
@@ -258,193 +301,186 @@ namespace zee {
 
 
 			//플레이어 뷸렛 vs 적 충돌 틱
-			for (auto& bullet_obj : players_[0]->get_bullets()) {
-				if (shape::intersect(mon_obj->get_body(), bullet_obj->get_body())
+			for (auto& bullet_player_obj : get_players()[0]->get_bullets()) {
+				if (shape::intersect(mon_obj->get_body(), bullet_player_obj->get_body())
 					!= shape::collide_type::none)
 				{
-					//아이템
-					spawn_item(mon_obj);
-					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-					spawn_bomb(mon_obj);
+					//아이템: 피격 판정 전에 먼저 위치 기록
+					for (auto& item_obj : get_items()) {
+						if (item_obj->get_state() == (int)obj_state::die) {
+							item_obj->spawn_from(bullet_player_obj);
+							break;
+						}
+					}
+					//이펙트: 피격 판정 전에 먼저 위치 기록
+					for (auto& effect_obj : get_effects()) {
+						if (effect_obj->get_state() == (int)obj_state::die) {
+							effect_obj->spawn_from(bullet_player_obj);
+							break;
+						}
+					}
 
 					//피격
 					//적은 뷸렛이 아닌 플레이어에게 맞았다고 판단(점수 주기 위함)(플레이어의 공격력만큼 피해입음)
-					mon_obj->hit_from(players_[0], delta_time);
-					bullet_obj->hit_from(mon_obj, delta_time);
+					mon_obj->hit_from(get_players()[0], delta_time);
+					bullet_player_obj->hit_from(mon_obj, delta_time);
 				}
 			}
 
 			//적 뷸렛 vs 플레이어 충돌 틱
 			for (auto& bullet_obj : mon_obj->get_bullets()) {
-				if (shape::intersect(players_[0]->get_body(),
+				if (shape::intersect(get_players()[0]->get_body(),
 					bullet_obj->get_body())
 					!= shape::collide_type::none)
 				{
-					//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-					spawn_bomb(players_[0]);
+					//이펙트: 피격 판정 전에 먼저 위치 기록
+					for (auto& effect_obj : get_effects()) {
+						if (effect_obj->get_state() == (int)obj_state::die) {
+							effect_obj->spawn_from(get_players()[0]);
+							break;
+						}
+					}
 
 					//피격
 					//플레이어는 적 뷸렛에게 맞았다고 판단 (뷸렛의 공격력만큼 피해입음)
-					players_[0]->hit_from(bullet_obj, delta_time);
-					bullet_obj->hit_from(players_[0], delta_time);
-					bullet_obj->set_now_pos_and_body(coords_stage[back_destroy_zone]);
+					get_players()[0]->hit_from(bullet_obj, delta_time);
+					bullet_obj->hit_from(get_players()[0], delta_time);
 				}
 			}
 
 			//적 vs 플레이어 충돌 틱
 			if (shape::intersect(mon_obj->get_body(),
-				players_[0]->get_now_pos())
+				get_players()[0]->get_now_pos())
 				!= shape::collide_type::none)
 			{
-				//폭발 이펙트: 피격 판정 전에 먼저 위치 기록
-				spawn_bomb(players_[0]);
+				//이펙트: 피격 판정 전에 먼저 위치 기록
+				for (auto& effect_obj : get_effects()) {
+					if (effect_obj->get_state() == (int)obj_state::die) {
+						effect_obj->spawn_from(get_players()[0]);
+						break;
+					}
+				}
 
 				//피격 (몬스터의 공격력만큼 피해입음)
-				players_[0]->hit_from(mon_obj, delta_time);
+				get_players()[0]->hit_from(mon_obj, delta_time);
 
 			}
+
+
+			//몬스터 사망판단
+			if (mon_obj->get_hp() == 0 || !(mon_obj->in_screen())) {
+				mon_obj->destroy(delta_time);
+			}
+
 		}//for (auto& mon_obj : monsters_)
 
 
-		//이펙트 틱
-		for (auto& bomb_obj : bombs_) {
-			bomb_obj->destroy(delta_time);
-		}
-
-
-		//이펙트 제거
-		for (int i = 0; i != bombs_.size(); ) {
-			if (!(bombs_[i]->in_screen()) || bombs_[i]->get_state() == (int)obj_state::die) {
-				bombs_.erase(bombs_.begin() + i);
-			}
-			else {
-				i++;
-			}
-		}
-
-		//아이템 제거
-		for (int i = 0; i != items_.size(); ) {
-			if (!(items_[i]->in_screen()) || items_[i]->get_state() == (int)obj_state::die) {
-				items_.erase(items_.begin() + i);
-			}
-			else {
-				i++;
+		//이펙트 지연시간 후 사망
+		for (auto& effect_obj : get_effects()) {
+			if (effect_obj->get_state() == (int)obj_state::idle) {
+				effect_obj->destroy(delta_time);
 			}
 		}
 
 		//점수
-		if (players_[0]->get_high_score() < players_[0]->get_my_score()) {
-			players_[0]->set_high_score(players_[0]->get_my_score());
+		if (get_players()[0]->get_high_score() < get_players()[0]->get_my_score()) {
+			get_players()[0]->set_high_score(get_players()[0]->get_my_score());
 		}
-	}
-
-	void stage::spawn_bomb(std::shared_ptr<unit> other) {
-		std::shared_ptr<effect> spawned_bomb = std::make_shared<effect>();
-		spawned_bomb->init();
-		spawned_bomb->set_now_pos_and_body(
-			{ other->get_body().origin.x - other->get_body().radius,
-			other->get_body().origin.y - other->get_body().radius }
-		);
-		bombs_.push_back(spawned_bomb);
-	}
-	void stage::spawn_item(std::shared_ptr<unit> other) {
-		std::shared_ptr<item> spawned_item = std::make_shared<item>();
-		spawned_item->init();
-		spawned_item->set_now_pos_and_body(
-			{ other->get_body().origin.x - other->get_body().radius,
-			other->get_body().origin.y - other->get_body().radius }
-		);
-		items_.push_back(spawned_item);
 	}
 
 
 	void stage::render(win32gdi::device_context_base& dest_dc, const float g_fps) {
 		if (back_buffer_.is_valid()) {
+
+			//배경
 			switch (background_type) {
 			case loop:
 				//배경 루프 이미지
-				//direction 이미지 기준 0: 좌->우.. 1: 우->좌.. 2: 상->하.. 3: 하->상
 				switch (background_direction)
 				{
-				case 0:
-					background_image::get().render(back_buffer_, -background_src_pos_);
+				case (int)background_dir::up:
+					background_image::get().render(back_buffer_, -get_background_src_pos());
 					background_image::get().render(
 						back_buffer_,
-						{ -background_src_pos_.x + background_src_size_.x,
-						background_src_pos_.y }
+						{ get_background_src_pos().x,
+						-get_background_src_pos().y + get_background_src_size().y}
 					);
 					break;
-				case 1:
-					background_image::get().render(back_buffer_, background_src_pos_);
+
+				case (int)background_dir::left:
+					background_image::get().render(back_buffer_, get_background_src_pos());
 					background_image::get().render(
 						back_buffer_,
-						{ background_src_pos_.x - background_src_size_.x,
-						background_src_pos_.y }
+						{ get_background_src_pos().x - get_background_src_size().x,
+						get_background_src_pos().y }
 					);
 					break;
-				case 2:
-					background_image::get().render(back_buffer_, -background_src_pos_);
+
+				case (int)background_dir::down:
+					background_image::get().render(back_buffer_, get_background_src_pos());
 					background_image::get().render(
 						back_buffer_,
-						{ background_src_pos_.x,
-						-background_src_pos_.y + background_src_size_.y }
+						{ get_background_src_pos().x,
+						get_background_src_pos().y - get_background_src_size().y }
 					);
 					break;
-				case 3:
-					background_image::get().render(back_buffer_, background_src_pos_);
+
+				case (int)background_dir::right:
+					background_image::get().render(back_buffer_, -get_background_src_pos());
 					background_image::get().render(
 						back_buffer_,
-						{ background_src_pos_.x,
-						background_src_pos_.y - background_src_size_.y }
+						{ -get_background_src_pos().x + get_background_src_size().x,
+						get_background_src_pos().y }
 					);
 					break;
+
 				}
 				break;
 
 			case scroll:
-				background_image::get().render(back_buffer_, background_src_pos_);
+				background_image::get().render(back_buffer_, get_background_src_pos());
 				break;
 			}
 		}
 
-		//유닛
-		for (auto& player_obj : players_) {
+		//플레이어
+		for (auto& player_obj : get_players()) {
 			player_obj->render(back_buffer_);
 		}
 
 		//몬스터
-		for (auto& mon_obj : monsters_) {
+		for (auto& mon_obj : get_monsters()) {
 			mon_obj->render(back_buffer_);
 		}
 
-		//아이템
-		for (auto& item_obj : items_) {
+		//아이템 렌더
+		for (auto& item_obj : get_items()) {
 			item_obj->render(back_buffer_);
 		}
 
-		//이펙트
-		for (auto& bomb_obj : bombs_) {
+		//이펙트 렌더
+		for (auto& bomb_obj : get_effects()) {
 			bomb_obj->render(back_buffer_);
 		}
 
-		//뷸렛: 유닛과 몬스터 render에 포함함
-
 
 		//인포박스
+		shape::rectf box(700, 0, 1200, 1100);
+		back_buffer_.rectangle(box);
 		shape::rectf box_info(830, 700, 1030, 900);
 		back_buffer_.rectangle(box_info);
 		back_buffer_.print_text({ 850, 720 }, TEXT("프레임: "));
 		back_buffer_.print_text({ 930, 720 }, to_tstring(to_wstring(g_fps)));
 		back_buffer_.print_text({ 850, 740 }, TEXT("시간: "));
-		back_buffer_.print_text({ 930, 740 }, to_tstring(to_wstring(static_cast<int>(game_time_))));
+		back_buffer_.print_text({ 930, 740 }, to_tstring(to_wstring(static_cast<int>(get_game_time()))));
 		back_buffer_.print_text({ 850, 760 }, TEXT("점수: "));
-		back_buffer_.print_text({ 930, 760 }, to_tstring(to_wstring(players_[0]->get_my_score())));
+		back_buffer_.print_text({ 930, 760 }, to_tstring(to_wstring(get_players()[0]->get_my_score())));
 		back_buffer_.print_text({ 850, 780 }, TEXT("최고점수: "));
-		back_buffer_.print_text({ 930, 780 }, to_tstring(to_wstring(players_[0]->get_high_score())));
+		back_buffer_.print_text({ 930, 780 }, to_tstring(to_wstring(get_players()[0]->get_high_score())));
 		back_buffer_.print_text({ 850, 820 }, TEXT("충돌범위:    Tab"));
 		back_buffer_.print_text({ 850, 840 }, TEXT("리스폰:        R"));
 
-
+		//한 번에 그리기
 		back_buffer_.bit_blt(dest_dc, {});
 	}
 
@@ -454,10 +490,35 @@ namespace zee {
 	const math::vec2f stage::get_background_src_size() const {
 		return background_src_size_;
 	}
+	const std::vector<std::shared_ptr<player>> stage::get_players() const {
+		return players_;
+	}
+	const std::vector<std::shared_ptr<monster>> stage::get_monsters() const {
+		return monsters_;
+	}
+	const std::vector<std::shared_ptr<effect>> stage::get_effects() const {
+		return effects_;
+	}
+	const std::vector<std::shared_ptr<item>> stage::get_items() const {
+		return items_;
+	}
+	const float stage::get_game_time() const {
+		return game_time_;
+	}
+
 	void stage::set_background_src_pos(const math::vec2f& src_pos) {
 		background_src_pos_ = src_pos;
 	}
+	void stage::set_background_src_pos_x(const float x) {
+		background_src_pos_.x = x;
+	}
+	void stage::set_background_src_pos_y(const float y) {
+		background_src_pos_.y = y;
+	}
 	void stage::set_background_src_size(const math::vec2f& size) {
 		background_src_size_ = size;
+	}
+	void stage::set_game_time(const float game_time) {
+		game_time_ = game_time;
 	}
 }

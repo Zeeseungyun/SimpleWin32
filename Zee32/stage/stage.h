@@ -16,12 +16,6 @@
 3. 전방 선언
 4. 풀링
 
-
-* TODO:: 전방선언활용이 안됐음. 
-* 해당 헤더파일에서 player, monster, item, bullet 언급이 없음.
-* 그리고 unit도 전방선언을 써야했음.
-*/
-
 /*
 * 1. enum다 치운다. 2개 봐줌 obj_type, background_type
 * 2. 상속 활용 해본다. (*다형성 포함)
@@ -31,7 +25,6 @@
 
 namespace zee {
 	class frame_image;
-	class unit;
 	class player;
 	class monster;
 	class bullet;
@@ -42,10 +35,17 @@ namespace zee {
 	enum background_type {
 		loop, scroll
 	};
+	//direction 이미지 기준 up: 하->상 left: 우->좌.. down: 상->하.. right: 좌->우.. 
+	enum class background_dir {
+		up,
+		left,
+		down,
+		right
+	};
 	//@param background_type ==> background 종류 변경
 	constexpr int background_type = loop;
-	//@param background_direction_ ==> background loop 방향 조정 0~3
-	constexpr int background_direction = 2;
+	//@param background_direction_ ==> background loop 방향 조정
+	constexpr int background_direction = (int)background_dir::up;
 	//constexpr: 자동 인라인 처리 (c++ 14이상) (언리얼에선 extern const T&, extern const T*)
 
 
@@ -56,7 +56,10 @@ namespace zee {
 		back_scroll_max,
 		back_scroll_unit_max_move,
 
+
 		monster_spawn_num = 3,
+		effect_spawn_num = 30,
+		item_spawn_num = 100,
 	};
 
 	const std::vector<math::vec2i> coords_stage{
@@ -80,14 +83,23 @@ namespace zee {
 		void init_game();
 
 		void tick(float delta_time) override;
-		void spawn_bomb(std::shared_ptr<unit> other);
-		void spawn_item(std::shared_ptr<unit> other);
+
 		void render(win32gdi::device_context_base& dest_dc, const float g_fps);
+
 
 		const math::vec2f get_background_src_pos() const;
 		const math::vec2f get_background_src_size() const;
+		const std::vector<std::shared_ptr<player>> get_players() const;
+		const std::vector<std::shared_ptr<monster>> get_monsters() const;
+		const std::vector<std::shared_ptr<effect>> get_effects() const;
+		const std::vector<std::shared_ptr<item>> get_items() const;
+
+		const float get_game_time() const;
 		void set_background_src_pos(const math::vec2f& src_pos);
+		void set_background_src_pos_x(const float x);
+		void set_background_src_pos_y(const float y);
 		void set_background_src_size(const math::vec2f& size);
+		void set_game_time(const float game_time);
 
 	private:
 		win32gdi::device_context_dynamic back_buffer_;
@@ -95,7 +107,7 @@ namespace zee {
 		math::vec2i background_src_size_;
 		std::vector<std::shared_ptr<player>> players_;
 		std::vector<std::shared_ptr<monster>> monsters_;
-		std::vector<std::shared_ptr<effect>> bombs_;
+		std::vector<std::shared_ptr<effect>> effects_;
 		std::vector<std::shared_ptr<item>> items_;
 		float game_time_;
 	};

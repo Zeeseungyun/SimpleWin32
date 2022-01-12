@@ -18,32 +18,28 @@ namespace zee {
 			, TEXT("assets/monster_bullet_wave.bmp"), (int)obj_type::monster_bullet_wave);
 	}
 
-	void bullet::init_bullet(const int obj_type, const math::vec2f& now_pos, const math::vec2f& size) {
+	void bullet::init(const int obj_state) {
+		projectile::init((int)obj_state::die);
+	}
 
-		unit::init();
+	void bullet::spawn_from(const int obj_type, const shape::circlef& obj_body) {
 
+		//공통 
+		projectile::spawn_from(obj_type, obj_body);
+
+
+		//사이즈
+		//플레이어
 		if (obj_type == (int)obj_type::player_straight) {
 			set_size(coords_[player_bullet_straight_size]);
-			set_now_pos_and_body(
-				{ now_pos.x + size.x / 2 - coords_[player_bullet_straight_size].x / 2
-				, now_pos.y + size.y / 2 }
-			);
-			set_max_move_size(coords[back_max_size]);
 			set_frame_size(coords_[player_bullet_frame]);
-			set_subj_type(obj_type);
 			set_obj_type((int)obj_type::player_bullet_straight);
-		}
-		else {
-			//적 공통
-			set_now_pos_and_body(
-				{ now_pos.x + size.x / 2 - get_size().x / 2
-				, now_pos.y + size.y / 2 }
-			);
-			set_max_move_size(coords[back_max_size]);
-			set_frame_size(coords_[monster_bullet_frame]);
 			set_subj_type(obj_type);
+		}
+		//적
+		else {
 			//적 탄별
-			switch (subj_type_)
+			switch (obj_type)
 			{
 			case (int)obj_type::monster_straight:
 				//직선탄
@@ -71,42 +67,67 @@ namespace zee {
 				set_obj_type((int)obj_type::monster_bullet_wave);
 				break;
 			}
+			//적 공통
+			set_state((int)obj_state::idle);
+			set_frame_size(coords_[monster_bullet_frame]);
+			set_subj_type(obj_type);
+		}
+
+
+		//생성 위치
+		switch (obj_type)
+		{
+		case (int)obj_type::player_straight:
+			set_now_pos_and_body(
+				{ obj_body.origin.x - get_size().x / 2,
+				obj_body.origin.y - obj_body.radius / 2 - get_size().y / 2 }
+			);
+			break;
+		case (int)obj_type::monster_straight:
+		case (int)obj_type::monster_circle:
+		case (int)obj_type::monster_homing:
+		case (int)obj_type::monster_arround:
+		case (int)obj_type::monster_wave:
+			set_now_pos_and_body(
+				{ obj_body.origin.x - get_size().x / 2,
+				obj_body.origin.y + obj_body.radius / 2 - get_size().y / 2 }
+			);
+			break;
 		}
 
 	}
-	/*
-	* 어디서 이렇게 부하가 걸리는지 좀 가늠이 안가네
-	*/
+
+
 	void bullet::move(const float delta_time) {
 		float speed;
-		switch (subj_type_)
+		switch (get_subj_type())
 		{
 		case (int)obj_type::player_straight: {
 			speed = 500.0f;
-			set_now_pos_and_body({ now_pos_.x, now_pos_.y - delta_time * speed });
+			set_now_pos_and_body({ get_now_pos().x, get_now_pos().y - delta_time * speed});
 			break;
 		}
 		case (int)obj_type::monster_straight: {
 			speed = 200.0f;
-			set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
+			set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * speed });
 			break;
 		}
 		case (int)obj_type::monster_circle: {
-			speed = 100.0f;
+			speed = 150.0f;
 			//이동 행렬 -> 곱
 			matrix2f m;
-			m.translation(circle_angle_, delta_time * speed, delta_time * speed);
-			m.mul(now_pos_);
+			m.translation(get_circle_angle(), delta_time * speed, delta_time * speed);
+			m.mul(get_now_pos());
 			set_now_pos_and_body({ m.get_m()[0][0], m.get_m()[0][1] });
 			break;
 		}
 		case (int)obj_type::monster_homing: {
 			speed = 150.0f;
 			//유도탄 회전각
-			homing_angle_ = math::atan2(vec_for_player_.x, vec_for_player_.y);
+			set_homing_angle(math::atan2(get_vec_for_player().x, get_vec_for_player().y));
 			//이동
 			//stage tick 에서 얻은 vec_for_player_
-			set_now_pos_and_body(now_pos_ + vec_for_player_ * delta_time * speed);
+			set_now_pos_and_body(get_now_pos() + get_vec_for_player() * delta_time * speed);
 			//아래 행렬 이동->곱과 같음
 			/*matrix m;
 			m.translation(vec_for_player_.x * delta_time * speed, vec_for_player_.y * delta_time * speed);
@@ -116,15 +137,15 @@ namespace zee {
 		}
 		case (int)obj_type::monster_arround: {
 			speed = 450.0f;
-			set_now_pos_and_body({ now_pos_.x, now_pos_.y + delta_time * speed });
+			set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * speed });
 			break;
 		}
 		case (int)obj_type::monster_wave: {
-			speed = 150.0f;
+			speed = 200.0f;
 			matrix2f m;
 			//이동 행렬 -> 곱
-			m.translation(circle_angle_, delta_time * speed, delta_time * speed);
-			m.mul(now_pos_);
+			m.translation(get_circle_angle(), delta_time * speed, delta_time * speed);
+			m.mul(get_now_pos());
 
 			set_now_pos_and_body({ m.get_m()[0][0], m.get_m()[0][1] });
 			break;
@@ -135,27 +156,24 @@ namespace zee {
 	void bullet::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
 		unit::hit_from(other, delta_time);
 	}
-	void bullet::destroy(const float delta_time) {
-		unit::destroy(delta_time);
-	}
+
 
 	void bullet::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
 			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
 
-			switch (subj_type_)
+			switch (get_subj_type())
 			{
 			case (int)obj_type::player_straight:
 			case (int)obj_type::monster_straight:
 			case (int)obj_type::monster_circle:
-
 			case (int)obj_type::monster_arround:
 			case (int)obj_type::monster_wave: {
 				frame_image::get().render_transparent(
 					dest_dc,
-					now_pos_,
+					get_now_pos(),
 					{},
-					obj_type_
+					get_obj_type()
 				);
 				break;
 			}
@@ -164,11 +182,10 @@ namespace zee {
 				//유도탄
 				frame_image::get().render_plg(
 					dest_dc,
-					body_.origin,
-					homing_angle_,
+					get_body().origin,
+					get_homing_angle(),
 					(int)obj_type::monster_bullet_homing
 				);
-				frame_image::get().render_transparent_backbuffer_to_destdc(dest_dc, {}, (int)obj_type::monster_bullet_homing);
 				break;
 			}//case
 

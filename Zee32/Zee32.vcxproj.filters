@@ -81,6 +81,12 @@
     <ClInclude Include="stage\item.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="stage\plane.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\projectile.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32gdi\device_context.cpp">
@@ -138,6 +144,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="stage\item.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\plane.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\projectile.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

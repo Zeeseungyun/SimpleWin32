@@ -3,45 +3,47 @@
 namespace zee {
 	using namespace math;
 
-	void unit::init() {
-		set_hp(1);
-		set_atk(1);
-		set_my_score(0);
-		set_state((int)obj_state::idle);
+	void unit::init(const int obj_state) {
+		set_state(obj_state);
+		set_now_pos_and_body(coords[back_destroy_zone]);
+		switch (obj_state)
+		{
+		case (int)obj_state::idle:
+			set_hp(1);
+			break;
+		case (int)obj_state::die:
+			set_hp(0);
+			break;
+		}
 	}
 
 	void unit::load_image() {
+		//각 클래스
 	}
 
 	const bool unit::in_screen() const {
-		return now_pos_.x > coords[back_min_size].x && now_pos_.x < coords[back_max_size].x
-			&& now_pos_.y > coords[back_min_size].y && now_pos_.y < coords[back_max_size].y;
+		return get_now_pos().x > coords[back_min_size].x && get_now_pos().x < coords[back_max_size].x
+			&& get_now_pos().y > coords[back_min_size].y && get_now_pos().y < coords[back_max_size].y;
 	}
 
 	void unit::move(const float delta_time) {
 	}
+
 	void unit::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
 		//피깎
 		set_hp(get_hp() - other->get_atk());
-
-		if (get_hp() <= 0) {
-			//파괴
-			destroy(delta_time);
-		}
 	}
 
 	void unit::destroy(const float delta_time) {
-		if (get_hp() <= 0 || !(in_screen())) {
-			set_hp(0);
-			state_ = (int)obj_state::die;
-			set_now_pos_and_body(coords[back_destroy_zone]);
-		}
+		set_hp(0);
+		set_state((int)obj_state::die);
+		set_now_pos_and_body(coords[back_destroy_zone]);
 	}
 
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
 			//충돌범위 테스트
-			shape::circlef circle{ body_.origin, body_.radius };
+			shape::circlef circle{ get_body().origin, get_body().radius};
 			if (key_state::is_toggle_on(keys::tab)) {
 				dest_dc.circle(circle);
 			}
@@ -96,9 +98,6 @@ namespace zee {
 	void unit::set_frame_size(const math::vec2i& size) {
 		frame_x_ = { size.x, 0 };
 		frame_y_ = { 0, size.y };
-	}
-	void unit::set_max_move_size(const math::vec2i& size) {
-		max_move_size_ = size;
 	}
 	void unit::set_obj_type(const int i) {
 		obj_type_ = i;
