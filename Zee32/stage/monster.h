@@ -6,7 +6,6 @@
 namespace zee {
 	
 	class player;
-	class item;
 
 	class monster : public plane {
 	public:
@@ -15,10 +14,10 @@ namespace zee {
 
 		virtual void load_image() override;
 
-		virtual void init(const int obj_state) override;
+		virtual void init() override;
 		virtual void spawn() override;
 		virtual void move(const float delta_time) override;
-		void shoot(const float delta_time);
+		virtual void shoot(const float delta_time) override;
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
 
@@ -28,16 +27,13 @@ namespace zee {
 		const math::vec2f& get_arrival_vec() const;
 		const math::vec2f& get_vec_for_player() const;
 		const float get_homing_angle() const;
-		const float get_delay_shoot() const;
 		const float get_delay_destroy() const;
-		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
 
 		void set_arrival_vec(const math::vec2f& vec);
 		void set_vec_for_player(const math::vec2f& v);
-		void set_delay(const float delay);
-		void set_delay_shoot(const float delay);
-		void set_delay_destroy(const float delay);
 		void set_homing_angle(const float angle);
+		void set_delay_destroy(const float delay);
+		virtual	void set_delay(const float delay) override;
 
 	private:
 
@@ -69,6 +65,5 @@ namespace zee {
 		math::vec2f arrival_vec_;
 		math::vec2f vec_for_player_;
 		float homing_angle_;
-		std::vector<std::shared_ptr<bullet>> bullets_;
 	};
 }

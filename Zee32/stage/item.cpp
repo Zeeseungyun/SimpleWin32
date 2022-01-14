@@ -7,11 +7,13 @@ namespace zee {
 			, TEXT("assets/item_score.bmp"), (int)obj_type::item);
 	}
 
-	void item::init(const int obj_state) {
-		unit::init(obj_state);
+	void item::init() {
+		projectile::init();
 		set_size(coords_[item_size]);
 		set_my_score(3);
+		set_obj_type((int)obj_type::item);
 	}
+
 	void item::spawn_from(const std::shared_ptr<unit> other) {
 		projectile::spawn_from(other);
 	}
@@ -31,16 +33,6 @@ namespace zee {
 	}
 
 	void item::render(win32gdi::device_context_dynamic& dest_dc) {
-		if (in_screen() && get_state() == (int)obj_state::idle) {
-			frame_image::get().render_transparent(
-				dest_dc,
-				get_now_pos(),
-				{},
-				(int)obj_type::item
-			);
-		}
-
-		//충돌범위 테스트
-		unit::render(dest_dc);
+		projectile::render(dest_dc);
 	}
 }

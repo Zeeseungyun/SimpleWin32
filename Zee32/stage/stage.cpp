@@ -44,6 +44,7 @@ namespace zee {
 		std::shared_ptr<item> item_obj = std::make_shared<item>();
 		item_obj->load_image();
 
+
 		//게임 초기화
 		init_game();
 
@@ -106,14 +107,14 @@ namespace zee {
 
 		//플레이어
 		std::shared_ptr<player> spawned_player = std::make_shared<player>();
-		spawned_player->init((int)obj_state::idle);
+		spawned_player->init();
 		players_.push_back(spawned_player);
 
 
 		//몬스터
 		for (int i = 0; i != monster_spawn_num; i++) {
 			std::shared_ptr<monster> spawned_monster = std::make_shared<monster>();
-			spawned_monster->init((int)obj_state::idle);
+			spawned_monster->init();
 			monsters_.push_back(spawned_monster);
 		}
 
@@ -121,7 +122,7 @@ namespace zee {
 		//이펙트
 		for (int i = 0; i != effect_spawn_num; i++) {
 			std::shared_ptr<effect> spawned_effect = std::make_shared<effect>();
-			spawned_effect->init((int)obj_state::die);
+			spawned_effect->init();
 			effects_.push_back(spawned_effect);
 		}
 
@@ -129,7 +130,7 @@ namespace zee {
 		//아이템
 		for (int i = 0; i != item_spawn_num; i++) {
 			std::shared_ptr<item> spawned_item = std::make_shared<item>();
-			spawned_item->init((int)obj_state::die);
+			spawned_item->init();
 			items_.push_back(spawned_item);
 		}
 	}
@@ -205,6 +206,7 @@ namespace zee {
 		///////
 		//플레이어 틱
 		///////
+		
 		//이동
 		get_players()[0]->move(delta_time);
 
@@ -261,6 +263,26 @@ namespace zee {
 
 			//적 발사
 			mon_obj->shoot(delta_time);
+
+
+			//충돌: 적 vs 플레이어
+			if (shape::intersect(
+				mon_obj->get_body(),
+				get_players()[0]->get_body())
+				!= shape::collide_type::none)
+			{
+				//이펙트: 피격 판정 전에 먼저 위치 기록
+				for (auto& effect_obj : get_effects()) {
+					if (effect_obj->get_state() == (int)obj_state::die) {
+						effect_obj->spawn_from(get_players()[0]);
+						break;
+					}
+				}
+
+				//피격
+				get_players()[0]->hit_from(mon_obj, delta_time);
+			}
+
 
 
 			//적 뷸렛
@@ -510,6 +532,7 @@ namespace zee {
 		back_buffer_.print_text({ 930, 780 }, to_tstring(to_wstring(get_players()[0]->get_high_score())));
 		back_buffer_.print_text({ 850, 820 }, TEXT("충돌범위:    Tab"));
 		back_buffer_.print_text({ 850, 840 }, TEXT("리스폰:        R"));
+
 
 		//한 번에 그리기
 		back_buffer_.bit_blt(dest_dc, {});

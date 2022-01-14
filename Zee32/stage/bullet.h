@@ -10,7 +10,7 @@ namespace zee {
 
 		virtual void load_image();
 
-		virtual void init(const int obj_state) override;
+		virtual void init() override;
 		virtual void spawn_from(const int obj_type, const shape::circlef& obj_body) override;
 		virtual void move(const float delta_time) override;
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
@@ -49,12 +49,12 @@ namespace zee {
 			{ 13, 22 },		//player_bullet_homing_size
 			{ 0, 0 },		//player_bullet_frame
 
-			{16, 16},		//monster_bullet_straight_size
-			{26, 26},		//monster_bullet_circle_size
-			{24, 32},		//monster_bullet_homing_size
-			{16, 30},		//monster_bullet_arround_size
-			{30, 30},		//monster_bullet_wave_size
-			{0, 0},			//monster_bullet_frame
+			{ 16, 16 },		//monster_bullet_straight_size
+			{ 26, 26 },		//monster_bullet_circle_size
+			{ 24, 32 },		//monster_bullet_homing_size
+			{ 16, 30 },		//monster_bullet_arround_size
+			{ 30, 30 },		//monster_bullet_wave_size
+			{ 0, 0 },			//monster_bullet_frame
 		};
 
 		float frame_per_time_;

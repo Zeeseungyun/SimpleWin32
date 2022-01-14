@@ -10,12 +10,8 @@ namespace math {
 	//클래스를 따로 파셈
 	// 머슨 용도로여 동적할당 빼셈
 	// 수학연산하는 클래스 중에 동적할당일어나는거는 없음
-	// 최소한 게임에선
-	// ㅇㅋ? 넵\
-	// 매트릭스. 다시.
-// 	   제가 근데 그때 분명히 동적할당 아니라 사이즈 정해져있다 그랫자나여
-// 	   네근데 왜이랬음?
-// 	   이거 말구 딴 거여?
+
+
 	///////////////////////////////////////////////////////////////////////////
 	//행렬 2x2//////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
@@ -24,7 +20,7 @@ namespace math {
 	public:
 		//기본
 		matrix2f() noexcept;
-		explicit matrix2f(const size_t m, const size_t n) noexcept;//?
+		explicit matrix2f(const size_t m) noexcept;
 		explicit matrix2f(const std::vector<vec2f>& vv) noexcept;
 		explicit matrix2f(const matrix2f& m) noexcept;
 		//2x2
@@ -66,7 +62,7 @@ namespace math {
 		void inverse(const std::vector<vec2f>& vv);
 		void inverse(const matrix2f& m);
 		//단위행렬: 여부
-		const bool is_identity();
+		const bool is_identity() const;
 		//전치행렬: 행과 열을 교환
 		void transposed();
 
@@ -88,24 +84,10 @@ namespace math {
 	// 전부다 동적할당이 없져? 네
 	// ㅇㅋ 수학연산하는 그런 클래스엔 동적할당을 쓰는게 아님
 	// 최적화 관련되서 연관이 너무 많아서
-	// 글쿤요 t가 없어서 동적할당을 썼단건 변명이 안됨
-	// 말이 이상함..
-	// 2x2랑 3x2랑 처리해주려고 썼어여 특히 행렬곱
-	// 3x2도 만들고
-	// 2x2도 만드는게 맞슴. 글쿤요
-	// 암튼 요기까지. 11시임. 너무 수고했어요
-	// 고생해씀
-	// 이번에 좀 제대로 코드를 보니까
-	// 화들짝 놀랐네여
-	// ㅋㅋ 머가 문젠지 몰랐는데 이제 좀 알아가는듯
-	// 그 엔진 플머하면 그래픽스 플머 를 의미할 정도잖아요? 그렇다하던데
-	// 그게 다 엔진 코드가 중요하다 싶은 것들이 그래픽스쪽이라서 에요
-	// 왜 그럴까?
-	// 제일 코스트가 많은 부분이라 최적화 신경을 가장 많이 써야 해서거든여
-	// 뭐 어떤 코드건.. 클라에서도 똥코드 작성해버리면 렌더안해도 렉 오지겠지만
-	// 렌더쪽은 그정도가 아니란거임. 암튼 이렇게 렉걸리던 이슈는
-	// 렌더이쓔였다.
-	// 고생해씀 쉬셈! 가
+
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	//행렬 3x3//////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
@@ -114,7 +96,7 @@ namespace math {
 	public:
 		//기본
 		matrix3f() noexcept;
-		explicit matrix3f(const size_t m, const size_t n) noexcept;
+		explicit matrix3f(const size_t m) noexcept;
 		explicit matrix3f(const std::vector<vec3f>& vv) noexcept;
 		explicit matrix3f(const matrix3f& m) noexcept;
 		//3x3
@@ -132,10 +114,10 @@ namespace math {
 		const bool is_same_column_vs_row_size(const matrix3f& m) const;
 
 		//연산자
-		const matrix3f& operator=(const matrix3f& m);
-		const matrix3f& operator+=(const matrix3f& m);
-		const matrix3f& operator-=(const matrix3f& m);
-		const matrix3f& operator*=(const matrix3f& m);
+		matrix3f& operator=(const matrix3f& m);
+		matrix3f& operator+=(const matrix3f& m);
+		matrix3f& operator-=(const matrix3f& m);
+		matrix3f& operator*=(const matrix3f& m);
 
 		//연산
 		void add(const matrix3f& m);
@@ -151,9 +133,9 @@ namespace math {
 		void rotation(const float angle, const float dx, const float dy, const float dz);
 
 		//행렬식: 2x2 ad-bc, 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
-		const float determinant();
+		const float determinant() const;
 		//단위행렬: 여부
-		const bool is_identity();
+		const bool is_identity() const;
 		//전치행렬: 행과 열을 교환
 		void transposed();
 

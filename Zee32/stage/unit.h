@@ -25,7 +25,7 @@ namespace zee {
 		monster_bullet_arround,
 		monster_bullet_wave,
 		//
-		bomb,
+		effect_bomb,
 		item,
 		//
 		max
@@ -65,7 +65,7 @@ namespace zee {
 
 		virtual const bool in_screen() const;
 
-		virtual void init(const int obj_state);
+		virtual void init();	//최초 초기화
 		virtual void move(const float delta_time);
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time);
 		virtual void destroy(const float delta_time);

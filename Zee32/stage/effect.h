@@ -10,7 +10,7 @@ namespace zee {
 
 		virtual void load_image() override;
 
-		virtual void init(const int obj_state) override;
+		virtual void init() override;
 		virtual void spawn_from(const std::shared_ptr<unit> other) override;
 		virtual void destroy(const float delta_time) override;
 

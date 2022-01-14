@@ -18,15 +18,18 @@ namespace zee {
 			, TEXT("assets/monster_bullet_wave.bmp"), (int)obj_type::monster_bullet_wave);
 	}
 
-	void bullet::init(const int obj_state) {
-		projectile::init((int)obj_state::die);
+	void bullet::init() {
+		projectile::init();
 		set_atk(1);
+		//size_, frame_size_는 스폰될 때 결정된다. 
+		//몬스터의 타입을 가져오더라도, 몬스터가 무슨 탄을 쏘느냐에 따라 사이즈가 달라질 수 있기 때문.
 	}
 
 	void bullet::spawn_from(const int obj_type, const shape::circlef& obj_body) {
 
 		//공통 
 		projectile::spawn_from(obj_type, obj_body);
+		set_subj_type(obj_type);
 
 
 		//사이즈
@@ -35,7 +38,6 @@ namespace zee {
 			set_size(coords_[player_bullet_straight_size]);
 			set_frame_size(coords_[player_bullet_frame]);
 			set_obj_type((int)obj_type::player_bullet_straight);
-			set_subj_type(obj_type);
 		}
 		//적
 		else {
@@ -69,9 +71,7 @@ namespace zee {
 				break;
 			}
 			//적 공통
-			set_state((int)obj_state::idle);
 			set_frame_size(coords_[monster_bullet_frame]);
-			set_subj_type(obj_type);
 		}
 
 
@@ -185,7 +185,7 @@ namespace zee {
 					dest_dc,
 					get_body().origin,
 					get_homing_angle(),
-					(int)obj_type::monster_bullet_homing
+					get_obj_type()
 				);
 				break;
 			}//case

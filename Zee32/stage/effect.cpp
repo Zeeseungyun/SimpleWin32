@@ -3,13 +3,14 @@
 namespace zee {
 	void effect::load_image() {
 		frame_image::get().load_frame_image(coords_[effect_bomb_size]
-			, TEXT("assets/bomb.bmp"), (int)obj_type::bomb);
+			, TEXT("assets/bomb.bmp"), (int)obj_type::effect_bomb);
 	}
 
-	void effect::init(const int obj_state) {
-		unit::init(obj_state);
+	void effect::init() {
+		projectile::init();
 		set_size(coords_[effect_bomb_size]);
 		set_frame_size(coords_[effect_bomb_default_frame]);
+		set_obj_type((int)obj_type::effect_bomb);
 	}
 
 	void effect::spawn_from(const std::shared_ptr<unit> other) {
@@ -18,7 +19,7 @@ namespace zee {
 	}
 
 	void effect::destroy(const float delta_time) {
-		//폭발 이펙트 틱: 폭발은 플레이어나 적이 죽을 때 state::die ==> state::idle
+		//플레이어나 적이 죽을 때 state::die ==> state::idle
 		const float speed = 8.0f;
 		const float frame = 3.0f;
 		set_delay_bomb(get_delay_bomb() + delta_time * speed);
@@ -30,19 +31,9 @@ namespace zee {
 		}
 		set_delay_bomb((float)math::fmod(get_delay_bomb(), frame));
 	}
-	void effect::render(win32gdi::device_context_dynamic& dest_dc) {
-		if(in_screen() && get_state() == (int)obj_state::idle) {
-			//폭발
-			frame_image::get().render_transparent(
-				dest_dc,
-				get_now_pos(),
-				get_frame_x() + get_frame_y(),
-				(int)obj_type::bomb
-			);
-		}
 
-		//충돌범위 테스트
-		unit::render(dest_dc);
+	void effect::render(win32gdi::device_context_dynamic& dest_dc) {
+		projectile::render(dest_dc);
 	}
 
 	const float effect::get_delay_bomb() const {

@@ -9,8 +9,8 @@ namespace zee {
 			, TEXT("assets/player.bmp"), (int)obj_type::player_straight);
 	}
 	
-	void player::init(const int obj_state) {
-		plane::init(obj_state);
+	void player::init() {
+		plane::init();
 		set_size(coords_[player_size]);
 		set_frame_size(coords_[player_default_frame]);
 		spawn();
@@ -18,13 +18,13 @@ namespace zee {
 		//ÇÃ·¹ÀÌ¾î ºæ·¿
 		for (int i = 0; i != player_bullet_max_num; i++) {
 			std::shared_ptr<bullet> spawned_bullet = std::make_shared<bullet>();
-			spawned_bullet->init((int)obj_state::idle);
+			spawned_bullet->init();
 			bullets_.push_back(spawned_bullet);
 		}
 	}
 
 	void player::spawn() {
-		plane::init((int)obj_state::idle);
+		plane::init();
 		set_now_pos_and_body(
 			{ coords_[player_default_pos].x + get_body().radius,
 			coords_[player_default_pos].y + get_body().radius }
@@ -132,25 +132,19 @@ namespace zee {
 	}
 
 	void player::shoot(const float delta_time) {
+
+		const float frame = 0.2f;
+		set_delay_shoot(get_delay_shoot() + delta_time);
+
 		if (key_state::is_down(keys::space)) {
+			if (in_screen()
+				&& get_state() == (int)obj_state::idle) {
 
-			const float frame = 0.2f;
-			set_delay_shoot(get_delay_shoot() + delta_time);
- 			if (get_delay_shoot() >= frame) {
-				for (auto& bullet_obj : get_bullets()) {
-					if (bullet_obj->get_state() == (int)obj_state::die) {
-						bullet_obj->spawn_from(get_obj_type(), get_body());
-						break;
-					}
-				}
+				plane::shoot_per_delay(frame);
 			}
- 			set_delay_shoot((float)math::fmod(get_delay_shoot(), frame));
 		}
 
-		//ºæ·¿ Æ½
-		for (auto& bullet_obj : get_bullets()) {
-			bullet_obj->move(delta_time);
-		}
+		plane::shoot(delta_time);
 	}
 	void player::hit_from(const std::shared_ptr<unit> other, const	 float delta_time) {
 		unit::hit_from(other, delta_time);
@@ -166,18 +160,8 @@ namespace zee {
 
 	void player::render(win32gdi::device_context_dynamic& dest_dc) {
 		if (in_screen()) {
-			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
-
 			if (get_state() == (int)obj_state::idle) {
 				frame_image::get().render_transparent(
-					dest_dc,
-					get_now_pos(),
-					get_frame_x() + get_frame_y(),
-					get_obj_type()
-				);
-			}
-			if (get_state() == (int)obj_state::hit) {
-				frame_image::get().render_alphablend(
 					dest_dc,
 					get_now_pos(),
 					get_frame_x() + get_frame_y(),
@@ -190,9 +174,7 @@ namespace zee {
 		unit::render(dest_dc);
 
 		//ÇÃ·¹ÀÌ¾î ºæ·¿
-		for (auto& bullet_obj : get_bullets()) {
-			bullet_obj->render(dest_dc);
-		}
+		plane::render(dest_dc);
 	}
 
 	const int player::get_direction() const {
@@ -207,12 +189,6 @@ namespace zee {
 	const float player::get_delay_frame_ani() const {
 		return delay_frame_ani_;
 	}
-	const float player::get_delay_shoot() const {
-		return delay_shoot_;
-	}
-	const std::vector<std::shared_ptr<bullet>> player::get_bullets() const {
-		return bullets_;
-	}
 
 	void player::set_now_pos_and_body(const math::vec2f& point) {
 		now_pos_ = point;
@@ -221,11 +197,6 @@ namespace zee {
 	}
 	void player::set_direction(int direction) {
 		direction_ = direction;
-	}
-	void player::set_delay(const float delay) {
-		delay_frame_ani_ = 0.2f;
-		delay_shoot_ = delay;
-		delay_destroy_ = delay;
 	}
 	void player::set_is_dir_key_pressed(int is_dir_key_pressed) {
 		is_dir_key_pressed_ = is_dir_key_pressed;
@@ -236,7 +207,9 @@ namespace zee {
 	void player::set_delay_frame_ani(float delay_frame_ani) {
 		delay_frame_ani_ = delay_frame_ani;
 	}
-	void player::set_delay_shoot(float delay_shoot) {
-		delay_shoot_ = delay_shoot;
+	void player::set_delay(const float delay) {
+		delay_frame_ani_ = 0.2f;
+		delay_shoot_ = delay;
+		delay_destroy_ = delay;
 	}
 }

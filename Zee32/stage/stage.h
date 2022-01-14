@@ -12,6 +12,15 @@
 
 /*
 1. 상속 구조 개편 (좀 더 예쁘게 해보자!)
+
+다음과 같이 수정함
+unitㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|					|
+planeㅡㅡ			projectileㅡㅡㅡㅡ
+|		|			|		  |		 |
+player	monster		bullet	  item	 effect
+
+
 2. 이동 - > 충돌 - > 후처리 -> 렌더
 3. 전방 선언
 4. 풀링

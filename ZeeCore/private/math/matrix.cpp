@@ -11,11 +11,8 @@ namespace math {
 		m_{ { 0, 0 } }
 	{
 	}
-	matrix2f::matrix2f(const size_t m, const size_t n) noexcept {
+	matrix2f::matrix2f(const size_t m) noexcept {
 		m_.resize(m);
-		matrix2f a, b, c;
-		(a = b) = c;//붙히는거 아님니다. 아 네..
-
 	}
 	matrix2f::matrix2f(const std::vector<vec2f>& vv) noexcept {
 		set_vec(vv);
@@ -64,9 +61,8 @@ namespace math {
 	matrix2f& matrix2f::operator=(const matrix2f& m) {
 		set_m(m);
 		return *this;
-	}//헷갈릴수있음. 찾아보고 짜셈. 넴
-	//모든 클래스가 꼭 저래야 한단 것은 없는데
-	//대부분은 저래야하는게 맞음.
+	}
+
 	//만약 const T& 처럼 짰다면 마땅한 이유가 있어야함.
 	//근데 이클래스는 절대 아님.
 
@@ -128,7 +124,7 @@ namespace math {
 		}
 		//곱연산
 		if (is_same_column_vs_row_size(m)) {
-			matrix2f tmp(m.get_row_size(), m.get_column_size());
+			matrix2f tmp(m.get_row_size());
 
 			for (int i = 0; i != m.get_row_size(); i++) {
 				for (int j = 0; j != m_[0].size(); j++) {
@@ -179,9 +175,9 @@ namespace math {
 	}
 
 	//행렬식: 2x2 ad-bc
-	const float matrix2f::determinant() const { //const어디감? 숙지하겠슴다
+	const float matrix2f::determinant() const {
 		if (get_row_size() == 2) {
-			float a = m_[0][0], b = m_[0][1];//수정도 안하는걸.
+			float a = m_[0][0], b = m_[0][1];
 			float c = m_[1][0], d = m_[1][1];
 			return a * d - b * c;
 		}
@@ -221,7 +217,7 @@ namespace math {
 	}
 
 	//단위행렬: 여부
-	const bool matrix2f::is_identity() {
+	const bool matrix2f::is_identity() const {
 		bool is_identity = false;
 		if (get_row_size() > 1 
 			&& get_column_size() > 1
@@ -247,7 +243,7 @@ namespace math {
 
 	//전치행렬: 행과 열을 교환
 	void matrix2f::transposed() {
-		matrix2f tmp(m_[0].size(), m_.size());
+		matrix2f tmp(m_[0].size());
 
 		for (int i = 0; i != tmp.get_m().size(); i++) {
 			for (int j = 0; j != tmp.get_m()[0].size(); j++) {
@@ -301,7 +297,7 @@ namespace math {
 		: m_{ { 0, 0, 0 } }
 	{
 	}
-	matrix3f::matrix3f(const size_t m, const size_t n) noexcept {
+	matrix3f::matrix3f(const size_t m) noexcept {
 		m_.resize(m);
 	}
 	matrix3f::matrix3f(const std::vector<vec3f>& vv) noexcept {
@@ -321,14 +317,7 @@ namespace math {
 
 	//행과 열 사이즈 검사
 	const bool matrix3f::is_same_size(const std::vector<vec3f>& vv) const {
-		//얘로 구현해놓으면
-		//이렇게 하는게 낫겠져? ㅇㅎ
-		//얘는 객체를 일부러 하나 만들자나요 그쵸? 네네
-		//더 꼼 꼼하게 봐여 
 		matrix3f m(vv);
-		//이건 반대로 짜야하는게 맞지않을까요?
-		//어차피 이뭐 동적할당을 써서 다시 갈아치운다고 해도요
-
 		return is_same_size(m);
 	}
 	const bool matrix3f::is_same_size(const matrix3f& m) const {
@@ -356,26 +345,26 @@ namespace math {
 	}
 
 	//연산자
-	const matrix3f& matrix3f::operator=(const matrix3f& m) {
+	matrix3f& matrix3f::operator=(const matrix3f& m) {
 		set_m(m);
 		return *this;
 	}
 
-	const matrix3f& matrix3f::operator+=(const matrix3f& m) {
+	matrix3f& matrix3f::operator+=(const matrix3f& m) {
 		if (is_same_size(m)) {
 			add(m);
 		}
 		return *this;
 	}
 
-	const matrix3f& matrix3f::operator-=(const matrix3f& m) {
+	matrix3f& matrix3f::operator-=(const matrix3f& m) {
 		if (is_same_size(m)) {
 			sub(m);
 		}
 		return *this;
 	}
 
-	const matrix3f& matrix3f::operator*=(const matrix3f& m) {
+	matrix3f& matrix3f::operator*=(const matrix3f& m) {
 		if (is_same_size(m)) {
 			mul(m);
 		}
@@ -422,7 +411,7 @@ namespace math {
 		}
 		//곱연산
 		if (is_same_column_vs_row_size(m)) {
-			matrix3f tmp(m.get_row_size(), m.get_column_size());
+			matrix3f tmp(m.get_row_size());
 
 			for (int i = 0; i != m.get_row_size(); i++) {
 				for (int j = 0; j != m_[0].size(); j++) {
@@ -483,7 +472,7 @@ namespace math {
 	}
 
 	//행렬식: 3x3 d(ei-fh)-b(di-fg)+c(dh-eg)
-	const float matrix3f::determinant() {//c
+	const float matrix3f::determinant() const {
 		if (get_row_size() == 3) {
 			float a = m_[0][0], b = m_[0][1], c = m_[0][2];
 			float d = m_[1][0], e = m_[1][1], f = m_[1][2];
@@ -497,7 +486,7 @@ namespace math {
 	}
 
 	//단위행렬: 여부
-	const bool matrix3f::is_identity() {//c
+	const bool matrix3f::is_identity() const {
 		bool is_identity = false;
 		if (get_row_size() > 1
 			&& get_column_size() > 1
@@ -523,7 +512,7 @@ namespace math {
 
 	//전치행렬: 행과 열을 교환
 	void matrix3f::transposed() {
-		matrix3f tmp(m_[0].size(), m_.size());
+		matrix3f tmp(m_[0].size());
 
 		for (int i = 0; i != tmp.get_m().size(); i++) {
 			for (int j = 0; j != tmp.get_m()[0].size(); j++) {

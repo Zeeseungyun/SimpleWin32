@@ -10,10 +10,10 @@ namespace zee {
 
 		virtual void load_image() override;
 
-		virtual void init(const int obj_state) override;
+		virtual void init() override;
 		virtual void spawn() override;
 		virtual void move(const float delta_time) override;
-		void shoot(const float delta_time);
+		virtual void shoot(const float delta_time) override;
 		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
 		virtual void destroy(const float delta_time) override;
 		void add_score(const int score);
@@ -25,16 +25,13 @@ namespace zee {
 		const bool get_is_dir_key_pressed() const;
 		const int get_pressed_key() const;
 		const float get_delay_frame_ani() const;
-		const float get_delay_shoot() const;
-		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
 
 		virtual void set_now_pos_and_body(const math::vec2f& point) override;
 		void set_direction(int direction);
-		void set_delay(const float delay);
 		void set_is_dir_key_pressed(int is_dir_key_pressed);
 		void set_pressed_key(int pressed_key);
 		void set_delay_frame_ani(float delay_frame_ani);
-		void set_delay_shoot(float delay_shoot);
+		virtual void set_delay(const float delay) override;
 
 	private:
 		enum const_var_ {
@@ -66,6 +63,5 @@ namespace zee {
 		bool is_dir_key_pressed_;
 		int pressed_key_;
 		float delay_frame_ani_;
-		std::vector<std::shared_ptr<bullet>> bullets_;
 	};
 }

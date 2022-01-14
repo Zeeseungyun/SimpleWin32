@@ -3,18 +3,11 @@
 namespace zee {
 	using namespace math;
 
-	void unit::init(const int obj_state) {
-		set_state(obj_state);
+	void unit::init() {
 		set_now_pos_and_body(coords[back_destroy_zone]);
-		switch (obj_state)
-		{
-		case (int)obj_state::idle:
-			set_hp(1);
-			break;
-		case (int)obj_state::die:
-			set_hp(0);
-			break;
-		}
+		
+		//plane은 idle 상태로 초기화
+		//projectile은 die 상태로 초기화
 	}
 
 	void unit::load_image() {
@@ -44,7 +37,8 @@ namespace zee {
 	}
 
 	void unit::render(win32gdi::device_context_dynamic& dest_dc) {
-		if (in_screen() && get_state() == (int)obj_state::idle) {
+		if (in_screen() 
+			&& get_state() == (int)obj_state::idle) {
 			//충돌범위 테스트
 			shape::circlef circle{ get_body().origin, get_body().radius};
 			if (key_state::is_toggle_on(keys::tab)) {
