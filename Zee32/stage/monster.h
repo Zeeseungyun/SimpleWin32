@@ -56,7 +56,7 @@ namespace zee {
 			{64, 48},		//monster_straight_size
 			{64, 64},		//monster_circle_size
 			{60, 64},		//monster_homing_size
-			{52, 62},		//monster_arround_size
+			{62, 62},		//monster_arround_size
 			{126, 62},		//monster_wave_size
 			{0, 0},			//monster_default_frame
 			{0, -100},		//monster_min_pos

@@ -1,4 +1,5 @@
 #include "frame_image.h"
+#include "../stat/simple_stat.h"
 
 namespace zee {
 	frame_image::frame_image() noexcept
@@ -52,8 +53,8 @@ namespace zee {
 
 		if (!back_buffers_[index].is_valid()) {
 			back_buffers_[index].create_empty_image({
-				//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
-				(frame_sizes_[index].x + math::abs(frame_sizes_[index].y - frame_sizes_[index].x) * 2) * 360,
+				//회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+				360 * (frame_sizes_[index].x + frame_sizes_[index].x * 2),
 				frame_sizes_[index].y 
 			});
 		}
@@ -68,6 +69,7 @@ namespace zee {
 	}
 
 	void frame_image::render_plg_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int index) {
+
 		if (back_buffers_[index].is_valid()) {
 			//다른 angle 리소스 제거
 			back_buffers2_[index].clear();

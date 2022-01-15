@@ -23,12 +23,12 @@ namespace zee {
 
 		//회전: 모든 각도의 이미지 미리 찍기
 		for (float degree = 0.0f; degree != 360; degree++) {
-			//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+			//회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
 			math::vec2f point;
 			point.x =
 				degree < 1.0f ?
 				coords_[monster_arround_size].x / 2 :
-				coords_[monster_arround_size].x / 2 + degree * (coords_[monster_arround_size].x + math::abs(coords_[monster_arround_size].y - coords_[monster_arround_size].x) * 2);
+				coords_[monster_arround_size].x / 2 + degree * (coords_[monster_arround_size].x + coords_[monster_arround_size].x / 2);
 
 			point.y = coords_[monster_arround_size].y / 2;
 
@@ -292,10 +292,10 @@ namespace zee {
 					break;
 				}
 				case (int)obj_type::monster_arround: {
-					//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+					//회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
 					math::vec2i src_pos;
 					src_pos.x = 
-						(get_size().x + math::abs(get_size().y - get_size().x) * 2) * static_cast<int>(get_homing_degree());
+						(get_size().x + get_size().x / 2) * static_cast<int>(get_homing_degree());
 
 					frame_image::get().render_plg_transparent(
 						dest_dc,
