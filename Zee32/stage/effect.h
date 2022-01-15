@@ -3,20 +3,20 @@
 #include "projectile.h"
 
 namespace zee {
-	class effect : public projectile {
+	class effect final : public projectile {
 	public:
 		effect() noexcept = default;
 		virtual ~effect() noexcept = default;
 
-		virtual void load_image() override;
+		virtual void load_image() final;
 
-		virtual void init() override;
-		virtual void spawn_from(const std::shared_ptr<unit> other) override;
-		virtual void destroy(const float delta_time) override;
+		virtual void init() final;
+		virtual void spawn_from(const std::shared_ptr<unit> other) final;
+		virtual void destroy(const float delta_time) final;
 
-		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
+		virtual void render(win32gdi::device_context_dynamic& dest_dc) final;
 
-		const float get_delay_bomb() const;
+		float get_delay_bomb() const;
 		void set_delay_bomb(const float delay);
 
 	private:

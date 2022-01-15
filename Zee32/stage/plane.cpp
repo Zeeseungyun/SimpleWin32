@@ -43,11 +43,17 @@ namespace zee {
 
 
 
-	const float plane::get_delay_shoot() const {
-		return delay_shoot_;
-	}
 	const std::vector<std::shared_ptr<bullet>> plane::get_bullets() const {
 		return bullets_;
+	}
+	float plane::get_delay_shoot() const {
+		return delay_shoot_;
+	}
+	float plane::get_delay_destroy() const {
+		return delay_destroy_;
+	}
+	float plane::get_speed() const {
+		return speed_;
 	}
 
 	void plane::set_delay(const float delay) {
@@ -55,5 +61,11 @@ namespace zee {
 	}
 	void plane::set_delay_shoot(const float delay_shoot) {
 		delay_shoot_ = delay_shoot;
+	}
+	void plane::set_delay_destroy(const float delay) {
+		delay_destroy_ = delay;
+	}
+	void plane::set_speed(const float speed) {
+		speed_ = speed;
 	}
 }

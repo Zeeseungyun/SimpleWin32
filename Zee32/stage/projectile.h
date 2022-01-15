@@ -3,6 +3,7 @@
 #include "unit.h"
 
 namespace zee {
+	//특징: die 상태로 게임시작, 어떤 obj로부터 스폰되며 살아남.
 	class projectile : public unit {
 	public:
 		projectile() noexcept = default;
@@ -15,8 +16,5 @@ namespace zee {
 		virtual void spawn_from(const int obj_type, const shape::circlef& obj_body);
 
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
-
-	protected:
-
 	};
 }

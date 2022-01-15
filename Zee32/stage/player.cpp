@@ -35,7 +35,7 @@ namespace zee {
 	void player::move(const float delta_time) {
 
 		vec2f velocity;
-		const float speed = 400.0f;
+		set_speed(400.0f);
 		set_is_dir_key_pressed(false);
 		set_pressed_key((int)key_type_::none);
 
@@ -46,7 +46,7 @@ namespace zee {
 			set_direction((int)obj_dir::up);
 
 			if (get_now_pos().y > 0) {	//스크린 안에 있을 때만
-				velocity -= vec2f::constants::unit_y * delta_time * speed;
+				velocity -= vec2f::constants::unit_y * delta_time * get_speed();
 			}
 		}
 		
@@ -56,7 +56,7 @@ namespace zee {
 			set_direction((int)obj_dir::left);
 
 			if (get_now_pos().x > -10.0f) {
-				velocity -= vec2f::constants::unit_x * delta_time * speed;
+				velocity -= vec2f::constants::unit_x * delta_time * get_speed();
 			}
 
 		}
@@ -67,7 +67,7 @@ namespace zee {
 			set_direction((int)obj_dir::down);
 
 			if (get_now_pos().y + get_size().y < coords[back_max_size].y) {
-				velocity += vec2f::constants::unit_y * delta_time * speed;
+				velocity += vec2f::constants::unit_y * delta_time * get_speed();
 			}
 		}
 		
@@ -77,7 +77,7 @@ namespace zee {
 			set_direction((int)obj_dir::right);
 
 			if (get_now_pos().x + get_size().x < coords[back_max_size].x) {
-				velocity += vec2f::constants::unit_x * delta_time * speed;
+				velocity += vec2f::constants::unit_x * delta_time * get_speed();
 			}
 		}
 
@@ -91,16 +91,16 @@ namespace zee {
 		//이미지상 프레임 애니메이션
 		if (get_is_dir_key_pressed()) {
 			//x축
-			const float speed = 9.0f;
-			const float frame = 2.0f;
+			constexpr float speed_for_frame = 9.0f;
+			constexpr float frame = 2.0f;
 			if (get_pressed_key() == (int)key_type_::arrow_left
 				|| get_pressed_key() == (int)key_type_::arrow_right) {
 
 				if (get_pressed_key() == (int)key_type_::arrow_left) {
-					set_delay_frame_ani(get_delay_frame_ani() - delta_time * speed);
+					set_delay_frame_ani(get_delay_frame_ani() - delta_time * speed_for_frame);
 				}
 				else if (get_pressed_key() == (int)key_type_::arrow_right) {
-					set_delay_frame_ani(get_delay_frame_ani() + delta_time * speed);
+					set_delay_frame_ani(get_delay_frame_ani() + delta_time * speed_for_frame);
 				}
 				if (get_delay_frame_ani() <= 0) {
 					set_delay_frame_ani(0.0f);
@@ -108,7 +108,7 @@ namespace zee {
 				else if (get_delay_frame_ani() >= frame) {
 					set_delay_frame_ani(frame);
 				}
-				set_frame_size({ get_size().x * (int)get_delay_frame_ani(), 0});
+				set_frame_size({ get_size().x * static_cast<int>(get_delay_frame_ani()), 0});
 			}
 			//y축 프레임 이동
 			/*
@@ -133,7 +133,7 @@ namespace zee {
 
 	void player::shoot(const float delta_time) {
 
-		const float frame = 0.2f;
+		constexpr float frame = 0.2f;
 		set_delay_shoot(get_delay_shoot() + delta_time);
 
 		if (key_state::is_down(keys::space)) {
@@ -146,7 +146,7 @@ namespace zee {
 
 		plane::shoot(delta_time);
 	}
-	void player::hit_from(const std::shared_ptr<unit> other, const	 float delta_time) {
+	void player::hit_from(const std::shared_ptr<unit> other, const float delta_time) {
 		unit::hit_from(other, delta_time);
 	}
 
@@ -177,16 +177,16 @@ namespace zee {
 		plane::render(dest_dc);
 	}
 
-	const int player::get_direction() const {
+	int player::get_direction() const {
 		return direction_;
 	}
-	const bool player::get_is_dir_key_pressed() const {
+	bool player::get_is_dir_key_pressed() const {
 		return is_dir_key_pressed_;
 	}
-	const int player::get_pressed_key() const {
+	int player::get_pressed_key() const {
 		return pressed_key_;
 	}
-	const float player::get_delay_frame_ani() const {
+	float player::get_delay_frame_ani() const {
 		return delay_frame_ani_;
 	}
 

@@ -7,34 +7,36 @@ namespace zee {
 	
 	class player;
 
-	class monster : public plane {
+	class monster final : public plane {
 	public:
 		monster() noexcept = default;
 		virtual ~monster() noexcept = default;
 
-		virtual void load_image() override;
+		virtual void load_image() final;
 
-		virtual void init() override;
-		virtual void spawn() override;
-		virtual void move(const float delta_time) override;
-		virtual void shoot(const float delta_time) override;
-		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
-		virtual void destroy(const float delta_time) override;
+		virtual void init() final;
+		virtual void spawn() final;
+		virtual void move(const float delta_time) final;
+		virtual void shoot(const float delta_time) final;
+		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) final;
+		virtual void destroy(const float delta_time) final;
 
-		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
+		virtual void render(win32gdi::device_context_dynamic& dest_dc) final;
 
 
 		const math::vec2f& get_arrival_vec() const;
 		const math::vec2f& get_vec_for_player() const;
-		const float get_homing_angle() const;
-		const float get_homing_degree() const;
-		const float get_delay_destroy() const;
+		float get_homing_angle() const;
+		float get_homing_degree() const;
+		float get_wave_angle() const;
+		float get_wave_angle_numer() const;
 
 		void set_arrival_vec(const math::vec2f& vec);
 		void set_vec_for_player(const math::vec2f& v);
 		void set_homing_angle(const float angle);
 		void set_homing_degree(const float degree);
-		void set_delay_destroy(const float delay);
+		void set_wave_angle(const float angle);
+		void set_wave_angle_numer(const float angle);
 		virtual	void set_delay(const float delay) override;
 
 	private:
@@ -68,5 +70,7 @@ namespace zee {
 		math::vec2f vec_for_player_;
 		float homing_angle_;
 		float homing_degree_;
+		float wave_angle_;
+		float wave_angle_numer_;
 	};
 }

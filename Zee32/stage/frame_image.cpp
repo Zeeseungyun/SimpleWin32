@@ -71,12 +71,11 @@ namespace zee {
 	void frame_image::render_plg_transparent(win32gdi::device_context_dynamic& dest_dc, const math::vec2i& dest_pos, const math::vec2i& src_pos, const int index) {
 
 		if (back_buffers_[index].is_valid()) {
-			//다른 angle 리소스 제거
+			//검정 배경색 없애려고 + 전에 남은 이미지 없애려고 또 다른 백버퍼를 매번 클리어하고 사이즈 세팅하고 그려줬다...
 			back_buffers2_[index].clear();
 			back_buffers2_[index].create_empty_image(frame_sizes_[index]);
 
-			//검정 배경색 없애려고 또 다른 백버퍼를 호출했다.
-			back_buffers_[index].transparent_blt(dest_dc, dest_pos, frame_sizes_[index], src_pos, frame_sizes_[index], RGB(255, 255, 255));
+			back_buffers_[index].transparent_blt(back_buffers2_[index], {}, frame_sizes_[index], src_pos, frame_sizes_[index], RGB(255, 255, 255));
 			back_buffers2_[index].transparent_blt(dest_dc, dest_pos, RGB(0, 0, 0));
 		}
 	}

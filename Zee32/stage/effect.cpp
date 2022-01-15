@@ -20,8 +20,8 @@ namespace zee {
 
 	void effect::destroy(const float delta_time) {
 		//플레이어나 적이 죽을 때 state::die ==> state::idle
-		const float speed = 8.0f;
-		const float frame = 3.0f;
+		constexpr float speed = 8.0f;
+		constexpr float frame = 3.0f;
 		set_delay_bomb(get_delay_bomb() + delta_time * speed);
 
 		set_frame_size({ coords_[effect_bomb_size].x * (int)get_delay_bomb(), 0});
@@ -36,7 +36,7 @@ namespace zee {
 		projectile::render(dest_dc);
 	}
 
-	const float effect::get_delay_bomb() const {
+	float effect::get_delay_bomb() const {
 		return delay_bomb_;
 	}
 	void effect::set_delay_bomb(const float delay) {

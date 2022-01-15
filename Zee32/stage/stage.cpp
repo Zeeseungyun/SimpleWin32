@@ -93,7 +93,8 @@ namespace zee {
 
 		//배경
 		switch (background_type) {
-		case loop:
+		//@[[likely]] likely and unlikely attributes: c++ 20. 해당 레이블이 실행될 가능성이 높다는 힌트를 제공함.
+		[[likely]] case loop:
 			set_background_src_pos({});
 			set_background_src_size(coords_stage[back_loop_max_size]);
 			break;
@@ -142,9 +143,9 @@ namespace zee {
 
 		//배경 틱
 		switch (background_type) {
-		case loop: {
+		[[likely]] case loop: {
 			const float speed = 120.0f;
-			switch (background_direction) {//이런게 좀 아쉬움 enum으로 쓰면 좋을법한 값임.
+			switch (background_direction) {
 				//배경 루프 이미지
 			case (int)background_dir::left:
 			case (int)background_dir::right:
@@ -152,7 +153,7 @@ namespace zee {
 				set_background_src_pos_x((float)math::fmod(get_background_src_pos().x, get_background_src_size().x));
 
 				break;
-			case (int)background_dir::up:
+			[[likely]] case (int)background_dir::up:
 			case (int)background_dir::down:
 				set_background_src_pos_y(get_background_src_pos().y + delta_time * speed);
 				set_background_src_pos_y((float)math::fmod(get_background_src_pos().y, get_background_src_size().y));
@@ -166,23 +167,23 @@ namespace zee {
 			if (get_players()[0]->get_is_dir_key_pressed()) {
 				switch (get_players()[0]->get_direction()) {
 					//배경 정지 이미지
-				case 0:
+				case (int)background_dir::up:
 					if (get_players()[0]->get_now_pos().y > 0 && get_background_src_pos().y > 0) {
 						set_background_src_pos_y(get_background_src_pos().y - delta_time * background_speed);
 					}
 					break;
-				case 1:
+				case (int)background_dir::left:
 					if (get_players()[0]->get_now_pos().x > 0 && get_background_src_pos().x > 0) {
 						set_background_src_pos_x(get_background_src_pos().x - delta_time * background_speed);
 					}
 					break;
-				case 2:
+				case (int)background_dir::down:
 					if (get_players()[0]->get_now_pos().y < coords_stage[back_scroll_unit_max_move].y
 						&& get_background_src_pos().y < coords_stage[back_scroll_max].y) {
 						set_background_src_pos_y(get_background_src_pos().y + delta_time * background_speed);
 					}
 					break;
-				case 3:
+				case (int)background_dir::right:
 					if (get_players()[0]->get_now_pos().x < coords_stage[back_scroll_unit_max_move].x
 						&& get_background_src_pos().x < coords_stage[back_scroll_max].x) {
 						set_background_src_pos_x(get_background_src_pos().x + delta_time * background_speed);
@@ -191,7 +192,9 @@ namespace zee {
 				}
 			}
 			break;
+
 		}//case scroll
+
 		}//switch (kind_of_background)
 
 		/*
@@ -202,11 +205,10 @@ namespace zee {
 		}
 		*/
 
-
 		///////
 		//플레이어 틱
 		///////
-		
+
 		//이동
 		get_players()[0]->move(delta_time);
 
@@ -447,11 +449,11 @@ namespace zee {
 			
 			//배경
 			switch (background_type) {
-			case loop:
+			[[likely]] case loop:
 				//배경 루프 이미지
 				switch (background_direction)
 				{
-				case (int)background_dir::up:
+				[[likely]] case (int)background_dir::up:
 					background_image::get().render(back_buffer_, -get_background_src_pos());
 					background_image::get().render(
 						back_buffer_,

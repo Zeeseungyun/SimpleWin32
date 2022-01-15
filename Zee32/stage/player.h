@@ -3,28 +3,28 @@
 #include "plane.h"
 
 namespace zee {
-	class player : public plane {
+	class player final : public plane {
 	public:
 		player() noexcept = default;
 		virtual ~player() noexcept = default;
 
-		virtual void load_image() override;
+		virtual void load_image() final;
 
-		virtual void init() override;
-		virtual void spawn() override;
-		virtual void move(const float delta_time) override;
-		virtual void shoot(const float delta_time) override;
-		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
-		virtual void destroy(const float delta_time) override;
+		virtual void init() final;
+		virtual void spawn() final;
+		virtual void move(const float delta_time) final;
+		virtual void shoot(const float delta_time) final;
+		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) final;
+		virtual void destroy(const float delta_time) final;
 		void add_score(const int score);
 
-		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
+		virtual void render(win32gdi::device_context_dynamic& dest_dc) final;
 
 
-		const int get_direction() const;
-		const bool get_is_dir_key_pressed() const;
-		const int get_pressed_key() const;
-		const float get_delay_frame_ani() const;
+		int get_direction() const;
+		bool get_is_dir_key_pressed() const;
+		int get_pressed_key() const;
+		float get_delay_frame_ani() const;
 
 		virtual void set_now_pos_and_body(const math::vec2f& point) override;
 		void set_direction(int direction);

@@ -16,7 +16,6 @@ namespace zee {
 			, TEXT("assets/monster_bullet_wave.bmp"), (int)obj_type::monster_bullet_wave);
 
 
-
 		//회전
 		frame_image::get().load_plg_image(coords_[monster_bullet_homing_size]
 			, TEXT("assets/monster_bullet_homing.bmp"), (int)obj_type::monster_bullet_homing);
@@ -30,7 +29,7 @@ namespace zee {
 				coords_[monster_bullet_homing_size].x / 2 :
 				coords_[monster_bullet_homing_size].x / 2 + degree * (coords_[monster_bullet_homing_size].x + coords_[monster_bullet_homing_size].x / 2);
 
-			point.y = coords_[monster_bullet_homing_size].y / 2;
+			point.y = static_cast<float>(coords_[monster_bullet_homing_size].y / 2);
 
 			frame_image::get().render_plg(
 				point,
@@ -165,7 +164,7 @@ namespace zee {
 			break;
 		}
 		case (int)obj_type::monster_arround: {
-			speed = 450.0f;
+			speed = 550.0f;
 			set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * speed });
 			break;
 		}
@@ -175,7 +174,6 @@ namespace zee {
 			//이동 행렬 -> 곱
 			m.translation(get_circle_angle(), delta_time * speed, delta_time * speed);
 			m.mul(get_now_pos());
-
 			set_now_pos_and_body({ m.get_m()[0][0], m.get_m()[0][1] });
 			break;
 		}//case
@@ -229,16 +227,16 @@ namespace zee {
 		unit::render(dest_dc);
 	}
 
-	const int bullet::get_subj_type() const {
+	int bullet::get_subj_type() const {
 		return subj_type_;
 	}
-	const float bullet::get_homing_angle() const {
+	float bullet::get_homing_angle() const {
 		return homing_angle_;
 	}
-	const float bullet::get_homing_degree() const {
+	float bullet::get_homing_degree() const {
 		return homing_degree_;
 	}
-	const float bullet::get_circle_angle() const {
+	float bullet::get_circle_angle() const {
 		return circle_angle_;
 	}
 	const math::vec2f& bullet::get_vec_for_player() const {

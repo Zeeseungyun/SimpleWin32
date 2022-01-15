@@ -30,7 +30,7 @@ namespace zee {
 				coords_[monster_arround_size].x / 2 :
 				coords_[monster_arround_size].x / 2 + degree * (coords_[monster_arround_size].x + coords_[monster_arround_size].x / 2);
 
-			point.y = coords_[monster_arround_size].y / 2;
+			point.y = static_cast<float>(coords_[monster_arround_size].y / 2);
 
 			frame_image::get().render_plg(
 				point,
@@ -58,8 +58,8 @@ namespace zee {
 		set_my_score(1);
 		set_delay(0.0f);
 
-		int random_shoot_type = rand(3, 4);	//monster_num
-		switch (random_shoot_type)
+		//monster_num
+		switch (int random_shoot_type = rand(1, 5))
 		{
 		case 1: set_obj_type((int)obj_type::monster_straight);
 			break;
@@ -74,7 +74,7 @@ namespace zee {
 		}
 
 		//테스트	--------------------------------------------------------
-		//set_obj_type((int)obj_type::monster_homing);
+		//set_obj_type((int)obj_type::monster_wave);
 
 
 		switch (get_obj_type())
@@ -94,34 +94,35 @@ namespace zee {
 		case (int)obj_type::monster_wave:
 			set_size(coords_[monster_wave_size]);
 			set_hp(3);
+			set_wave_angle(0.0f);
+			set_wave_angle_numer(0.0f);
 			break;
 		}
 
 		int rx = rand(coords_[monster_min_pos].x, coords_[monster_max_pos].x);
 		int ry = coords_[monster_min_pos].y;
-		set_now_pos_and_body({ (float)rx, (float)ry });
+		set_now_pos_and_body({ static_cast<float>(rx), static_cast<float>(ry) });
 
 		rx = rand(coords_[monster_min_pos].x, coords_[monster_max_pos].x);
 		ry = coords_[monster_max_pos].y;
-		set_arrival_vec({ (float)rx, (float)ry });
+		set_arrival_vec({ static_cast<float>(rx), static_cast<float>(ry) });
 	}
 
 	void monster::move(const float delta_time) {
 		if (in_screen()) {
-			float speed;
 			switch (get_obj_type())
 			{
 			case (int)obj_type::monster_straight:
 			case (int)obj_type::monster_circle:
 			case (int)obj_type::monster_homing: {
-				speed = 150.0f;
+				set_speed(150.0f);
 				//이동 방향 벡터는 첨에 스폰 시 생성
 				math::vec2f v{
 					get_body().origin - get_arrival_vec()
 				};
 				//내적->거리->단위화
 				set_arrival_vec(arrival_vec_.normalize());
-				set_now_pos_and_body(get_now_pos() + get_arrival_vec() * delta_time * speed);
+				set_now_pos_and_body(get_now_pos() + get_arrival_vec() * delta_time * get_speed());
 				break;
 			}
 
@@ -131,15 +132,16 @@ namespace zee {
 					//회전각
 					if (get_obj_type() == (int)obj_type::monster_arround) {
 						set_homing_angle(math::atan2(get_vec_for_player().x, get_vec_for_player().y));
+						//rad to degree
 						set_homing_degree(rad_to_deg(get_homing_angle()));
 						if (get_homing_degree() < 0) {
 							set_homing_degree(get_homing_degree() + 360);
 						}
 					}
 					//이동
-					speed = 200.0f;
+					set_speed(200.0f);
 					set_vec_for_player(get_vec_for_player().normalize());
-					set_now_pos_and_body(get_now_pos() + get_vec_for_player() * delta_time * speed);
+					set_now_pos_and_body(get_now_pos() + get_vec_for_player() * delta_time * get_speed());
 					//아래 행렬 이동->곱과 같음
 					/*matrix m;
 					m.translation(vec_for_player_.x * delta_time * speed, vec_for_player_.y * delta_time * speed);
@@ -147,8 +149,8 @@ namespace zee {
 					set_now_pos_and_body({ m.get_mf()[0][0], m.get_mf()[0][1] });*/
 				}
 				else {
-					speed = 250.0f;
-					set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * speed });
+					set_speed(250.0f);
+					set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * get_speed() });
 					set_homing_angle(0.0f);
 					set_homing_degree(0.0f);
 				}
@@ -157,8 +159,8 @@ namespace zee {
 
 			case (int)obj_type::monster_wave: {
 				if (get_now_pos() != coords_[monster_boss_pos]) {
-					speed = 150.0f;
-					set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * speed });
+					set_speed(150.0f);
+					set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * get_speed() });
 				}
 				break;
 			}//case
@@ -175,7 +177,7 @@ namespace zee {
 
 			case (int)obj_type::monster_straight: {
 				//직선탄
-				const float frame_straight = 1.5f;
+				constexpr float frame_straight = 1.5f;
 				set_delay_shoot(get_delay_shoot() + delta_time);
 				plane::shoot_per_delay(frame_straight);
 				break;
@@ -183,14 +185,14 @@ namespace zee {
 
 			case (int)obj_type::monster_circle: {
 				//원형탄
-				const float frame_circle = 3.0f;
+				constexpr float frame_circle = 3.0f;
 				set_delay_shoot(get_delay_shoot() + delta_time);
 				if (get_delay_shoot() >= frame_circle) {
 					float circle_angle = 0;
-					const int bullent_circle_cnt = 10;
-					for (int i = 0; i != bullent_circle_cnt; i++) {
+					constexpr int bullet_circle_cnt = 10;
+					for (int i = 0; i != bullet_circle_cnt; i++) {
 
-						circle_angle += math::pi() * 2 / (float)bullent_circle_cnt;
+						circle_angle += math::pi() * 2 / static_cast<float>(bullet_circle_cnt);
 
 						for (auto& bullet_obj : get_bullets()) {
 							if (bullet_obj->get_state() == (int)obj_state::die) {
@@ -207,7 +209,7 @@ namespace zee {
 
 			case (int)obj_type::monster_homing: {
 				//유도탄
-				const float frame_homing = 2.0f;
+				constexpr float frame_homing = 2.0f;
 				set_delay_shoot(get_delay_shoot() + delta_time);
 				plane::shoot_per_delay(frame_homing);
 				break;
@@ -215,7 +217,7 @@ namespace zee {
 
 			case (int)obj_type::monster_arround: {
 				//어라운드
-				const float frame_arround = 1.5f;
+				constexpr float frame_arround = 1.5f;
 				set_delay_shoot(get_delay_shoot() + delta_time);
 				plane::shoot_per_delay(frame_arround);
 				break;
@@ -223,24 +225,29 @@ namespace zee {
 
 			case (int)obj_type::monster_wave: {
 				//웨이브
-				const float frame_wave = 3.0f;
+				constexpr float frame_wave = 0.3f;
 				set_delay_shoot(get_delay_shoot() + delta_time);
 				if (get_delay_shoot() >= frame_wave) {
-					float circle_angle = 0;
-					int bullent_circle_cnt = 25;
 
-					for (int i = 0; i != bullent_circle_cnt; i++) {
+					set_wave_angle_numer(get_wave_angle_numer() + 1.0f);
 
-						circle_angle += math::pi() * 2 / (float)bullent_circle_cnt;
+					set_wave_angle(
+						(get_wave_angle_numer() == 0) ?
+						get_wave_angle() :
+						get_wave_angle() + math::pi() * 2 / get_wave_angle_numer()
+					);
 
-						for (auto& bullet_obj : get_bullets()) {
-							if (bullet_obj->get_state() == (int)obj_state::die) {
-								bullet_obj->spawn_from(get_obj_type(), get_body());
-								bullet_obj->set_circle_angle(circle_angle);
-								break;
-							}
+					for (auto& bullet_obj : get_bullets()) {
+						if (bullet_obj->get_state() == (int)obj_state::die) {
+							bullet_obj->spawn_from(get_obj_type(), get_body());
+							bullet_obj->set_circle_angle(get_wave_angle());
+							break;
 						}
 					}
+					set_wave_angle((float)math::fmod(get_wave_angle(), 20.0f));
+					set_wave_angle_numer((float)math::fmod(get_wave_angle(), 20.0f));
+
+
 				}
 				set_delay_shoot((float)math::fmod(get_delay_shoot(), frame_wave));
 				break;
@@ -261,6 +268,9 @@ namespace zee {
 			//히트
 			unit::hit_from(other, delta_time);
 			other_player->add_score(get_my_score());
+		}
+		else {
+			assert(false);
 		}
 	}
 
@@ -295,7 +305,7 @@ namespace zee {
 					//회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
 					math::vec2i src_pos;
 					src_pos.x = 
-						(get_size().x + get_size().x / 2) * static_cast<int>(get_homing_degree());
+						(get_size().x + get_size().x / 2) * decltype(src_pos.x)(get_homing_degree());
 
 					frame_image::get().render_plg_transparent(
 						dest_dc,
@@ -323,14 +333,17 @@ namespace zee {
 	const math::vec2f& monster::get_vec_for_player() const {
 		return vec_for_player_;
 	}
-	const float monster::get_homing_angle() const {
+	float monster::get_homing_angle() const {
 		return homing_angle_;
 	}
-	const float monster::get_homing_degree() const {
+	float monster::get_homing_degree() const {
 		return homing_degree_;
 	}
-	const float monster::get_delay_destroy() const {
-		return delay_destroy_;
+	float monster::get_wave_angle() const {
+		return wave_angle_;
+	}
+	float monster::get_wave_angle_numer() const {
+		return wave_angle_numer_;
 	}
 
 	void monster::set_arrival_vec(const math::vec2f& vec) {
@@ -345,8 +358,11 @@ namespace zee {
 	void monster::set_homing_degree(const float degree) {
 		homing_degree_ = degree;
 	}
-	void monster::set_delay_destroy(const float delay) {
-		delay_destroy_ = delay;
+	void monster::set_wave_angle(const float angle) {
+		wave_angle_ = angle;
+	}
+	void monster::set_wave_angle_numer(const float angle) {
+		wave_angle_numer_ = angle;
 	}
 	void monster::set_delay(const float delay) {
 		delay_shoot_ = delay;

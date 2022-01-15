@@ -19,16 +19,21 @@ namespace zee {
 		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
 
 
-		const float get_delay_shoot() const;
 		const std::vector<std::shared_ptr<bullet>> get_bullets() const;
+		float get_delay_shoot() const;
+		float get_delay_destroy() const;
+		float get_speed() const;
 
 		virtual void set_delay(const float delay);
 		void set_delay_shoot(const float delay);
+		void set_delay_destroy(const float delay);
+		void set_speed(const float speed);
 
 
 	protected:
 		float delay_shoot_;
 		float delay_destroy_;
+		float speed_;
 
 		std::vector<std::shared_ptr<bullet>> bullets_;
 	};

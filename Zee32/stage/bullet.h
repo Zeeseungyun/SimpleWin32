@@ -3,24 +3,25 @@
 #include "projectile.h"
 
 namespace zee {
-	class bullet : public projectile {
+	//Final specifier
+	class bullet final : public projectile {
 	public:
 		bullet() noexcept = default;
 		virtual ~bullet() noexcept = default;
 
 		virtual void load_image();
 
-		virtual void init() override;
-		virtual void spawn_from(const int obj_type, const shape::circlef& obj_body) override;
-		virtual void move(const float delta_time) override;
-		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) override;
+		virtual void init() final;
+		virtual void spawn_from(const int obj_type, const shape::circlef& obj_body) final;
+		virtual void move(const float delta_time) final;
+		virtual void hit_from(const std::shared_ptr<unit> other, const float delta_time) final;
 
-		virtual void render(win32gdi::device_context_dynamic& dest_dc) override;
+		virtual void render(win32gdi::device_context_dynamic& dest_dc) final;
 
-		const int get_subj_type() const;
-		const float get_homing_angle() const;
-		const float get_homing_degree() const;
-		const float get_circle_angle() const;
+		int get_subj_type() const;
+		float get_homing_angle() const;
+		float get_homing_degree() const;
+		float get_circle_angle() const;
 		const math::vec2f& get_vec_for_player() const;
 
 		void set_subj_type(const int& obj);
