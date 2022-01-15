@@ -27,11 +27,13 @@ namespace zee {
 		const math::vec2f& get_arrival_vec() const;
 		const math::vec2f& get_vec_for_player() const;
 		const float get_homing_angle() const;
+		const float get_homing_degree() const;
 		const float get_delay_destroy() const;
 
 		void set_arrival_vec(const math::vec2f& vec);
 		void set_vec_for_player(const math::vec2f& v);
 		void set_homing_angle(const float angle);
+		void set_homing_degree(const float degree);
 		void set_delay_destroy(const float delay);
 		virtual	void set_delay(const float delay) override;
 
@@ -65,5 +67,6 @@ namespace zee {
 		math::vec2f arrival_vec_;
 		math::vec2f vec_for_player_;
 		float homing_angle_;
+		float homing_degree_;
 	};
 }

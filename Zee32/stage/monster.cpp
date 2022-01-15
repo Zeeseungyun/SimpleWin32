@@ -11,10 +11,33 @@ namespace zee {
 			, TEXT("assets/monster_circle.bmp"), (int)obj_type::monster_circle);
 		frame_image::get().load_frame_image(coords_[monster_homing_size]
 			, TEXT("assets/monster_homing.bmp"), (int)obj_type::monster_homing);
-		frame_image::get().load_frame_image(coords_[monster_arround_size]
-			, TEXT("assets/monster_arround.bmp"), (int)obj_type::monster_arround);
 		frame_image::get().load_frame_image(coords_[monster_wave_size]
 			, TEXT("assets/monster_wave.bmp"), (int)obj_type::monster_wave);
+
+
+
+		//회전
+		frame_image::get().load_plg_image(coords_[monster_arround_size]
+			, TEXT("assets/monster_arround.bmp"), (int)obj_type::monster_arround);
+
+
+		//회전: 모든 각도의 이미지 미리 찍기
+		for (float degree = 0.0f; degree != 360; degree++) {
+			//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+			math::vec2f point;
+			point.x =
+				degree < 1.0f ?
+				coords_[monster_arround_size].x / 2 :
+				coords_[monster_arround_size].x / 2 + degree * (coords_[monster_arround_size].x + math::abs(coords_[monster_arround_size].y - coords_[monster_arround_size].x) * 2);
+
+			point.y = coords_[monster_arround_size].y / 2;
+
+			frame_image::get().render_plg(
+				point,
+				math::deg_to_rad(degree),
+				(int)obj_type::monster_arround
+			);
+		}
 	}
 
 	void monster::init() {
@@ -35,7 +58,7 @@ namespace zee {
 		set_my_score(1);
 		set_delay(0.0f);
 
-		int random_shoot_type = rand(1, 5);	//monster_num
+		int random_shoot_type = rand(3, 4);	//monster_num
 		switch (random_shoot_type)
 		{
 		case 1: set_obj_type((int)obj_type::monster_straight);
@@ -51,7 +74,7 @@ namespace zee {
 		}
 
 		//테스트	--------------------------------------------------------
-		//set_obj_type((int)obj_type::monster_arround);
+		//set_obj_type((int)obj_type::monster_homing);
 
 
 		switch (get_obj_type())
@@ -108,6 +131,10 @@ namespace zee {
 					//회전각
 					if (get_obj_type() == (int)obj_type::monster_arround) {
 						set_homing_angle(math::atan2(get_vec_for_player().x, get_vec_for_player().y));
+						set_homing_degree(rad_to_deg(get_homing_angle()));
+						if (get_homing_degree() < 0) {
+							set_homing_degree(get_homing_degree() + 360);
+						}
 					}
 					//이동
 					speed = 200.0f;
@@ -123,6 +150,7 @@ namespace zee {
 					speed = 250.0f;
 					set_now_pos_and_body({ get_now_pos().x, get_now_pos().y + delta_time * speed });
 					set_homing_angle(0.0f);
+					set_homing_degree(0.0f);
 				}
 				break;
 			}
@@ -222,7 +250,6 @@ namespace zee {
 			}//switch
 
 
-
 			plane::shoot(delta_time);
 		}
 	}
@@ -245,24 +272,8 @@ namespace zee {
 	
 
 	void monster::render(win32gdi::device_context_dynamic& dest_dc) {
-
-
-		//임시임시 테스트중
-		//몬스터 plg
-		static bool first = 1;
-		if (first) {
-			float angle = 0;
-			for (int i = 16; i != 375; i++) {
-				frame_image::get().load_plg_image(coords_[monster_arround_size]
-					, TEXT("assets/monster_arround.bmp"), i);
-				frame_image::get().render_plg(dest_dc, body_.origin, angle++, i);
-			}
-		}
-		first = 0;
-
-
-
-		if (in_screen() && get_state() == (int)obj_state::idle) {
+		if (in_screen() 
+			&& get_state() == (int)obj_state::idle) {
 
 			//몸체
 			if (get_state() != (int)obj_state::die) {
@@ -281,14 +292,16 @@ namespace zee {
 					break;
 				}
 				case (int)obj_type::monster_arround: {
-					//임시임시 테스트중
-					const float angle = (get_homing_angle() > 0 ? get_homing_angle() : (2 * math::pi() + get_homing_angle())) * 360 / (2 * math::pi());
-					//const int angle = (get_homing_angle() * 180 / math::pi()); + (get_homing_angle() > 0 ? 0 : 360);
+					//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+					math::vec2i src_pos;
+					src_pos.x = 
+						(get_size().x + math::abs(get_size().y - get_size().x) * 2) * static_cast<int>(get_homing_degree());
+
 					frame_image::get().render_plg_transparent(
 						dest_dc,
 						get_now_pos(),
-						get_frame_x() + get_frame_y(),
-						get_obj_type() + 66
+						src_pos,
+						get_obj_type()
 					);
 					break;
 				}//case
@@ -313,6 +326,9 @@ namespace zee {
 	const float monster::get_homing_angle() const {
 		return homing_angle_;
 	}
+	const float monster::get_homing_degree() const {
+		return homing_degree_;
+	}
 	const float monster::get_delay_destroy() const {
 		return delay_destroy_;
 	}
@@ -325,6 +341,9 @@ namespace zee {
 	}
 	void monster::set_homing_angle(const float angle) {
 		homing_angle_ = angle;
+	}
+	void monster::set_homing_degree(const float degree) {
+		homing_degree_ = degree;
 	}
 	void monster::set_delay_destroy(const float delay) {
 		delay_destroy_ = delay;

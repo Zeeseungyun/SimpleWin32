@@ -444,7 +444,7 @@ namespace zee {
 
 	void stage::render(win32gdi::device_context_base& dest_dc, const float g_fps) {
 		if (back_buffer_.is_valid()) {
-
+			
 			//배경
 			switch (background_type) {
 			case loop:
@@ -500,12 +500,14 @@ namespace zee {
 		for (auto& player_obj : get_players()) {
 			player_obj->render(back_buffer_);
 		}
-
+		
+		get_monsters()[0]->render(back_buffer_);
+		
 		//몬스터
 		for (auto& mon_obj : get_monsters()) {
 			mon_obj->render(back_buffer_);
 		}
-
+		
 		//아이템 렌더
 		for (auto& item_obj : get_items()) {
 			item_obj->render(back_buffer_);
@@ -533,7 +535,7 @@ namespace zee {
 		back_buffer_.print_text({ 850, 820 }, TEXT("충돌범위:    Tab"));
 		back_buffer_.print_text({ 850, 840 }, TEXT("리스폰:        R"));
 
-
+		
 		//한 번에 그리기
 		back_buffer_.bit_blt(dest_dc, {});
 	}

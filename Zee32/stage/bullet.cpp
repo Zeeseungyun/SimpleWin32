@@ -10,12 +10,34 @@ namespace zee {
 			, TEXT("assets/monster_bullet_straight.bmp"), (int)obj_type::monster_bullet_straight);
 		frame_image::get().load_frame_image(coords_[monster_bullet_circle_size]
 			, TEXT("assets/monster_bullet_circle.bmp"), (int)obj_type::monster_bullet_circle);
-		frame_image::get().load_frame_image(coords_[monster_bullet_homing_size]
-			, TEXT("assets/monster_bullet_homing.bmp"), (int)obj_type::monster_bullet_homing);
 		frame_image::get().load_frame_image(coords_[monster_bullet_arround_size]
 			, TEXT("assets/monster_bullet_arround.bmp"), (int)obj_type::monster_bullet_arround);
 		frame_image::get().load_frame_image(coords_[monster_bullet_wave_size]
 			, TEXT("assets/monster_bullet_wave.bmp"), (int)obj_type::monster_bullet_wave);
+
+
+
+		//회전
+		frame_image::get().load_plg_image(coords_[monster_bullet_homing_size]
+			, TEXT("assets/monster_bullet_homing.bmp"), (int)obj_type::monster_bullet_homing);
+
+		//회전: 모든 각도의 이미지 미리 찍기
+		for (float degree = 0.0f; degree != 360; degree++) {
+			//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+			math::vec2f point;
+			point.x =
+				degree < 1.0f ?
+				coords_[monster_bullet_homing_size].x / 2 :
+				coords_[monster_bullet_homing_size].x / 2 + degree * (coords_[monster_bullet_homing_size].x + math::abs(coords_[monster_bullet_homing_size].y - coords_[monster_bullet_homing_size].x) * 2);
+
+			point.y = coords_[monster_bullet_homing_size].y / 2;
+
+			frame_image::get().render_plg(
+				point,
+				math::deg_to_rad(degree),
+				(int)obj_type::monster_bullet_homing
+			);
+		}
 	}
 
 	void bullet::init() {
@@ -126,9 +148,15 @@ namespace zee {
 			speed = 150.0f;
 			//유도탄 회전각
 			set_homing_angle(math::atan2(get_vec_for_player().x, get_vec_for_player().y));
+			//회전각
+			set_homing_degree(rad_to_deg(get_homing_angle()));
+			if (get_homing_degree() < 0) {
+				set_homing_degree(get_homing_degree() + 360);
+			}
 			//이동
 			//stage tick 에서 얻은 vec_for_player_
 			set_now_pos_and_body(get_now_pos() + get_vec_for_player() * delta_time * speed);
+
 			//아래 행렬 이동->곱과 같음
 			/*matrix m;
 			m.translation(vec_for_player_.x * delta_time * speed, vec_for_player_.y * delta_time * speed);
@@ -163,13 +191,13 @@ namespace zee {
 		if (in_screen() && get_state() == (int)obj_state::idle) {
 			//frame_image::get().render_destdc_to_backbuffer(dest_dc);
 
-			switch (get_subj_type())
+			switch (get_obj_type())
 			{
-			case (int)obj_type::player_straight:
-			case (int)obj_type::monster_straight:
-			case (int)obj_type::monster_circle:
-			case (int)obj_type::monster_arround:
-			case (int)obj_type::monster_wave: {
+			case (int)obj_type::player_bullet_straight:
+			case (int)obj_type::monster_bullet_straight:
+			case (int)obj_type::monster_bullet_circle:
+			case (int)obj_type::monster_bullet_arround:
+			case (int)obj_type::monster_bullet_wave: {
 				frame_image::get().render_transparent(
 					dest_dc,
 					get_now_pos(),
@@ -179,15 +207,20 @@ namespace zee {
 				break;
 			}
 
-			case (int)obj_type::monster_homing: {
+			case (int)obj_type::monster_bullet_homing: {
 				//유도탄
-				frame_image::get().render_plg(
+				//(math::abs(size_.y - size_.x) * 2)는 회전할 때 src_pos 밖의 이미지가 자꾸 침범해서 간격을 만듦
+				math::vec2i src_pos;
+				src_pos.x =
+					(get_size().x + math::abs(get_size().y - get_size().x) * 2) * static_cast<int>(get_homing_degree());
+				
+				frame_image::get().render_plg_transparent(
 					dest_dc,
-					get_body().origin,
-					get_homing_angle(),
+					get_now_pos(),
+					src_pos,
 					get_obj_type()
 				);
-				break;
+
 			}//case
 
 			}//switch
@@ -204,6 +237,9 @@ namespace zee {
 	const float bullet::get_homing_angle() const {
 		return homing_angle_;
 	}
+	const float bullet::get_homing_degree() const {
+		return homing_degree_;
+	}
 	const float bullet::get_circle_angle() const {
 		return circle_angle_;
 	}
@@ -216,6 +252,9 @@ namespace zee {
 	}
 	void bullet::set_homing_angle(const float angle) {
 		homing_angle_ = angle;
+	}
+	void bullet::set_homing_degree(const float degree) {
+		homing_degree_ = degree;
 	}
 	void bullet::set_circle_angle(const float angle) {
 		circle_angle_ = angle;
