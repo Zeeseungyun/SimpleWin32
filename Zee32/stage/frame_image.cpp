@@ -75,8 +75,8 @@ namespace zee {
 			back_buffers2_[index].clear();
 			back_buffers2_[index].create_empty_image(frame_sizes_[index]);
 
-			//또 다른 백버퍼
-			back_buffers_[index].transparent_blt(back_buffers2_[index], {}, frame_sizes_[index], src_pos, frame_sizes_[index], RGB(255, 255, 255));
+			//검정 배경색 없애려고 또 다른 백버퍼를 호출했다.
+			back_buffers_[index].transparent_blt(dest_dc, dest_pos, frame_sizes_[index], src_pos, frame_sizes_[index], RGB(255, 255, 255));
 			back_buffers2_[index].transparent_blt(dest_dc, dest_pos, RGB(0, 0, 0));
 		}
 	}
