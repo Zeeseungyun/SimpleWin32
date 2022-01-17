@@ -58,7 +58,6 @@ namespace zee {
 			if (get_now_pos().x > -10.0f) {
 				velocity -= vec2f::constants::unit_x * delta_time * get_speed();
 			}
-
 		}
 		
 		if (key_state::is_down(keys::arrow_down) || key_state::is_down(keys::S)) {

@@ -221,8 +221,8 @@ namespace zee {
 				if (shape::intersect(
 					get_players()[0]->get_body()
 					, item_obj->get_body())
-					!= shape::collide_type::none) 
-				{
+					!= shape::collide_type::none) {
+
 					item_obj->hit_from(get_players()[0], delta_time);
 				}
 			}
@@ -250,8 +250,8 @@ namespace zee {
 		for (auto& mon_obj : get_monsters()) {
 			//먼저, 적 어라운드 타입이라면 플레이어 추적 위치 설정
 			if (mon_obj->get_obj_type()
-				== (int)obj_type::monster_arround)
-			{
+				== (int)obj_type::monster_arround) {
+
 				//플레이어와의 방향 벡터
 				math::vec2f v_mon_for_player{
 					get_players()[0]->get_body().origin - mon_obj->get_body().origin
@@ -271,8 +271,7 @@ namespace zee {
 			if (shape::intersect(
 				mon_obj->get_body(),
 				get_players()[0]->get_body())
-				!= shape::collide_type::none)
-			{
+				!= shape::collide_type::none) {
 				//이펙트: 피격 판정 전에 먼저 위치 기록
 				for (auto& effect_obj : get_effects()) {
 					if (effect_obj->get_state() == (int)obj_state::die) {
@@ -292,8 +291,8 @@ namespace zee {
 				//적 호밍 뷸렛(유도탄) 타입
 				//호밍 뷸렛이 플레이어를 추적
 				if (bullet_monster_obj->get_obj_type()
-					== (int)obj_type::monster_bullet_homing)
-				{
+					== (int)obj_type::monster_bullet_homing) {
+
 					//플레이어와의 방향 벡터: normalize를 여기서 해줘야 함
 					math::vec2f v_bullet_for_player{
 						get_players()[0]->get_body().origin - bullet_monster_obj->get_body().origin
@@ -306,13 +305,12 @@ namespace zee {
 				//충돌: 호밍 뷸렛 vs 플레이어 뷸렛
 				if (bullet_monster_obj->get_obj_type() == (int)obj_type::monster_bullet_homing) {
 
-					for (auto& bullet_player_obj : get_players()[0]->get_bullets())
-					{
+					for (auto& bullet_player_obj : get_players()[0]->get_bullets()) {
 						if (shape::intersect(
 							bullet_player_obj->get_body(),
 							bullet_monster_obj->get_body())
-							!= shape::collide_type::none)
-						{
+							!= shape::collide_type::none) {
+
  							//이펙트: 피격 판정 전에 먼저 위치 기록
  							for (auto& effect_obj : get_effects()) {
 								if (effect_obj->get_state() == (int)obj_state::die) {
@@ -336,8 +334,8 @@ namespace zee {
 				if (shape::intersect(
 					get_players()[0]->get_body(),
 					bullet_monster_obj->get_body())
-					!= shape::collide_type::none)
-				{
+					!= shape::collide_type::none) {
+
 					//이펙트: 피격 판정 전에 먼저 위치 기록
 					for (auto& effect_obj : get_effects()) {
 						if (effect_obj->get_state() == (int)obj_state::die) {
@@ -366,8 +364,8 @@ namespace zee {
 				if (shape::intersect(
 					mon_obj->get_body(),
 					bullet_player_obj->get_body())
-					!= shape::collide_type::none)
-				{
+					!= shape::collide_type::none) {
+
 					//이펙트: 피격 판정 전에 먼저 위치 기록
 					for (auto& effect_obj : get_effects()) {
 						if (effect_obj->get_state() == (int)obj_state::die) {
@@ -451,8 +449,8 @@ namespace zee {
 			switch (background_type) {
 			[[likely]] case loop:
 				//배경 루프 이미지
-				switch (background_direction)
-				{
+				switch (background_direction) {
+
 				[[likely]] case (int)background_dir::up:
 					background_image::get().render(back_buffer_, -get_background_src_pos());
 					background_image::get().render(

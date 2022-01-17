@@ -172,8 +172,7 @@ namespace zee {
 	void monster::shoot(const float delta_time) {
 		if (in_screen()
 			&& get_state() == (int)obj_state::idle) {
-			switch (get_obj_type())
-			{
+			switch (get_obj_type()) {
 
 			case (int)obj_type::monster_straight: {
 				//Á÷¼±Åº
@@ -287,8 +286,7 @@ namespace zee {
 
 			//¸öÃ¼
 			if (get_state() != (int)obj_state::die) {
-				switch (get_obj_type())
-				{
+				switch (get_obj_type()) {
 				case (int)obj_type::monster_straight:
 				case (int)obj_type::monster_circle:
 				case (int)obj_type::monster_homing:
