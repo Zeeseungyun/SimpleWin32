@@ -103,8 +103,8 @@ namespace zee {
 		const std::vector<std::shared_ptr<monster>> get_monsters() const;
 		const std::vector<std::shared_ptr<effect>> get_effects() const;
 		const std::vector<std::shared_ptr<item>> get_items() const;
-
 		const float get_game_time() const;
+
 		void set_background_src_pos(const math::vec2f& src_pos);
 		void set_background_src_pos_x(const float x);
 		void set_background_src_pos_y(const float y);

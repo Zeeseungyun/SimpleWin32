@@ -2,6 +2,7 @@
 #include "monster.h"
 #include <iostream>
 
+/*
 int main() {
 	player p;
 	monster m;
@@ -10,4 +11,4 @@ int main() {
 		<<
 	
 	m.get_a();
-}
+}*/

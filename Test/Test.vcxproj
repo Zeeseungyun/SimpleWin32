@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="monster.cpp" />
     <ClCompile Include="new_main.cpp" />
     <ClCompile Include="player.cpp" />

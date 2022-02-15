@@ -5,7 +5,7 @@
 #include "../win32helper/win32helper.h"
 #include "../win32gdi/device_context.h"
 #include "../stat/simple_stat.h"
-#include <shape/intersect.h>
+#include "../../ZeeCore/public/shape/intersect.h"
 #include "../stage/stage.h"
 
 using namespace zee;
@@ -61,7 +61,7 @@ application& application::get() noexcept {
 }
 
 float g_fps = 0.0f;
-static math::vec2i mouse_position = { 0, 0 };
+static math::vec2i mouse{ 2000, 2000 };
 
 std::shared_ptr<stage> stage_;
 
@@ -260,9 +260,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	case WM_LBUTTONDOWN:
 	{
-		mouse_position.x = (int32)(short)LOWORD(lParam);
-		mouse_position.y = (int32)(short)HIWORD(lParam);
+		mouse.x = (int32)(short)LOWORD(lParam);
+		mouse.y = (int32)(short)HIWORD(lParam);
 
+		//InvalidateRect(hWnd, nullptr, false);
 		return 0;
 	}
 
@@ -273,9 +274,75 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 	{
 		win32gdi::device_context_auto temp_dc(hWnd, win32gdi::device_context_auto_type::paint);
+		int a = 5;
+		/*
+		win32gdi::device_context_dynamic temp_back_dc;
+		temp_back_dc.clear();
+		temp_back_dc.create_empty_image({ 1200, 1200 });
+		shape::rectf rect_empty_white(-10,-10,1200,1200);
+		temp_back_dc.rectangle(rect_empty_white);
+
+
+		math::vec2f line_begin(100, 200);
+		math::vec2f line_end(150, 200);
+		temp_back_dc.move_to(line_begin);
+		temp_back_dc.line_to(line_end);
+		shape::rectf rect_small(200, 200, 240, 240);
+		shape::rectf rect_big(300, 200, 450, 350);
+		math::vec2f cir_origin_small(600, 250);
+		shape::circlef circle_small(cir_origin_small, 40);
+		math::vec2f cir_origin_big(800, 250);
+		shape::circlef circle_big(cir_origin_big, 100);
+		shape::circlef mouse_cir(mouse, 50);
+		temp_back_dc.rectangle(rect_small);
+		temp_back_dc.rectangle(rect_big);
+		temp_back_dc.circle(circle_small);
+		temp_back_dc.circle(circle_big);
+		temp_back_dc.circle(mouse_cir);
+
+
+		math::vec2f text_pos(400, 100);
+		if (shape::intersect(rect_big, mouse_cir) == shape::collide_type::intersect) {
+			temp_back_dc.print_text(text_pos, TEXT("사각형과 원 충돌! "));
+		}
+		else if (shape::intersect(rect_big, mouse_cir) == shape::collide_type::contain) {
+			temp_back_dc.print_text(text_pos, TEXT("사각형이 원을 포함!  "));
+		}
+		else if (shape::intersect(mouse_cir, rect_small) == shape::collide_type::intersect) {
+			temp_back_dc.print_text(text_pos, TEXT("원과 사각형 충돌! "));
+		}
+		else if (shape::intersect(mouse_cir, rect_small) == shape::collide_type::contain) {
+			temp_back_dc.print_text(text_pos, TEXT("원이 사각형을 포함!  "));
+		}
+		else if (shape::intersect(circle_big, mouse_cir) == shape::collide_type::intersect) {
+			temp_back_dc.print_text(text_pos, TEXT("큰 원과 원 충돌!         "));
+		}
+		else if (shape::intersect(circle_big, mouse_cir) == shape::collide_type::contain) {
+			temp_back_dc.print_text(text_pos, TEXT("큰 원이 원을 포함!         "));
+		}
+		else if (shape::intersect(mouse_cir, circle_small) == shape::collide_type::intersect) {
+			temp_back_dc.print_text(text_pos, TEXT("원과 작은 원 충돌!         "));
+		}
+		else if (shape::intersect(mouse_cir, circle_small) == shape::collide_type::contain) {
+			temp_back_dc.print_text(text_pos, TEXT("원이 작은 원을 포함!         "));
+		}
+		else if (shape::intersect(mouse_cir, line_begin, line_end) == shape::collide_type::intersect) {
+			temp_back_dc.print_text(text_pos, TEXT("선과 원 충돌!         "));
+		}
+		else if (shape::intersect(mouse_cir, line_begin, line_end) == shape::collide_type::contain) {
+			temp_back_dc.print_text(text_pos, TEXT("원이 선을 포함!         "));
+		}
+		else {
+			temp_back_dc.print_text(text_pos, TEXT("                                "));
+		}
+
+		temp_back_dc.bit_blt(temp_dc, {});
+		*/
+		
 		if (stage_) {
 			stage_->render(temp_dc, g_fps);
 		}
+		
 		return 0;
 	}//WM_PAINT
 	}//switch(iMessage)

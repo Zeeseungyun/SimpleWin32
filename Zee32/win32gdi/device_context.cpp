@@ -286,12 +286,12 @@ namespace zee {
 		}
 
 		void device_context_base::move_to(const math::vec2i& dot) noexcept {
-			assert(handle_dc());
+			//assert(handle_dc());
 			MoveToEx(handle_dc<HDC>(), (int)dot.x, (int)dot.y, NULL);
 		}
 
 		void device_context_base::line_to(const math::vec2i& line) noexcept {
-			assert(handle_dc());
+			//assert(handle_dc());
 			LineTo(handle_dc<HDC>(), (int)line.x, (int)line.y);
 		}
 

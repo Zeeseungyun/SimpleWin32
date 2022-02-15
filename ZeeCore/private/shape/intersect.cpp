@@ -11,6 +11,7 @@ namespace shape {
 			return shape::collide_type::intersect;
 		}
 		return shape::collide_type::none;
+		//수정 필요. 먼저 직선의 방정식 성립하거나, AC벡터 x BC벡터가 영벡터여야 함
 	}
 	//점 vs 사각형
 	const shape::collide_type intersect(const shape::rectf& rect, const math::vec2f& pt) noexcept {
@@ -51,7 +52,7 @@ namespace shape {
 
 		//두 선분이 한 직선 위에 있거나, 끝점이 겹치는 경우
 		if (begin1.ccw(begin2) * begin1.ccw(end2) == 0 && begin2.ccw(begin1) * begin2.ccw(end1) == 0) {
-			//공식 참고. 원리 이해는 못함
+			//공식 참고.
 			if (comparator(end1, begin1)) {
 				swap(begin1, end1);
 			}
