@@ -5,7 +5,7 @@
 #include "math/math.h"
 #include "math/to_string.h"
 #include <iostream>
-using namespace zee;
+using namespace yjj;
 
 //충돌
 //cf) contain: 왼쪽 값이 오른쪽 값을 포함할 경우
@@ -304,21 +304,21 @@ const shape::collide_type intersect(const shape::circlef& circle, const shape::r
 int main() {
 	std::cout << std::boolalpha;
 	/*
-	constexpr zee::math::vec2f v = { 10, 10 };
-	constexpr zee::math::impl::vec_impl<2, float> v_parent = { 10, 10 };
+	constexpr yjj::math::vec2f v = { 10, 10 };
+	constexpr yjj::math::impl::vec_impl<2, float> v_parent = { 10, 10 };
 
-	constexpr zee::shape::recti rt = { 1,2,3,4 };
-	constexpr zee::shape::circlei cc = { v, 4.0f };
+	constexpr yjj::shape::recti rt = { 1,2,3,4 };
+	constexpr yjj::shape::circlei cc = { v, 4.0f };
 	std::cout << to_string(cc) << std::endl;
 
-	constexpr zee::shape::impl::basic_rect_impl<float> rt2 = { 10, 10, 0 , 0 };
+	constexpr yjj::shape::impl::basic_rect_impl<float> rt2 = { 10, 10, 0 , 0 };
 	constexpr auto dd1  = rt.intersect_rect_area_with_normalize(rt2);
 	constexpr auto dd2  = dd1 == rt;
 	constexpr auto dd3  = rt + v;
 	constexpr auto temp2 = v == v;
-	//zee::shape::circlef cc = { zee::math::vec2i(0,1), 10.0f };
-	zee::math::vec2 temp = { 1,2 };
-	std::cout << zee::rand(100) << std::endl;
+	//yjj::shape::circlef cc = { yjj::math::vec2i(0,1), 10.0f };
+	yjj::math::vec2 temp = { 1,2 };
+	std::cout << yjj::rand(100) << std::endl;
 	std::cout << to_string(temp) << std::endl;
 	//std::cout << to_string(rt) << std::endl;
 	//std::wcout << to_tstring(cc) << std::endl;
@@ -471,15 +471,15 @@ void intersectPlaneSphere(const Vec3& center, float radius, const Plane& plane, 
 void intersectPlaneCorners(const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5, const Vec3& p6, const Vec3& p7, const Plane& plane, bool& outSide, bool& inSide);
 void intersectPlaneCorners(const Vec3(&corners)[8], const Plane& plane, bool& outSide, bool& inSide);
 
-void intersectPlaneObb(const Zee::BoundingOrientedBox& obb, const Plane& plane, bool& outSide, bool& inSide);
-void intersectPlaneObb(const Zee::BoundingOrientedBox& obb, const Vec3& axisX, const Vec3& axisY, const Vec3& axisZ, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneObb(const Yjj::BoundingOrientedBox& obb, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneObb(const Yjj::BoundingOrientedBox& obb, const Vec3& axisX, const Vec3& axisY, const Vec3& axisZ, const Plane& plane, bool& outSide, bool& inSide);
 void intersectPlaneObb(const Vec3& center, const Vec3& extents, const Vec3& axisX, const Vec3& axisY, const Vec3& axisZ, const Plane& plane, bool& outSide, bool& inSide);
 
-void intersectPlaneAabb(const Zee::BoundingBox& aabb, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneAabb(const Yjj::BoundingBox& aabb, const Plane& plane, bool& outSide, bool& inSide);
 void intersectPlaneAabb(const Vec3& center, const Vec3& extents, const Plane& plane, bool& outSide, bool& inSide);
 
 void intersectPlaneCorners(const Corners& Corners, const Plane& plane, bool& outSide, bool& inSide);
 
-void intersectPlaneCapsule(const Zee::BoundingCapsule& capsule, const Plane& plane, bool& outSide, bool& inSide);
-void intersectPlaneCapsule(const Zee::BoundingCapsule& capsule, const Vec3& bot, const Vec3& top, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneCapsule(const Yjj::BoundingCapsule& capsule, const Plane& plane, bool& outSide, bool& inSide);
+void intersectPlaneCapsule(const Yjj::BoundingCapsule& capsule, const Vec3& bot, const Vec3& top, const Plane& plane, bool& outSide, bool& inSide);
 */

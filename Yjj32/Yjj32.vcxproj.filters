@@ -1,0 +1,250 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="win32gdi\color.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="win32gdi\device_context.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="win32gdi\image.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="win32helper\windows_with_macro.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="win32helper\win32helper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="application\application.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="application\application_delegates.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="application\tick_manager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stat\simple_stat.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="application\key_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="world\world.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="world\toy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\stage.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\frame_image.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\background_image.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\unit.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\monster.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\bullet.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\effect.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\item.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\plane.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\projectile.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stage\game_var.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="sound\sound.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="win32gdi\device_context.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="win32gdi\image.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="win32helper\win32helper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="application\application.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="application\application_delegates.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="application\output_debug.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="application\tick_manager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="application\key_state.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="world\world.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="world\toy.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\frame_image.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\background_image.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\stage.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\unit.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\monster.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\bullet.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\effect.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\item.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\plane.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\projectile.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stage\game_var.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="sound\sound.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Zee32.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\walk.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\game_background_stop.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\game_background_loop_horizon.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\game_background_loop_vertical.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\player.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\bomb.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_follow.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_circle.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_1.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_2.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_3.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\unit_bullet.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_4.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_5.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_arround.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_homing.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_straight.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_bullet_wave.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_circle.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_homing.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_arround.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_straight.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\monster_wave.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="assets\item_score.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

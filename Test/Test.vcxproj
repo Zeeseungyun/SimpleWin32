@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\ZeeCore\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\YjjCore\public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\ZeeCore\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\YjjCore\public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\ZeeCore\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\YjjCore\public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\ZeeCore\public;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\YjjCore\public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,7 +150,7 @@
     <ClCompile Include="unit.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ZeeCore\ZeeCore.vcxproj">
+    <ProjectReference Include="..\YjjCore\YjjCore.vcxproj">
       <Project>{478bde6e-8546-4369-aad5-1dff0d6904d8}</Project>
     </ProjectReference>
   </ItemGroup>
